@@ -4,14 +4,46 @@
    con UN SOLO file (data/articles.json) che contiene TUTTI gli articoli
    in un campo "list" — per Decap è una sola entry, quindi questa anteprima
    riceve l'intero elenco, non il singolo articolo aperto nel form. Mostra
-   tutti gli articoli in sequenza, con lo stesso markup/CSS del sito
-   (vedi renderArticleLayout/renderArticleHeader/renderContentBlocks in
-   js/main.js, di cui questo file è un porting manuale: l'anteprima non
-   può richiamare quelle funzioni perché lavorano su JSON già fetchato,
-   mentre qui i dati sono l'oggetto Immutable "in bozza" dell'editor). */
+   tutti gli articoli in sequenza, con lo stesso markup/CSS del sito.
+
+   Step C della migrazione a markdown: "content" ora è una stringa
+   markdown (non più un array di blocchi h2/h3/p/image), esattamente come
+   in data/articles.json dopo lo Step B. Il parser è marked.js: deve
+   essere caricato in admin/index.html PRIMA di questo file (la preview
+   gira nel contesto della pagina admin, non dentro l'iframe — solo il CSS
+   ci arriva via registerPreviewStyle, il JS no, va caricato qui). Il
+   renderer personalizzato qui sotto è lo stesso identico di
+   renderArticleLayout/renderMarkdownBody in js/main.js — duplicato di
+   proposito: l'anteprima lavora sui dati "in bozza" dell'editor (oggetti
+   Immutable), il sito sui dati fetchati, i due contesti non possono
+   condividere codice senza un build step. Se cambi il renderer in un
+   punto, cambialo anche nell'altro. */
 
 CMS.registerPreviewStyle("/css/style.css");
 CMS.registerPreviewStyle("/admin/preview.css");
+
+if (typeof marked !== "undefined") {
+  marked.use({
+    renderer: {
+      heading({ tokens, depth }) {
+        const text = this.parser.parseInline(tokens);
+        const tag = depth <= 2 ? "h2" : "h3";
+        const cls = depth <= 2 ? "article-heading" : "article-subheading";
+        return `<${tag} class="${cls}">${text}</${tag}>`;
+      },
+      image({ href, title, text }) {
+        const caption = title ? `<figcaption>${title}</figcaption>` : "";
+        return `<figure class="article-inline-image"><img src="${href}" alt="${text || ""}" loading="lazy">${caption}</figure>`;
+      },
+      paragraph({ tokens }) {
+        if (tokens.length === 1 && tokens[0].type === "image") {
+          return this.image(tokens[0]);
+        }
+        return `<p>${this.parser.parseInline(tokens)}</p>`;
+      },
+    },
+  });
+}
 
 var CATEGORY_NAMES = {
   recensioni: "Recensioni",
@@ -50,42 +82,12 @@ var ArticoliPreview = createClass({
     return h("img", { src: asset ? asset.toString() : "", alt: alt || "" });
   },
 
-  renderContentBlock: function (block, i) {
-    var type = block.get("type");
-    var text = block.get("text");
-
-    if (type === "h2") return h("h2", { key: i, className: "article-heading" }, text);
-    if (type === "h3") return h("h3", { key: i, className: "article-subheading" }, text);
-
-    if (type === "image") {
-      var caption = block.get("caption");
-      return h(
-        "figure",
-        { key: i, className: "article-inline-image" },
-        this.renderImage(block.get("src"), block.get("alt")),
-        caption ? h("figcaption", {}, caption) : null
-      );
-    }
-
-    if (type === "p") return h("p", { key: i }, text);
-
-    // Formato legacy (articoli scritti prima dei blocchi h2/h3/p, non
-    // creabile dal form del CMS ma presente nei 12 articoli migrati):
-    // "paragraph" con un "heading" opzionale incorporato — vedi il ramo
-    // equivalente in renderContentBlocks() in js/main.js.
-    var heading = block.get("heading");
-    return h(
-      "div",
-      { key: i },
-      heading ? h("h2", { className: "article-heading" }, heading) : null,
-      h("p", {}, text)
-    );
+  renderMarkdownBody: function (markdown) {
+    var html = typeof marked !== "undefined" && markdown ? marked.parse(markdown) : "";
+    return h("div", { className: "article-body", dangerouslySetInnerHTML: { __html: html } });
   },
 
   renderArticle: function (article, idx) {
-    var content = toArr(article.get("content"));
-    var self = this;
-
     return h(
       "article",
       { key: idx, className: "article-wrap", style: { marginBottom: "4rem", borderBottom: "1px solid var(--color-border, #e2dacb)", paddingBottom: "3rem" } },
@@ -101,7 +103,7 @@ var ArticoliPreview = createClass({
           h("p", { className: "article-subtitle" }, article.get("excerpt")),
           h("div", { className: "article-header-divider" })
         ),
-        h("div", { className: "article-body" }, content.map(function (block, i) { return self.renderContentBlock(block, i); })),
+        this.renderMarkdownBody(article.get("content")),
         h(
           "div",
           { className: "article-footer-meta" },

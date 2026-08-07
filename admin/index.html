@@ -10,9 +10,14 @@
   <!-- Decap CMS legge automaticamente admin/config.yml (stessa cartella).
        Nessuna configurazione inline qui: tutto vive nel config.yml. -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Parser markdown per l'anteprima live (Step C): la preview gira nel
+       contesto di questa pagina, non dentro l'iframe — solo il CSS ci
+       arriva via registerPreviewStyle in preview.js, il JS no. Stessa
+       versione pinnata usata in articolo.html per il sito pubblicato. -->
+  <script src="https://unpkg.com/marked@18.0.9/lib/marked.umd.js"></script>
   <!-- Registra l'anteprima live della collection "articoli": deve caricare
-       DOPO lo script CDN sopra, perché usa i globali che espone
-       (CMS, createClass, h) — vedi admin/preview.js. -->
+       DOPO gli script CDN sopra, perché usa i globali che espongono
+       (CMS, createClass, h, marked) — vedi admin/preview.js. -->
   <script src="preview.js"></script>
   <!-- Stile del form dell'editor: caricato per ULTIMO, dopo gli script
        sopra, di proposito. Decap inietta il proprio CSS via CSS-in-JS a
