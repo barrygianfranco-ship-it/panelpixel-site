@@ -1,0 +1,51 @@
+[
+  {
+    "slug": "autunno-d-autore-uscite-cinema",
+    "category": "anteprime",
+    "type": "radar",
+    "rubricName": "Radar Cinema",
+    "period": "Autunno 2026",
+    "title": "Autunno d'autore: le uscite cinema da segnare in agenda",
+    "excerpt": "Le uscite cinematografiche da segnare in agenda per una stagione che promette un ritorno deciso al cinema di autore.",
+    "author": "Gianfranco Barry",
+    "date": "2026-07-12",
+    "image": "assets/images/autunno-d-autore-uscite-cinema.svg",
+    "featured": false,
+    "seoTitle": "Autunno d'autore: le uscite cinema da non perdere | Panel Pixel",
+    "seoDescription": "Le uscite cinematografiche d'autore da segnare in agenda per l'autunno: i titoli attesi nei festival internazionali.",
+    "seoKeywords": ["uscite cinema autunno", "cinema d'autore 2026", "film festival internazionali", "anteprime cinema"],
+    "content": {
+      "intro": "Dopo un'estate dominata da blockbuster e sequel, il calendario autunnale vira decisamente verso il cinema d'autore. Ecco i quattro titoli da segnare in agenda.",
+      "items": [
+        {
+          "title": "La Casa sul Confine",
+          "creator": "Regia di Bianca Moretti (al suo terzo lungometraggio)",
+          "publisher": "Distribuzione: Nuova Luce Film",
+          "releaseInfo": "Al cinema dal 15 ottobre 2026, dopo l'anteprima al Festival di Locarno",
+          "why": "Un dramma corale già accostato dalla critica ai grandi film ensemble degli anni Settanta: la prima vera scommessa d'autore della stagione."
+        },
+        {
+          "title": "Ultima Luce d'Agosto",
+          "creator": "Regia di Tommaso Reale",
+          "publisher": "Distribuzione indipendente, uscita in sala selezionata",
+          "releaseInfo": "Al cinema dal 29 ottobre 2026 in un numero limitato di sale",
+          "why": "Girato con un budget ridottissimo, è il titolo a basso costo più chiacchierato tra gli addetti ai lavori: libertà formale allo stato puro."
+        },
+        {
+          "title": "Il Peso delle Nuvole",
+          "creator": "Regia di Sofia Lanza",
+          "publisher": "Distribuzione: Meridiano Pictures",
+          "releaseInfo": "Al cinema dal 5 novembre 2026",
+          "why": "Un road movie ambientato quasi interamente in un'unica notte, che promette di ribaltare le convenzioni del genere."
+        },
+        {
+          "title": "Controcanto",
+          "creator": "Diretto da un collettivo di quattro autori esordienti",
+          "publisher": "Distribuzione: circuito festival, uscita in sala a seguire",
+          "releaseInfo": "Anteprima a novembre 2026, uscita in sala prevista per inizio 2027",
+          "why": "Un documentario ibrido che mescola found footage e animazione: la scommessa più rischiosa e interessante della stagione."
+        }
+      ]
+    }
+  }
+]

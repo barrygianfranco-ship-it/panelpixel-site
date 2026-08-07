@@ -69,6 +69,20 @@ a {
   color: inherit;
 }
 
+/* Messaggio mostrato in cima alla pagina se il fetch di data/articles.json
+   o data/radar.json fallisce — vedi loadArticles()/showDataLoadError() in
+   js/main.js. Position sticky così resta visibile anche scrollando. */
+.data-load-error {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  text-align: center;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.9rem;
+}
+
 .container {
   max-width: var(--max-width);
   margin: 0 auto;

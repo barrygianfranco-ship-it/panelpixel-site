@@ -1,8 +1,46 @@
 /* ==========================================================================
    Panel Pixel — logica di rendering
-   Legge i dati da js/data.js e popola le pagine in base ai contenitori
-   presenti nell'HTML. Non serve toccare questo file per aggiungere articoli.
+   Legge SITE/CATEGORIES/COMMENTS_CONFIG da js/data.js (sincrono, invariato)
+   e gli articoli da data/articles.json + data/radar.json via fetch,
+   caricati da loadArticles() prima di popolare le pagine — vedi il blocco
+   DOMContentLoaded in fondo al file. Non serve toccare questo file per
+   aggiungere articoli "normali": si aggiungono a data/articles.json (anche
+   via admin/, Decap CMS) o, per le rubriche "radar", a data/radar.json.
    ========================================================================== */
+
+// Popolato da loadArticles() all'avvio, prima di ogni rendering — vedi
+// DOMContentLoaded in fondo al file. Finché il fetch non è completato resta
+// vuoto: nessuna funzione di rendering viene chiamata prima di allora, quindi
+// non c'è un momento in cui il codice gira su un ARTICLES vuoto per errore.
+let ARTICLES = [];
+
+/* Carica gli articoli "normali" (data/articles.json) e le rubriche radar
+   (data/radar.json) e li unisce in un unico ARTICLES, come prima quando
+   erano tutti insieme nell'array in js/data.js. Se anche uno solo dei due
+   fetch fallisce (rete offline, file mancante, JSON non valido), l'intera
+   pagina mostra un messaggio d'errore invece di restare bianca o mostrare
+   un sito vuoto con sezioni "nessun articolo" fuorvianti. */
+async function loadArticles() {
+  const [articlesRes, radarRes] = await Promise.all([fetch("data/articles.json"), fetch("data/radar.json")]);
+
+  if (!articlesRes.ok) throw new Error(`data/articles.json: HTTP ${articlesRes.status}`);
+  if (!radarRes.ok) throw new Error(`data/radar.json: HTTP ${radarRes.status}`);
+
+  const [articles, radar] = await Promise.all([articlesRes.json(), radarRes.json()]);
+  ARTICLES = [...articles, ...radar];
+}
+
+/* Messaggio d'errore leggibile, mostrato in cima a <body> su qualunque
+   pagina se loadArticles() fallisce — non dipende dai contenitori
+   specifici di ciascuna pagina (che restano invariati sotto: header, nav,
+   footer continuano a funzionare normalmente). */
+function showDataLoadError() {
+  const banner = document.createElement("div");
+  banner.className = "data-load-error";
+  banner.setAttribute("role", "alert");
+  banner.textContent = "Non è stato possibile caricare gli articoli di Panel Pixel. Controlla la connessione e ricarica la pagina.";
+  document.body.prepend(banner);
+}
 
 function formatDateIT(iso) {
   const d = new Date(iso + "T00:00:00");
@@ -713,9 +751,20 @@ function initHeaderScrollHide() {
   );
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Header/nav non dipendono dagli articoli: si inizializzano subito, così
+  // restano utilizzabili anche se il caricamento degli articoli fallisce.
   initHeader();
   initHeaderScrollHide();
+
+  try {
+    await loadArticles();
+  } catch (err) {
+    console.error("Impossibile caricare gli articoli:", err);
+    showDataLoadError();
+    return;
+  }
+
   renderMagazineHero();
   renderHomepageGrid();
   renderApprofondimentiSection();
