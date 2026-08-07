@@ -1,21 +1,26 @@
 /* Panel Pixel — stile personalizzato per l'editor Decap CMS (admin/).
    NON è un'API ufficiale di Decap: il form dell'editor non ha un hook di
    tema documentato (solo il pannello di anteprima ce l'ha, vedi preview.css
-   + preview.js). Decap inietta il proprio CSS via CSS-in-JS A RUNTIME
-   (quando i componenti montano), cioè DOPO che questo foglio è già stato
-   applicato — per questo va caricato per ultimo in admin/index.html E usa
-   !important sulle proprietà puramente cosmetiche (colore, sfondo, font,
-   bordo): senza, le regole di Decap con specificità comparabile vincono
-   comunque per ordine di inserimento nel DOM, come si è visto nel primo
-   giro di test dal vivo (nessun effetto visibile). Deliberatamente NIENTE
-   !important su proprietà di layout (display, position, width, padding,
-   margin...): se qualcosa non si vede cambiato è perché quella regola non
-   sta "agganciando" l'elemento giusto, non perché ho sacrificato la
-   robustezza per l'estetica.
+   + preview.js). Decap usa Emotion (CSS-in-JS): ogni classe è del tipo
+   "css-{hash}-{NomeComponente}" — l'hash cambia (probabilmente a ogni
+   build/deploy), il suffisso semantico (nome del componente nel sorgente
+   di Decap) è molto più stabile. Per questo qui sotto NON si usano classi
+   esatte, ma selettori attributo con match parziale [class*="Nome"], che
+   continuano ad agganciare l'elemento anche se l'hash cambia, finché il
+   nome del componente resta lo stesso.
 
-   NOTA: il raggruppamento visivo dei campi SEO (richiesto, poi scartato)
-   non è incluso qui — richiederebbe selettori che puntano a nomi di classe
-   interni di Decap che non ho modo di verificare senza ispezione dal vivo. */
+   Nomi CONFERMATI via ispezione DOM dal vivo (7 agosto 2026): AppMainContainer,
+   ToolbarContainer, ViewControls, PreviewPaneContainer, EditorControlPane
+   (quest'ultimo era un'ipotesi dell'utente basata sullo stesso pattern, non
+   confermata esplicitamente ma verosimile). Nomi NON verificati, aggiunti
+   come ipotesi ragionevole in base alla struttura nota di Decap/Netlify CMS
+   (segnati singolarmente sotto): se non esistono, il selettore semplicemente
+   non aggancia nulla — nessun rischio, ma va controllato dal vivo.
+
+   Ancora !important sulle proprietà cosmetiche (colore, sfondo, font,
+   bordo), mai su layout: stesso motivo di prima, Decap inietta il proprio
+   CSS a runtime con specificità comparabile — vedi commento in
+   admin/index.html sull'ordine di caricamento. */
 
 :root {
   --color-bg: #faf8f5;
@@ -45,15 +50,79 @@
 }
 
 html,
-body,
-#nc-root {
+body {
   font-family: var(--font-sans) !important;
   background: var(--color-bg) !important;
   color: var(--color-text) !important;
 }
 
+/* ---- Confermati dal vivo ---- */
+
+[class*="AppMainContainer"] {
+  background: var(--color-bg) !important;
+  font-family: var(--font-sans) !important;
+}
+
+[class*="ToolbarContainer"] {
+  background: var(--color-bg-alt) !important;
+  border-color: var(--color-border) !important;
+  font-family: var(--font-sans) !important;
+}
+
+[class*="ViewControls"] {
+  font-family: var(--font-sans) !important;
+}
+
+[class*="PreviewPaneContainer"] {
+  background: var(--color-bg) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* EditorControlPane: ipotesi dell'utente sullo stesso pattern, non
+   confermata esplicitamente ma verosimile (è il nome storico in Netlify
+   CMS/Decap per il contenitore del form a sinistra). */
+[class*="EditorControlPane"],
+[class*="EditorContainer"] {
+  background: var(--color-bg) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* ---- Ipotesi NON verificate (struttura nota di Netlify CMS/Decap CMS,
+   ma non viste nello screenshot) — da controllare dal vivo una per una ---- */
+
+[class*="Sidebar"],
+[class*="NavBar"],
+[class*="CollectionTop"],
+[class*="TopBarContainer"] {
+  background: var(--color-bg-alt) !important;
+  border-color: var(--color-border) !important;
+  font-family: var(--font-sans) !important;
+}
+
+[class*="ControlHint"] {
+  color: var(--color-muted) !important;
+  font-family: var(--font-sans) !important;
+}
+
+[class*="WidgetLabel"],
+[class*="LabelComponent"] {
+  color: var(--color-text) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* ---- Elementi HTML nativi dentro i contenitori sopra: titoli, campi,
+   pulsanti. Selettori a bassa specificità sugli attributi — se un
+   contenitore sopra non aggancia nulla, questi restano innocui. ---- */
+
 h1, h2, h3 {
   font-family: var(--font-serif) !important;
+}
+
+[class*="AppMainContainer"] label,
+[class*="EditorControlPane"] label,
+[class*="EditorContainer"] label {
+  color: var(--color-text) !important;
+  font-family: var(--font-sans) !important;
 }
 
 input[type="text"],
