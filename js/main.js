@@ -268,6 +268,11 @@ function setMetaContent(id, value) {
   if (el) el.setAttribute("content", value);
 }
 
+function setLinkHref(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute("href", value);
+}
+
 // Taglia un testo a "maxLength" caratteri per la meta description, senza
 // spezzare a metà una parola: tronca all'ultimo spazio utile e aggiunge "…".
 // Se il testo è già abbastanza corto, lo restituisce invariato.
@@ -303,6 +308,38 @@ function updateArticleSEO(article) {
   setMetaContent("twitter-title", seoTitle);
   setMetaContent("twitter-description", seoDescription);
   setMetaContent("twitter-image", imageUrl);
+
+  setLinkHref("canonical-link", pageUrl);
+
+  // JSON-LD (schema.org Article): aiuta i motori di ricerca a capire che
+  // questa pagina è un articolo e chi/quando l'ha pubblicato, oltre a
+  // abilitare rich result come autore e data di pubblicazione nei risultati.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: seoDescription,
+    image: [imageUrl],
+    datePublished: article.date,
+    author: {
+      "@type": "Person",
+      name: article.author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE.name,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE.url}/assets/images/logo-icon.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
+  };
+  const jsonLdEl = document.getElementById("article-jsonld");
+  if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(jsonLd);
 }
 
 /* ---- Layout pagina articolo: header/corpo variano in base a article.type ---- */
