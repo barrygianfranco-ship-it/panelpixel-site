@@ -82,34 +82,8 @@ collections:
                 name: "seoKeywords"
                 widget: "list"
                 required: false
-              - label: "Corpo dell'articolo (blocchi, nell'ordine in cui compaiono)"
+              - label: "Corpo dell'articolo"
                 name: "content"
-                widget: "list"
-                types:
-                  - label: "Titolo sezione (H2)"
-                    name: "h2"
-                    widget: "object"
-                    fields:
-                      - { label: "Tipo", name: "type", widget: "hidden", default: "h2" }
-                      - { label: "Testo", name: "text", widget: "string" }
-                  - label: "Sottotitolo (H3)"
-                    name: "h3"
-                    widget: "object"
-                    hint: "Da usare solo dopo un H2 nello stesso articolo, mai come primo intertitolo."
-                    fields:
-                      - { label: "Tipo", name: "type", widget: "hidden", default: "h3" }
-                      - { label: "Testo", name: "text", widget: "string" }
-                  - label: "Paragrafo"
-                    name: "p"
-                    widget: "object"
-                    fields:
-                      - { label: "Tipo", name: "type", widget: "hidden", default: "p" }
-                      - { label: "Testo", name: "text", widget: "text" }
-                  - label: "Immagine"
-                    name: "image"
-                    widget: "object"
-                    fields:
-                      - { label: "Tipo", name: "type", widget: "hidden", default: "image" }
-                      - { label: "Immagine", name: "src", widget: "image" }
-                      - { label: "Testo alternativo (alt)", name: "alt", widget: "string", required: false, hint: "Consigliato: descrivi cosa mostra l'immagine." }
-                      - { label: "Didascalia (opzionale)", name: "caption", widget: "string", required: false }
+                widget: "markdown"
+                hint: "Titoli limitati a H2/H3 dai bottoni qui sopra — livelli diversi digitati a mano vengono comunque normalizzati in fase di pubblicazione (vedi js/main.js). Per una didascalia sotto un'immagine, scrivi il testo tra virgolette dopo l'URL: ![alt](url \"didascalia\")."
+                buttons: ["bold", "italic", "heading-two", "heading-three", "quote", "bulleted-list", "numbered-list", "link", "image"]
