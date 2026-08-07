@@ -17,10 +17,10 @@
    (segnati singolarmente sotto): se non esistono, il selettore semplicemente
    non aggancia nulla — nessun rischio, ma va controllato dal vivo.
 
-   Ancora !important sulle proprietà cosmetiche (colore, sfondo, font,
-   bordo), mai su layout: stesso motivo di prima, Decap inietta il proprio
-   CSS a runtime con specificità comparabile — vedi commento in
-   admin/index.html sull'ordine di caricamento. */
+   Rispetto al giro precedente: !important ora è usato anche su
+   padding/margin sui 4 contenitori confermati e sulle righe dei campi,
+   non solo sulle proprietà cosmetiche — rischio di rottura del layout
+   accettato esplicitamente. */
 
 :root {
   --color-bg: #faf8f5;
@@ -67,15 +67,18 @@ body {
   background: var(--color-bg-alt) !important;
   border-color: var(--color-border) !important;
   font-family: var(--font-sans) !important;
+  padding: 0.75rem 1.5rem !important;
 }
 
 [class*="ViewControls"] {
   font-family: var(--font-sans) !important;
+  padding: 1rem 1.5rem !important;
 }
 
 [class*="PreviewPaneContainer"] {
   background: var(--color-bg) !important;
   font-family: var(--font-sans) !important;
+  padding: 2rem !important;
 }
 
 /* EditorControlPane: ipotesi dell'utente sullo stesso pattern, non
@@ -85,6 +88,18 @@ body {
 [class*="EditorContainer"] {
   background: var(--color-bg) !important;
   font-family: var(--font-sans) !important;
+  padding: 1.5rem 2rem !important;
+}
+
+/* Righe dei singoli campi dentro il form: spaziatura uniforme, per un
+   aspetto più ordinato invece di "modulo grezzo". Ipotesi sulla struttura
+   (ogni campo = un div figlio diretto del contenitore) non confermata:
+   se la nidificazione reale è diversa, questa regola semplicemente non
+   aggancia nulla. */
+[class*="EditorControlPane"] > div,
+[class*="EditorContainer"] > div {
+  margin-bottom: 1.5rem !important;
+  padding-bottom: 0 !important;
 }
 
 /* ---- Ipotesi NON verificate (struttura nota di Netlify CMS/Decap CMS,
@@ -108,6 +123,45 @@ body {
 [class*="LabelComponent"] {
   color: var(--color-text) !important;
   font-family: var(--font-sans) !important;
+}
+
+/* ---- Campo "Titolo": area hero ----
+   Più speculativo di tutto il resto del file. CSS non può selezionare un
+   campo per il testo della sua etichetta ("Titolo"), e Slug/Titolo/Autore/
+   SEO Titolo condividono tutti lo stesso componente Decap (StringControl),
+   quindi il nome del componente da solo non li distingue. L'unica leva
+   rimasta è la POSIZIONE: "Titolo" è stato spostato come primo campo in
+   admin/config.yml apposta, e qui sotto si stila "il primo campo del
+   form", chiunque esso sia. Se in futuro riordini i campi in config.yml,
+   lo stile hero si sposta silenziosamente sul nuovo primo campo — è il
+   prezzo per non avere un hook più preciso. Se dal DOM live trovi un
+   id/data-testid specifico sull'<input> del Titolo (es. qualcosa come
+   "articles.0.title"), segnalamelo: scriverei un selettore molto più
+   affidabile al posto di questo. */
+[class*="EditorControlPane"] > div:first-child,
+[class*="EditorContainer"] > div:first-child {
+  background: var(--color-text) !important;
+  padding: 2rem 1.5rem !important;
+  margin-bottom: 2rem !important;
+  border-radius: 4px !important;
+}
+
+[class*="EditorControlPane"] > div:first-child label,
+[class*="EditorContainer"] > div:first-child label {
+  color: var(--color-bg) !important;
+  font-family: var(--font-sans) !important;
+}
+
+[class*="EditorControlPane"] > div:first-child input,
+[class*="EditorContainer"] > div:first-child input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--color-accent) !important;
+  border-radius: 0 !important;
+  color: var(--color-bg) !important;
+  font-family: var(--font-serif) !important;
+  font-size: 2rem !important;
+  padding: 0.5rem 0 !important;
 }
 
 /* ---- Elementi HTML nativi dentro i contenitori sopra: titoli, campi,

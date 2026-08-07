@@ -6,12 +6,6 @@ backend:
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
 
-# ATTENZIONE (vedi riepilogo consegnato in chat): questa collection scrive
-# in data/articles.json, un file che al momento NON esiste ancora e che
-# js/main.js non legge. Finché non si completa la migrazione descritta nel
-# riepilogo (spostare ARTICLES da js/data.js a data/articles.json + aggiungere
-# un fetch in js/main.js), gli articoli creati da qui non compariranno sul
-# sito pubblicato.
 collections:
   - name: "articoli"
     label: "Articoli"
@@ -25,6 +19,9 @@ collections:
             widget: "list"
             summary: "{{title}} — {{category}}"
             fields:
+              - label: "Titolo"
+                name: "title"
+                widget: "string"
               - label: "Slug"
                 name: "slug"
                 widget: "string"
@@ -46,9 +43,6 @@ collections:
                   - { label: "Recensione", value: "recensione" }
                   - { label: "Monografia", value: "monografia" }
                   - { label: "Notizia", value: "notizia" }
-              - label: "Titolo"
-                name: "title"
-                widget: "string"
               - label: "Sottotitolo / excerpt"
                 name: "excerpt"
                 widget: "text"
