@@ -58,8 +58,9 @@ collections:
                 default: "Gianfranco Barry"
               - label: "Data"
                 name: "date"
-                widget: "date"
+                widget: "datetime"
                 format: "YYYY-MM-DD"
+                time_format: false
                 picker_utc: true
               - label: "Immagine di copertina"
                 name: "image"

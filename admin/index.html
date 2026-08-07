@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Panel Pixel — Admin</title>
-  <!-- Stile del form dell'editor (best-effort, non un'API ufficiale Decap
-       — vedi commento in cima al file per i limiti). -->
-  <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
   <!-- Decap CMS legge automaticamente admin/config.yml (stessa cartella).
@@ -17,5 +14,15 @@
        DOPO lo script CDN sopra, perché usa i globali che espone
        (CMS, createClass, h) — vedi admin/preview.js. -->
   <script src="preview.js"></script>
+  <!-- Stile del form dell'editor: caricato per ULTIMO, dopo gli script
+       sopra, di proposito. Decap inietta il proprio CSS via CSS-in-JS a
+       runtime, quando i componenti montano — cioè DOPO che questa pagina
+       ha finito il parsing iniziale. Un <link> messo prima (es. in <head>)
+       viene quindi sovrascritto da regole con specificità comparabile
+       inserite più tardi nel DOM: metterlo qui, alla fine, gli dà la
+       precedenza nell'ordine di sorgente. Anche così non è garantito
+       (vedi !important sulle proprietà cosmetiche in admin.css) — non è
+       un'API ufficiale, vedi il commento in cima ad admin.css. -->
+  <link rel="stylesheet" href="admin.css" />
 </body>
 </html>

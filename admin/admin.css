@@ -1,12 +1,17 @@
 /* Panel Pixel — stile personalizzato per l'editor Decap CMS (admin/).
    NON è un'API ufficiale di Decap: il form dell'editor non ha un hook di
    tema documentato (solo il pannello di anteprima ce l'ha, vedi preview.css
-   + preview.js). Selettori volutamente a bassa specificità (tag generici,
-   niente !important): dove Decap applica già un proprio stile più
-   specifico, questo foglio semplicemente non ha effetto lì invece di
-   romperlo. Non verificato dal vivo: /admin richiede login OAuth GitHub,
-   non testabile né in locale né in questa sessione — controllare
-   visivamente dopo il deploy e segnalare cosa non funziona.
+   + preview.js). Decap inietta il proprio CSS via CSS-in-JS A RUNTIME
+   (quando i componenti montano), cioè DOPO che questo foglio è già stato
+   applicato — per questo va caricato per ultimo in admin/index.html E usa
+   !important sulle proprietà puramente cosmetiche (colore, sfondo, font,
+   bordo): senza, le regole di Decap con specificità comparabile vincono
+   comunque per ordine di inserimento nel DOM, come si è visto nel primo
+   giro di test dal vivo (nessun effetto visibile). Deliberatamente NIENTE
+   !important su proprietà di layout (display, position, width, padding,
+   margin...): se qualcosa non si vede cambiato è perché quella regola non
+   sta "agganciando" l'elemento giusto, non perché ho sacrificato la
+   robustezza per l'estetica.
 
    NOTA: il raggruppamento visivo dei campi SEO (richiesto, poi scartato)
    non è incluso qui — richiederebbe selettori che puntano a nomi di classe
@@ -39,28 +44,35 @@
   src: url("../assets/fonts/playfair-display-latin.woff2") format("woff2");
 }
 
-body {
-  font-family: var(--font-sans);
-  background: var(--color-bg);
-  color: var(--color-text);
+html,
+body,
+#nc-root {
+  font-family: var(--font-sans) !important;
+  background: var(--color-bg) !important;
+  color: var(--color-text) !important;
 }
 
 h1, h2, h3 {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif) !important;
 }
 
 input[type="text"],
 input[type="date"],
+input[type="datetime-local"],
 input[type="search"],
 textarea,
 select {
-  font-family: var(--font-sans);
-  border-color: var(--color-border);
-  border-radius: 2px;
+  font-family: var(--font-sans) !important;
+  border-color: var(--color-border) !important;
+  border-radius: 2px !important;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  outline-color: var(--color-accent);
+  outline-color: var(--color-accent) !important;
+}
+
+button {
+  font-family: var(--font-sans) !important;
 }
