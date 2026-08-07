@@ -19,15 +19,23 @@ let ARTICLES = [];
    erano tutti insieme nell'array in js/data.js. Se anche uno solo dei due
    fetch fallisce (rete offline, file mancante, JSON non valido), l'intera
    pagina mostra un messaggio d'errore invece di restare bianca o mostrare
-   un sito vuoto con sezioni "nessun articolo" fuorvianti. */
+   un sito vuoto con sezioni "nessun articolo" fuorvianti.
+
+   data/articles.json è un OGGETTO { articles: [...] }, non un array nudo:
+   lo richiede Decap CMS, che per le collection di tipo "files" legge/scrive
+   il contenuto del file come oggetto con una chiave per ogni field di primo
+   livello (qui il field si chiama "articles", vedi admin/config.yml) — un
+   array alla radice non ha una chiave a cui agganciarsi e il CMS lo vede
+   vuoto. data/radar.json invece resta un array nudo: non è gestito dal CMS
+   (vedi commento in quel file), quindi non ha bisogno dello stesso wrapper. */
 async function loadArticles() {
   const [articlesRes, radarRes] = await Promise.all([fetch("data/articles.json"), fetch("data/radar.json")]);
 
   if (!articlesRes.ok) throw new Error(`data/articles.json: HTTP ${articlesRes.status}`);
   if (!radarRes.ok) throw new Error(`data/radar.json: HTTP ${radarRes.status}`);
 
-  const [articles, radar] = await Promise.all([articlesRes.json(), radarRes.json()]);
-  ARTICLES = [...articles, ...radar];
+  const [articlesData, radar] = await Promise.all([articlesRes.json(), radarRes.json()]);
+  ARTICLES = [...articlesData.articles, ...radar];
 }
 
 /* Messaggio d'errore leggibile, mostrato in cima a <body> su qualunque

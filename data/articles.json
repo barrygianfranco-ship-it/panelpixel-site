@@ -1,4 +1,5 @@
-[
+{
+  "articles": [
   {
     "slug": "nova-terra-open-world-che-respira",
     "category": "recensioni",
@@ -232,4 +233,5 @@
       { "type": "p", "text": "Chi racconta il rapporto tra fumetto giapponese e intelligenza artificiale come uno scontro netto tra \"autori tradizionalisti\" e \"innovatori\" semplifica un quadro molto più frammentato. Il mondo dei mangaka non è una fazione compatta, così come non lo è la comunità dei loro lettori. Ci sono autori che, come l'esempio citato sopra, vedono nell'IA uno strumento paragonabile a quelli che l'industria videoludica usa da vent'anni — utile, se ben regolamentato, a liberare tempo dalle fasi più meccaniche e ripetitive del lavoro. E ci sono autori, editori e soprattutto lettori che considerano qualunque forma di generazione automatica un tradimento del patto implicito tra chi disegna e chi legge: quello per cui dietro ogni tavola c'è una persona che ha scelto, tratto dopo tratto, cosa mettere sulla pagina.\n\nQuesta frattura è emersa con particolare violenza già nel 2022, prima ancora del boom dell'IA generativa mainstream. La startup giapponese Radius5 lanciò in beta un software chiamato Mimic, pensato per permettere agli illustratori di caricare i propri disegni e ottenere in cambio immagini generate nel proprio stile personale — teoricamente uno strumento di supporto, pensato dagli stessi sviluppatori per gli artisti professionisti. I fan giapponesi non la presero affatto bene: si organizzarono per sabotare la beta pubblica inondandola di migliaia di immagini protette da copyright, nel tentativo di comprometterne l'addestramento. Radius5 fu costretta a sospendere i test nel giro di pochi giorni. Fu, per molti osservatori, la prima vittoria organizzata di una comunità di fan contro un software generativo applicato al disegno — ma la battaglia, come si è visto negli anni successivi, era appena cominciata." }
     ]
   }
-]
+  ]
+}
