@@ -337,7 +337,12 @@ function updateArticleSEO(article) {
   // (140-160) per i motori di ricerca.
   const seoTitle = article.seoTitle || `${article.title} | ${SITE.name}`;
   const seoDescription = article.seoDescription || truncateForSEO(article.excerpt, 160);
-  const imageUrl = `${SITE.url}/${article.image}`;
+  // article.image non ha uno slash iniziale per le immagini gestite a mano
+  // (es. "assets/images/...") ma ce l'ha per quelle caricate dal CMS (es.
+  // "/images/uploads/...", per via di public_folder in admin/config.yml) —
+  // tolto qui prima di concatenare, altrimenti per gli upload CMS si
+  // otteneva uno slash doppio dopo il dominio (SITE.url non ne ha uno finale).
+  const imageUrl = `${SITE.url}/${article.image.replace(/^\//, "")}`;
   const pageUrl = `${SITE.url}/articolo.html?slug=${encodeURIComponent(article.slug)}`;
 
   document.title = seoTitle;
