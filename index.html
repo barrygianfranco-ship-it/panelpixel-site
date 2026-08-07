@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Pixel — Fumetti, videogiochi e cultura pop</title>
+  <meta name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
+  <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-brand">
+      <a class="site-logo" href="index.html">
+        <img src="assets/images/logo-icon.png" alt="">
+        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel">
+      </a>
+    </div>
+    <div class="site-header-nav">
+      <div class="container site-header-nav-inner">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+        <nav class="primary-nav" id="primary-nav">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="recensioni.html">Recensioni</a>
+          <a class="nav-link" href="monografie.html">Monografie</a>
+          <a class="nav-link" href="attualita.html">Attualità</a>
+          <a class="nav-link" href="anteprime.html">Anteprime</a>
+          <a class="nav-link" href="chi-sono.html">Chi sono</a>
+        </nav>
+        <div class="search-box">
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="Cerca per titolo, categoria o autore…"
+            aria-label="Cerca articoli"
+            autocomplete="off"
+          >
+          <button type="button" class="search-clear" id="search-clear" aria-label="Cancella ricerca" hidden>&times;</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="featured-single" id="featured-main"></section>
+
+    <div id="search-results" class="search-results" hidden></div>
+
+    <div id="category-sections"></div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
+      <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy & Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

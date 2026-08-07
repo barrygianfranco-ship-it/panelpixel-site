@@ -1,0 +1,8 @@
+# Editor interno: solo per uso locale, nessuna password, non va pubblicato online.
+editor.html
+css/editor.css
+js/editor.js
+
+# File di sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,736 @@
+/* ==========================================================================
+   Panel Pixel — foglio di stile principale
+   Palette e font sono definiti come variabili qui sotto: modifica solo
+   questa sezione per cambiare l'aspetto di tutto il sito.
+   ========================================================================== */
+
+:root {
+  --color-bg: #faf8f5;
+  --color-bg-alt: #f1ece3;
+  --color-text: #1a1a1a;
+  --color-muted: #6b6b63;
+  --color-accent: #b23a2e;
+  --color-border: #e2dacb;
+
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --max-width: 1200px;
+  --gap: 2rem;
+}
+
+/* ---- Font locali (self-hosted, non più da Google Fonts CDN) ----
+   File in assets/fonts/, sottoinsieme "latin" (copre l'italiano: lettere
+   accentate, virgolette tipografiche, trattino lungo, punto medio).
+   Sono file di font variabile: un solo file per famiglia copre l'intero
+   intervallo di pesi usato nel sito, dichiarato con "font-weight: min max". */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url("../assets/fonts/playfair-display-latin.woff2") format("woff2");
+}
+
+/* ---- Reset di base ---- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+}
+
+/* ---- Header ---- */
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg);
+  z-index: 20;
+}
+
+/* Riga 1: brand (logo/nome), sempre centrata */
+.site-header-brand {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 1.1rem;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.site-logo img {
+  display: block;
+  height: 34px;
+  width: auto;
+}
+
+@media (max-width: 420px) {
+  .site-logo img {
+    height: 28px;
+  }
+}
+
+/* Riga 2: menu di navigazione, separata dal brand da un bordo superiore */
+.site-header-nav {
+  border-top: 1px solid var(--color-border);
+}
+
+.site-header-nav-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+}
+
+@media (min-width: 800px) {
+  .site-header-nav-inner {
+    flex-direction: row;
+    justify-content: center;
+    gap: 2rem;
+    padding: 0.85rem 0;
+  }
+}
+
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.4rem 0.7rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+@media (min-width: 800px) {
+  .nav-toggle {
+    display: none;
+  }
+}
+
+.primary-nav {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.primary-nav.is-open {
+  display: flex;
+  margin-top: 0.5rem;
+}
+
+.primary-nav .nav-link {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+@media (min-width: 800px) {
+  .primary-nav {
+    display: flex !important;
+    flex-direction: row;
+    gap: 1.75rem;
+  }
+  .primary-nav .nav-link {
+    padding: 0;
+    border-bottom: none;
+  }
+}
+
+.nav-link {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: var(--color-text);
+}
+
+.nav-link.is-active {
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 2px;
+}
+
+/* ---- Hero / pagina header ---- */
+.page-hero {
+  padding: 2.5rem 0 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 2.5rem;
+}
+
+.page-hero h1 {
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+.page-hero p {
+  color: var(--color-muted);
+  max-width: 620px;
+  margin: 0;
+}
+
+/* ---- Sezione In evidenza (una sola storia) ---- */
+.featured-single {
+  display: block;
+  margin-bottom: 4.5rem;
+}
+
+/* Senza questa riga, "display: block" qui sopra vincerebbe sempre sulla
+   regola nativa del browser per l'attributo [hidden], perché le regole
+   d'autore hanno priorità su quelle del browser a parità di specificità:
+   il risultato sarebbe che la ricerca in home non nasconde mai questa
+   sezione. */
+.featured-single[hidden] {
+  display: none;
+}
+
+/* ---- Ricerca articoli (home): barra nell'header, vicino al menu ---- */
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  padding: 0.75rem 2.5rem 0.75rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+/* nasconde la "x" nativa di Chrome/Safari per type="search": usiamo solo
+   il nostro pulsante .search-clear, per uno stile coerente tra browser */
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input:focus {
+  border-color: var(--color-accent);
+}
+
+.search-input::placeholder {
+  color: var(--color-muted);
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-clear:hover {
+  color: var(--color-accent);
+  background: var(--color-bg-alt);
+}
+
+.search-results {
+  margin-bottom: 4rem;
+}
+
+.search-results-count {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin: 0 0 1.5rem;
+}
+
+/* ---- Card articolo ---- */
+.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card-media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-bg-alt);
+  border-radius: 2px;
+}
+
+.card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.card:hover .card-media img {
+  transform: scale(1.03);
+}
+
+.card-body {
+  padding-top: 1.1rem;
+}
+
+.card-category {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 0.6rem;
+}
+
+.card-excerpt {
+  display: none;
+  margin: 0 0 0.6rem;
+  color: var(--color-muted);
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+
+.card-meta {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+  opacity: 0.85;
+}
+
+/* Card grande (unica storia in evidenza) */
+.card--hero .card-media {
+  aspect-ratio: 21 / 10;
+}
+
+.card--hero .card-body {
+  max-width: 760px;
+}
+
+.card--hero .card-category {
+  font-size: 0.78rem;
+}
+
+.card--hero .card-title {
+  font-size: clamp(1.9rem, 4.2vw, 3rem);
+  margin: 0 0 0.9rem;
+}
+
+.card--hero .card-excerpt {
+  display: block;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* ---- Griglia di categoria ---- */
+.category-section {
+  margin-bottom: 5rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid var(--color-text);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.75rem;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.section-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.section-link:hover {
+  color: var(--color-accent);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem 2.5rem;
+}
+
+@media (min-width: 600px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.empty-state {
+  color: var(--color-muted);
+  padding: 2rem 0;
+}
+
+/* ---- Pagina articolo singolo: colonna principale + sidebar correlati ---- */
+.article-layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+@media (min-width: 960px) {
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: start;
+    gap: 3.5rem;
+  }
+}
+
+.article-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 0 1rem;
+}
+
+.article-category {
+  margin: 0 0 0.75rem;
+}
+
+.article-category a {
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.article-title {
+  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+  margin: 0 0 1rem;
+}
+
+.article-meta {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  margin: 0 0 1.75rem;
+}
+
+.article-media {
+  margin-bottom: 1.75rem;
+}
+
+.article-media img {
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* Immagine intermedia dentro al corpo dell'articolo (blocco { type: "image" }) */
+.article-inline-image {
+  margin: 2rem 0;
+}
+
+.article-inline-image img {
+  width: 100%;
+  display: block;
+  border-radius: 2px;
+}
+
+.article-inline-image figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.article-body p {
+  margin: 0 0 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.article-body p:first-child {
+  font-size: 1.15rem;
+  color: var(--color-text);
+}
+
+/* Sidebar "Da leggere dopo": sotto il contenuto su mobile, colonna fissa
+   e agganciata durante lo scroll (sticky) da 960px in su. */
+.article-sidebar {
+  margin-top: 3rem;
+  padding: 2rem 0 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+@media (min-width: 960px) {
+  .article-sidebar {
+    margin-top: 2.5rem;
+    padding: 0;
+    border-top: none;
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+.sidebar-title {
+  font-size: 1.05rem;
+  margin: 0 0 1.25rem;
+}
+
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sidebar-card {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar-card-media {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-bg-alt);
+}
+
+.sidebar-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-card-category {
+  margin: 0 0 0.2rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.sidebar-card-title {
+  font-size: 0.92rem;
+  line-height: 1.3;
+  margin: 0 0 0.3rem;
+}
+
+.sidebar-card-date {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+/* ---- Pagina Chi sono ---- */
+.about-wrap {
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+  padding: 3rem 0 5rem;
+}
+
+@media (min-width: 750px) {
+  .about-wrap {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+.about-photo {
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 750px) {
+  .about-photo {
+    position: sticky;
+    top: 7rem;
+    height: calc(100vh - 7rem);
+    align-items: center;
+  }
+}
+
+.about-mark-large {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+
+.about-text h1 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  margin-bottom: 1.5rem;
+}
+
+.about-text h2 {
+  font-size: 1.5rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.about-text p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 0 0 1.25rem;
+}
+
+.about-text a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.about-text a:hover {
+  text-decoration: underline;
+}
+
+.about-lede {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.about-signoff {
+  margin-top: 2rem;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+
+.about-signoff a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  margin-top: 3rem;
+  padding: 2rem 0;
+}
+
+.site-footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}
+
+@media (min-width: 700px) {
+  .site-footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+.site-footer a {
+  text-decoration: none;
+  color: var(--color-muted);
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-mark {
+  height: 16px;
+  width: auto;
+  opacity: 0.55;
+}
+
+.site-footer a:hover {
+  color: var(--color-accent);
+}
+
+/* ---- Sezione principale generica ---- */
+main {
+  padding: 2.5rem 0 1rem;
+}

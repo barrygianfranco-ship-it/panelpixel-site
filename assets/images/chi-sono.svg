@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#F1ECE3"/>
+  <circle cx="400" cy="380" r="150" fill="#B23A2E" opacity="0.85"/>
+  <path d="M 160 900 C 160 680 250 560 400 560 C 550 560 640 680 640 900 Z" fill="#B23A2E" opacity="0.85"/>
+  <text x="400" y="960" font-family="Georgia, serif" font-size="30" fill="#1A1A1A" opacity="0.6" text-anchor="middle">GIANFRANCO BARRY</text>
+</svg>

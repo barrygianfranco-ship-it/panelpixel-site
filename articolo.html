@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Pixel</title>
+  <meta id="meta-description" name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
+  <meta id="meta-keywords" name="keywords" content="">
+
+  <!-- Open Graph: valori di default, sovrascritti via JS in base all'articolo (vedi updateArticleSEO in js/main.js) -->
+  <meta id="og-type" property="og:type" content="article">
+  <meta id="og-title" property="og:title" content="Panel Pixel">
+  <meta id="og-description" property="og:description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
+  <meta id="og-image" property="og:image" content="">
+  <meta id="og-url" property="og:url" content="">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta id="twitter-title" name="twitter:title" content="Panel Pixel">
+  <meta id="twitter-description" name="twitter:description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
+  <meta id="twitter-image" name="twitter:image" content="">
+
+  <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Stili specifici delle varianti di layout per tipo di articolo
+       (radar / recensione / monografia / notizia). Vivono qui, scoped a
+       questa pagina, per non toccare css/style.css: riusano le variabili
+       --color-*/--font-* definite lì. -->
+  <style>
+    .article-title--sober {
+      font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+    }
+
+    .article-subtitle {
+      color: var(--color-muted);
+      font-size: 1.15rem;
+      line-height: 1.55;
+      margin: 0 0 1.75rem;
+    }
+
+    .radar-period {
+      color: var(--color-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: -0.5rem 0 1rem;
+    }
+
+    .article-heading {
+      font-size: 1.3rem;
+      margin: 2rem 0 1rem;
+    }
+
+    .radar-list {
+      list-style: none;
+      margin: 0 0 2rem;
+      padding: 0;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .radar-item {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      gap: 1rem;
+      padding: 1.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .radar-item-index {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--color-accent);
+    }
+
+    .radar-item-title {
+      font-size: 1.2rem;
+      margin: 0 0 0.35rem;
+    }
+
+    .radar-item-meta {
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      margin: 0 0 0.5rem;
+    }
+
+    .radar-item-release {
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      font-style: italic;
+      margin: 0 0 0.6rem;
+    }
+
+    .radar-item-why {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .article-footer-meta {
+      margin: 2rem 0 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--color-border);
+      font-size: 0.85rem;
+      color: var(--color-muted);
+    }
+
+    .support-box {
+      margin: 2rem 0 0;
+      padding: 1.75rem;
+      background: var(--color-bg-alt);
+      border-radius: 4px;
+    }
+
+    .support-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin: 0 0 0.6rem;
+    }
+
+    .support-text {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--color-text);
+      margin: 0 0 1rem;
+    }
+
+    .support-cta {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+
+    .support-cta:hover {
+      text-decoration: underline;
+    }
+
+    /* Sezione commenti: separata visivamente dal corpo dell'articolo con
+       un bordo superiore e margine generoso, coerente col resto della pagina. */
+    .comments-section {
+      margin: 3rem 0 0;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .comments-title {
+      font-size: 1.4rem;
+      margin: 0 0 1.5rem;
+    }
+
+    .comments-placeholder {
+      padding: 1.5rem;
+      background: var(--color-bg-alt);
+      border-radius: 4px;
+      color: var(--color-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-brand">
+      <a class="site-logo" href="index.html">
+        <img src="assets/images/logo-icon.png" alt="">
+        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel">
+      </a>
+    </div>
+    <div class="site-header-nav">
+      <div class="container site-header-nav-inner">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+        <nav class="primary-nav" id="primary-nav">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="recensioni.html">Recensioni</a>
+          <a class="nav-link" href="monografie.html">Monografie</a>
+          <a class="nav-link" href="attualita.html">Attualità</a>
+          <a class="nav-link" href="anteprime.html">Anteprime</a>
+          <a class="nav-link" href="chi-sono.html">Chi sono</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Tutto il contenuto qui sotto è popolato via JavaScript in base a
+         ?slug= e al campo "type" dell'articolo (vedi renderArticleLayout
+         in js/main.js). I blocchi non usati dal tipo corrente restano vuoti. -->
+    <div class="article-layout">
+      <article class="article-wrap" id="article-content">
+        <header class="article-header" id="article-header"></header>
+        <div class="article-media" id="article-media"></div>
+        <div class="article-body" id="article-body"></div>
+        <ol class="radar-list" id="radar-list"></ol>
+        <div class="article-footer-meta" id="article-footer-meta"></div>
+        <div class="support-box" id="support-box"></div>
+
+        <!-- Commenti: vedi COMMENTS_CONFIG in js/data.js per come attivare
+             Giscus. Finché non è attivato, mostra solo un messaggio placeholder
+             (nessuno script esterno viene caricato). -->
+        <section class="comments-section" id="comments-section">
+          <h2 class="comments-title">Commenti</h2>
+          <div id="giscus-container"></div>
+        </section>
+      </article>
+
+      <!-- Sidebar "Da leggere dopo": popolata da renderRelatedSidebar()
+           in js/main.js. Su desktop (≥960px) sta a destra e resta agganciata
+           durante lo scroll; su mobile scende sotto il contenuto principale. -->
+      <aside class="article-sidebar" id="article-sidebar">
+        <div id="sidebar-related"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
+      <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy & Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
