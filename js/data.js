@@ -79,15 +79,18 @@ const COMMENTS_CONFIG = {
    - type: determina il TEMPLATE/layout della pagina articolo (vedi
      renderArticleLayout in js/main.js). Uno tra:
        "recensione", "monografia", "notizia" → content è un ARRAY DI BLOCCHI,
-         mostrati in ordine, di due tipi possibili:
-           { type: "paragraph", heading (opzionale), text }
-             → un paragrafo di testo; "heading" genera un intertitolo (di
-               solito lasciato vuoto solo nel primo blocco, che fa da attacco)
+         mostrati in ordine, dei tipi possibili:
+           { type: "h2", text }  → titolo di sezione
+           { type: "h3", text }  → sottotitolo (sotto-sezione)
+           { type: "p", text }   → paragrafo semplice
            { type: "image", src, alt (opzionale), caption (opzionale) }
              → un'immagine in mezzo al testo, con didascalia opzionale
-         Si possono alternare liberamente: testo, immagine, testo, immagine...
+         Si possono alternare liberamente in qualunque ordine. Non esiste
+         un blocco di tipo "h1": il titolo dell'articolo è sempre e solo
+         quello del campo "title" qui sopra, gestito dal template.
          (Sono supportati anche i formati usati prima di avere i blocchi
-         misti — una stringa semplice, oppure { heading (opz.), text } senza
+         h2/h3/p — { type: "paragraph", heading (opzionale), text }, oppure
+         ancora prima una stringa semplice o { heading (opz.), text } senza
          "type" — per compatibilità con gli articoli scritti in precedenza.)
        "radar" → rubrica con più voci (es. giochi/film da tenere d'occhio).
          content è un OGGETTO { intro, items }, dove items è un array di

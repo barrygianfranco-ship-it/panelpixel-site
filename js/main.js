@@ -337,6 +337,20 @@ function renderContentBlocks(el, article) {
         const caption = block.caption ? `<figcaption>${block.caption}</figcaption>` : "";
         return `<figure class="article-inline-image"><img src="${block.src}" alt="${block.alt || ""}" loading="lazy">${caption}</figure>`;
       }
+      // Blocchi di intertitolo standalone generati dall'editor: h2 = titolo
+      // di sezione, h3 = sottotitolo. Il titolo dell'articolo resta sempre
+      // e solo l'<h1> gestito dal template (renderRecensioneHeader ecc.),
+      // qui non è mai possibile generare un h1.
+      if (block.type === "h2") {
+        return `<h2 class="article-heading">${block.text}</h2>`;
+      }
+      if (block.type === "h3") {
+        return `<h3 class="article-subheading">${block.text}</h3>`;
+      }
+      if (block.type === "p") {
+        return `<p>${block.text}</p>`;
+      }
+      // Formato precedente: paragrafo con intertitolo opzionale incorporato.
       const heading = block.heading ? `<h2 class="article-heading">${block.heading}</h2>` : "";
       return `${heading}<p>${block.text}</p>`;
     })
