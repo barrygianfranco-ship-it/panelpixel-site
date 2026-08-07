@@ -8,6 +8,7 @@
   --color-bg: #faf8f5;
   --color-bg-alt: #f1ece3;
   --color-text: #1a1a1a;
+  --color-text-rgb: 26, 26, 26; /* stessi valori di --color-text, in RGB: serve per gli overlay rgba() sulle immagini della hero */
   --color-muted: #6b6b63;
   --color-accent: #b23a2e;
   --color-border: #e2dacb;
@@ -224,19 +225,255 @@ h1, h2, h3 {
   margin: 0;
 }
 
-/* ---- Sezione In evidenza (una sola storia) ---- */
-.featured-single {
-  display: block;
+/* ---- Hero magazine a 3 colonne (sinistra 25% / centro 50% / destra 25%) ----
+   Mobile: impilata in un'unica colonna, ordine centro → sinistra → destra
+   (via "order"). Da 700px: centro sopra a tutta larghezza, sinistra/destra
+   affiancate sotto. Da 1024px: le 3 colonne affiancate come su desktop. */
+.magazine-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
   margin-bottom: 4.5rem;
 }
 
-/* Senza questa riga, "display: block" qui sopra vincerebbe sempre sulla
-   regola nativa del browser per l'attributo [hidden], perché le regole
-   d'autore hanno priorità su quelle del browser a parità di specificità:
-   il risultato sarebbe che la ricerca in home non nasconde mai questa
-   sezione. */
-.featured-single[hidden] {
+/* Senza questa riga, "display: grid" qui sopra vincerebbe sempre sulla
+   regola nativa del browser per l'attributo [hidden] (le regole d'autore
+   hanno priorità su quelle del browser a parità di specificità): la
+   ricerca in home non nasconderebbe mai questa sezione. */
+.magazine-hero[hidden] {
   display: none;
+}
+
+.hero-col--center {
+  order: 1;
+}
+
+.hero-col--left {
+  order: 2;
+}
+
+.hero-col--right {
+  order: 3;
+}
+
+@media (min-width: 700px) {
+  .magazine-hero {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "center center"
+      "left right";
+  }
+
+  .hero-col--center {
+    grid-area: center;
+    order: initial;
+  }
+
+  .hero-col--left {
+    grid-area: left;
+    order: initial;
+  }
+
+  .hero-col--right {
+    grid-area: right;
+    order: initial;
+  }
+}
+
+@media (min-width: 1024px) {
+  .magazine-hero {
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-areas: "left center right";
+  }
+}
+
+/* Colonna sinistra: 3 mini-articoli separati da una linea sottile */
+.hero-col--left {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-mini {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0.9rem;
+  padding: 1.25rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.hero-mini:first-child {
+  padding-top: 0;
+}
+
+.hero-mini + .hero-mini {
+  border-top: 1px solid var(--color-border);
+}
+
+.hero-mini-media {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-bg-alt);
+}
+
+.hero-mini-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-mini-title {
+  font-size: 0.98rem;
+  line-height: 1.3;
+  margin: 0 0 0.35rem;
+}
+
+.hero-mini-excerpt {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin: 0 0 0.4rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-mini-author {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* Colonna centrale: articolo principale, il più grande delle 3 */
+.hero-main {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.hero-main-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-bg-alt);
+  margin-bottom: 1rem;
+}
+
+.hero-main-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-main-tag {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  background: rgba(var(--color-text-rgb), 0.72);
+  color: var(--color-bg);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+  border-radius: 2px;
+}
+
+.hero-main-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-bottom: 0.85rem;
+}
+
+.hero-main-comments {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hero-main-title {
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  margin: 0 0 0.75rem;
+}
+
+.hero-main-excerpt {
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 1.1rem;
+}
+
+.hero-main-author {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.hero-main-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Colonna destra: secondo articolo in evidenza, immagine verticale */
+.hero-side {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.hero-side-media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-bg-alt);
+  margin-bottom: 0.85rem;
+}
+
+.hero-side-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-side-tag {
+  position: absolute;
+  left: 0.65rem;
+  top: 0.65rem;
+  background: rgba(var(--color-text-rgb), 0.72);
+  color: var(--color-bg);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+}
+
+.hero-side-title {
+  font-size: 1.05rem;
+  line-height: 1.3;
+  margin: 0 0 0.4rem;
+}
+
+.hero-side-author {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  margin: 0;
 }
 
 /* ---- Ricerca articoli (home): barra nell'header, vicino al menu ---- */
@@ -370,32 +607,20 @@ h1, h2, h3 {
 }
 
 /* Card grande (unica storia in evidenza) */
-.card--hero .card-media {
-  aspect-ratio: 21 / 10;
-}
-
-.card--hero .card-body {
-  max-width: 760px;
-}
-
-.card--hero .card-category {
-  font-size: 0.78rem;
-}
-
-.card--hero .card-title {
-  font-size: clamp(1.9rem, 4.2vw, 3rem);
-  margin: 0 0 0.9rem;
-}
-
-.card--hero .card-excerpt {
-  display: block;
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
 /* ---- Griglia di categoria ---- */
 .category-section {
   margin-bottom: 5rem;
+}
+
+/* Griglia unica in home, sotto l'hero: a differenza delle altre griglie del
+   sito, qui l'estratto resta visibile (richiesto esplicitamente per questa
+   sezione) — non cambia il comportamento di .card-excerpt altrove. */
+.homepage-grid {
+  margin-bottom: 5rem;
+}
+
+.homepage-grid .card-excerpt {
+  display: block;
 }
 
 .section-header {

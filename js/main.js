@@ -18,19 +18,36 @@ function getArticlesByCategory(slug) {
   return ARTICLES.filter((a) => a.category === slug).sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-function getFeaturedArticles() {
-  return ARTICLES.filter((a) => a.featured).sort((a, b) => (a.date < b.date ? 1 : -1));
-}
-
 function getArticleBySlug(slug) {
   return ARTICLES.find((a) => a.slug === slug);
 }
 
-/* Card di un articolo. variant: "hero" | "small" | "normal" */
-function cardHTML(article, variant) {
-  const modifier = variant === "hero" ? " card--hero" : "";
+function getTopRecentArticles(count) {
+  return ARTICLES.slice()
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, count);
+}
+
+/* Etichetta mostrata come tag categoria nella hero: stessa logica usata
+   nelle intestazioni di articolo.html (recensione/monografia/radar hanno
+   un'etichetta dedicata, notizia usa il nome della categoria). */
+function getHeroTag(article) {
+  switch (article.type) {
+    case "recensione":
+      return "Recensione";
+    case "monografia":
+      return "Monografia";
+    case "radar":
+      return article.rubricName || "Radar";
+    case "notizia":
+    default:
+      return getCategoryName(article.category);
+  }
+}
+
+function cardHTML(article) {
   return `
-    <a class="card${modifier}" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+    <a class="card" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
       <div class="card-media">
         <img src="${article.image}" alt="${article.title}" loading="lazy">
       </div>
@@ -43,37 +60,84 @@ function cardHTML(article, variant) {
     </a>`;
 }
 
-/* ---- Rendering Home: sezione "In evidenza" ---- */
-function renderFeatured() {
-  const mainEl = document.getElementById("featured-main");
-  if (!mainEl) return;
-
-  const [hero] = getFeaturedArticles();
-  if (!hero) return;
-
-  mainEl.innerHTML = cardHTML(hero, "hero");
+/* ---- Rendering Home: hero a 3 colonne (sinistra: 3 mini, centro: articolo
+   principale, destra: secondo articolo in evidenza), stile magazine ---- */
+function heroMiniHTML(article) {
+  return `
+    <a class="hero-mini" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+      <div class="hero-mini-media">
+        <img src="${article.image}" alt="${article.title}" loading="lazy">
+      </div>
+      <div class="hero-mini-body">
+        <h3 class="hero-mini-title">${article.title}</h3>
+        <p class="hero-mini-excerpt">${article.excerpt}</p>
+        <p class="hero-mini-author">A cura di ${article.author}</p>
+      </div>
+    </a>`;
 }
 
-/* ---- Rendering Home: sezioni per categoria ---- */
-function renderHomeCategorySections() {
-  const container = document.getElementById("category-sections");
+function heroMainHTML(article) {
+  return `
+    <a class="hero-main" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+      <div class="hero-main-media">
+        <img src="${article.image}" alt="${article.title}" loading="lazy">
+        <span class="hero-main-tag">${getHeroTag(article)}</span>
+      </div>
+      <div class="hero-main-meta-row">
+        <time datetime="${article.date}">${formatDateIT(article.date)}</time>
+        <span class="hero-main-comments">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16v11H8l-4 4V4z" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          0
+        </span>
+      </div>
+      <h2 class="hero-main-title">${article.title}</h2>
+      <p class="hero-main-excerpt">${article.excerpt}</p>
+      <div class="hero-main-author">
+        <img class="hero-main-avatar" src="assets/images/gianfranco-barry.jpg" alt="">
+        <span>${article.author}</span>
+      </div>
+    </a>`;
+}
+
+function heroSideHTML(article) {
+  return `
+    <a class="hero-side" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+      <div class="hero-side-media">
+        <img src="${article.image}" alt="${article.title}" loading="lazy">
+        <span class="hero-side-tag">${getHeroTag(article)}</span>
+      </div>
+      <h3 class="hero-side-title">${article.title}</h3>
+      <p class="hero-side-author">A cura di ${article.author}</p>
+    </a>`;
+}
+
+function renderMagazineHero() {
+  const leftEl = document.getElementById("hero-left");
+  const centerEl = document.getElementById("hero-center");
+  const rightEl = document.getElementById("hero-right");
+  if (!leftEl || !centerEl || !rightEl) return;
+
+  const [main, side, ...minis] = getTopRecentArticles(5);
+
+  centerEl.innerHTML = main ? heroMainHTML(main) : "";
+  rightEl.innerHTML = side ? heroSideHTML(side) : "";
+  leftEl.innerHTML = minis.map((a) => heroMiniHTML(a)).join("");
+}
+
+/* ---- Rendering Home: griglia unica sotto l'hero, categorie miste ----
+   Mostra gli articoli più recenti (fino a 9), esclusi i 5 già mostrati
+   nella hero sopra, per non ripeterli due volte nella stessa pagina. */
+function renderHomepageGrid() {
+  const container = document.getElementById("homepage-articles");
   if (!container) return;
 
-  const homeCategories = CATEGORIES.filter((c) => ["recensioni", "monografie", "anteprime"].includes(c.slug));
-  container.innerHTML = homeCategories.map((cat) => {
-    const articles = getArticlesByCategory(cat.slug).slice(0, 3);
-    if (articles.length === 0) return "";
-    return `
-      <section class="category-section">
-        <div class="section-header">
-          <h2 class="section-title">${cat.name}</h2>
-          <a class="section-link" href="${cat.slug}.html">Vedi tutti &rarr;</a>
-        </div>
-        <div class="card-grid">
-          ${articles.map((a) => cardHTML(a)).join("")}
-        </div>
-      </section>`;
-  }).join("");
+  const heroSlugs = new Set(getTopRecentArticles(5).map((a) => a.slug));
+
+  const articles = ARTICLES.filter((a) => !heroSlugs.has(a.slug))
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, 9);
+
+  container.innerHTML = articles.map((a) => cardHTML(a)).join("");
 }
 
 /* ---- Ricerca articoli (home): filtra per titolo, categoria, autore ---- */
@@ -107,11 +171,11 @@ function renderSearchResults(query) {
   const resultsEl = document.getElementById("search-results");
   if (!resultsEl) return;
 
-  const featuredEl = document.getElementById("featured-main");
-  const sectionsEl = document.getElementById("category-sections");
+  const featuredEl = document.getElementById("magazine-hero");
+  const sectionsEl = document.getElementById("homepage-grid");
   const q = query.trim();
 
-  // ricerca vuota: torna alla home normale (In evidenza + sezioni categoria)
+  // ricerca vuota: torna alla home normale (In evidenza + griglia articoli)
   if (!q) {
     resultsEl.hidden = true;
     resultsEl.innerHTML = "";
@@ -513,8 +577,8 @@ function initHeader() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initHeader();
-  renderFeatured();
-  renderHomeCategorySections();
+  renderMagazineHero();
+  renderHomepageGrid();
   initSearch();
   renderCategoryPage();
   renderArticlePage();
