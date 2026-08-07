@@ -1,0 +1,120 @@
+backend:
+  name: github
+  repo: barrygianfranco-ship-it/panelpixel-site
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+# ATTENZIONE (vedi riepilogo consegnato in chat): questa collection scrive
+# in data/articles.json, un file che al momento NON esiste ancora e che
+# js/main.js non legge. Finché non si completa la migrazione descritta nel
+# riepilogo (spostare ARTICLES da js/data.js a data/articles.json + aggiungere
+# un fetch in js/main.js), gli articoli creati da qui non compariranno sul
+# sito pubblicato.
+collections:
+  - name: "articoli"
+    label: "Articoli"
+    files:
+      - name: "articoli"
+        label: "Tutti gli articoli"
+        file: "data/articles.json"
+        fields:
+          - label: "Articoli"
+            name: "articles"
+            widget: "list"
+            summary: "{{title}} — {{category}}"
+            fields:
+              - label: "Slug"
+                name: "slug"
+                widget: "string"
+                hint: "Usato nell'URL (articolo.html?slug=...). Solo minuscolo, numeri e trattini, es. il-mio-titolo."
+              - label: "Categoria"
+                name: "category"
+                widget: "select"
+                options:
+                  - { label: "Recensioni", value: "recensioni" }
+                  - { label: "Monografie", value: "monografie" }
+                  - { label: "Attualità", value: "attualita" }
+                  - { label: "Anteprime", value: "anteprime" }
+                  - { label: "Approfondimenti", value: "approfondimenti" }
+              - label: "Tipo"
+                name: "type"
+                widget: "select"
+                hint: "Il tipo \"radar\" (rubrica a elenco voci) non è supportato da questo form: ha una struttura contenuto diversa dagli altri tre."
+                options:
+                  - { label: "Recensione", value: "recensione" }
+                  - { label: "Monografia", value: "monografia" }
+                  - { label: "Notizia", value: "notizia" }
+              - label: "Titolo"
+                name: "title"
+                widget: "string"
+              - label: "Sottotitolo / excerpt"
+                name: "excerpt"
+                widget: "text"
+              - label: "Autore"
+                name: "author"
+                widget: "string"
+                default: "Gianfranco Barry"
+              - label: "Data"
+                name: "date"
+                widget: "date"
+                format: "YYYY-MM-DD"
+                picker_utc: true
+              - label: "Immagine di copertina"
+                name: "image"
+                widget: "image"
+              - label: "In evidenza in home"
+                name: "featured"
+                widget: "boolean"
+                default: false
+              - label: "Provato su (opzionale, solo recensioni)"
+                name: "triedOn"
+                widget: "string"
+                required: false
+                hint: "Es. \"PC (build review)\""
+              - label: "SEO — Titolo"
+                name: "seoTitle"
+                widget: "string"
+                required: false
+                hint: "Con \" | Panel Pixel\" in fondo. Se lasciato vuoto, il sito genera un fallback dal titolo."
+              - label: "SEO — Descrizione"
+                name: "seoDescription"
+                widget: "text"
+                required: false
+                hint: "140-160 caratteri. Se lasciato vuoto, il sito genera un fallback dal sottotitolo."
+              - label: "SEO — Parole chiave"
+                name: "seoKeywords"
+                widget: "list"
+                required: false
+              - label: "Corpo dell'articolo (blocchi, nell'ordine in cui compaiono)"
+                name: "content"
+                widget: "list"
+                types:
+                  - label: "Titolo sezione (H2)"
+                    name: "h2"
+                    widget: "object"
+                    fields:
+                      - { label: "Tipo", name: "type", widget: "hidden", default: "h2" }
+                      - { label: "Testo", name: "text", widget: "string" }
+                  - label: "Sottotitolo (H3)"
+                    name: "h3"
+                    widget: "object"
+                    hint: "Da usare solo dopo un H2 nello stesso articolo, mai come primo intertitolo."
+                    fields:
+                      - { label: "Tipo", name: "type", widget: "hidden", default: "h3" }
+                      - { label: "Testo", name: "text", widget: "string" }
+                  - label: "Paragrafo"
+                    name: "p"
+                    widget: "object"
+                    fields:
+                      - { label: "Tipo", name: "type", widget: "hidden", default: "p" }
+                      - { label: "Testo", name: "text", widget: "text" }
+                  - label: "Immagine"
+                    name: "image"
+                    widget: "object"
+                    fields:
+                      - { label: "Tipo", name: "type", widget: "hidden", default: "image" }
+                      - { label: "Immagine", name: "src", widget: "image" }
+                      - { label: "Testo alternativo (alt)", name: "alt", widget: "string", required: false, hint: "Consigliato: descrivi cosa mostra l'immagine." }
+                      - { label: "Didascalia (opzionale)", name: "caption", widget: "string", required: false }
