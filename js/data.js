@@ -27,6 +27,7 @@ const CATEGORIES = [
   { slug: "monografie", name: "Monografie" },
   { slug: "attualita", name: "Attualità" },
   { slug: "anteprime", name: "Anteprime" },
+  { slug: "approfondimenti", name: "Approfondimenti" },
 ];
 
 /* ==========================================================================

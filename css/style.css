@@ -88,6 +88,14 @@ h1, h2, h3 {
   top: 0;
   background: var(--color-bg);
   z-index: 20;
+  transition: transform 0.3s ease;
+}
+
+/* Aggiunta/rimossa via JS in base alla direzione dello scroll (vedi
+   initHeaderScrollHide in js/main.js). Non cambia design/colori dell'header,
+   solo la sua posizione verticale. */
+.site-header.header-hidden {
+  transform: translateY(-100%);
 }
 
 /* Riga 1: brand (logo/nome), sempre centrata */

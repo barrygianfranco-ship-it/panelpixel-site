@@ -140,6 +140,26 @@ function renderHomepageGrid() {
   container.innerHTML = articles.map((a) => cardHTML(a)).join("");
 }
 
+/* ---- Rendering Home: sezione dedicata "Approfondimenti" ----
+   Sezione a sé (titolo + griglia), separata dalla griglia mista "Ultimi
+   articoli" sopra. Resta nascosta finché non c'è almeno un articolo con
+   category "approfondimenti", per non mostrare una sezione vuota in home. */
+function renderApprofondimentiSection() {
+  const section = document.getElementById("approfondimenti-section");
+  const container = document.getElementById("approfondimenti-articles");
+  if (!section || !container) return;
+
+  const articles = getArticlesByCategory("approfondimenti").slice(0, 3);
+
+  if (articles.length === 0) {
+    section.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  container.innerHTML = articles.map((a) => cardHTML(a)).join("");
+}
+
 /* ---- Ricerca articoli (home): filtra per titolo, categoria, autore ---- */
 function normalizeSearchText(str) {
   // NFD scompone le lettere accentate in lettera-base + segno diacritico
@@ -589,10 +609,57 @@ function initHeader() {
   });
 }
 
+/* ---- Header che si nasconde scorrendo verso il basso, riappare scorrendo
+   verso l'alto (o vicino alla cima della pagina). Aggiunge/rimuove solo la
+   classe "header-hidden": design, logo e menu restano invariati, cambia
+   solo la posizione verticale (vedi .site-header.header-hidden in
+   css/style.css). Attivo su tutte le pagine, desktop e mobile allo stesso
+   modo (nessuna differenza legata alla larghezza dello schermo). */
+function initHeaderScrollHide() {
+  const header = document.querySelector(".site-header");
+  const nav = document.getElementById("primary-nav");
+  if (!header) return;
+
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+  const hideThreshold = 80; // vicino alla cima: l'header resta sempre visibile
+
+  function onScroll() {
+    const currentScrollY = window.scrollY;
+    const navOpen = nav && nav.classList.contains("is-open");
+
+    if (navOpen) {
+      // non nascondere l'header mentre il menu mobile è aperto
+    } else if (currentScrollY <= hideThreshold) {
+      header.classList.remove("header-hidden");
+    } else if (currentScrollY > lastScrollY) {
+      header.classList.add("header-hidden");
+    } else if (currentScrollY < lastScrollY) {
+      header.classList.remove("header-hidden");
+    }
+
+    lastScrollY = currentScrollY;
+    ticking = false;
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        window.requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    },
+    { passive: true }
+  );
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initHeader();
+  initHeaderScrollHide();
   renderMagazineHero();
   renderHomepageGrid();
+  renderApprofondimentiSection();
   initSearch();
   renderCategoryPage();
   renderArticlePage();
