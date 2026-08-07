@@ -472,6 +472,58 @@ function renderContentBlocks(el, article) {
     .join("");
 }
 
+/* ---- Corpo articolo in markdown (Step A: sostituisce gradualmente i
+   blocchi tipizzati sopra — vedi renderArticleLayout più sotto per come
+   decide quale dei due usare). Il parser è marked.js, caricato via CDN
+   solo in articolo.html (non serve altrove). Il renderer di default di
+   marked NON produce le classi/strutture che usa css/style.css (un "##"
+   diventerebbe un <h2> nudo, non <h2 class="article-heading">), quindi
+   qui sotto lo personalizziamo:
+   - heading: livello 1-2 → h2.article-heading, livello 3+ → h3.article-
+     subheading. Così anche se qualcuno scrive "# Titolo" o "#### Titolo"
+     a mano nel markdown (la toolbar dell'editor limita i bottoni a H2/H3,
+     ma non impedisce di digitare markdown "grezzo"), la gerarchia heading
+     del sito resta a due soli livelli sotto l'h1 dell'articolo, come
+     deciso per l'accessibilità/SEO.
+   - image: stessa struttura <figure class="article-inline-image"><img
+     loading="lazy">... dei blocchi immagine di prima. Didascalia via la
+     sintassi markdown ![alt](src "didascalia") — l'attributo "title" di
+     markdown, riletto come caption: non è lo standard d'uso di markdown,
+     è una convenzione di questo sito (vedi commento in data/articles.json
+     quando arriverà la migrazione, Step B). */
+if (typeof marked !== "undefined") {
+  marked.use({
+    renderer: {
+      heading({ tokens, depth }) {
+        const text = this.parser.parseInline(tokens);
+        const tag = depth <= 2 ? "h2" : "h3";
+        const cls = depth <= 2 ? "article-heading" : "article-subheading";
+        return `<${tag} class="${cls}">${text}</${tag}>`;
+      },
+      image({ href, title, text }) {
+        const caption = title ? `<figcaption>${title}</figcaption>` : "";
+        return `<figure class="article-inline-image"><img src="${href}" alt="${text || ""}" loading="lazy">${caption}</figure>`;
+      },
+      // <figure> è un elemento di blocco: se un'immagine sta da sola su una
+      // riga (un caso comune), il paragrafo di default di marked la
+      // avvolgerebbe comunque in un <p>, che il browser non può annidare
+      // attorno a un <figure> — lo chiude/riapre da solo, producendo <p></p>
+      // vuoti prima e dopo. Qui si intercetta il caso "paragrafo = una sola
+      // immagine" e si salta il wrapper <p>.
+      paragraph({ tokens }) {
+        if (tokens.length === 1 && tokens[0].type === "image") {
+          return this.image(tokens[0]);
+        }
+        return `<p>${this.parser.parseInline(tokens)}</p>`;
+      },
+    },
+  });
+}
+
+function renderMarkdownBody(el, article) {
+  el.innerHTML = marked.parse(article.content);
+}
+
 /* Elenco radar: content.items è un array di voci { title, creator, publisher, releaseInfo, why } */
 function renderRadarList(el, article) {
   const items = (article.content && article.content.items) || [];
@@ -535,7 +587,14 @@ function renderArticleLayout(article) {
     case "monografia":
     case "notizia":
     default:
-      renderContentBlocks(bodyEl, article);
+      // Step A della migrazione a markdown: article.content è un array di
+      // blocchi per gli articoli non ancora migrati, una stringa markdown
+      // per quelli già convertiti (Step B) — vedi renderMarkdownBody sopra.
+      if (Array.isArray(article.content)) {
+        renderContentBlocks(bodyEl, article);
+      } else {
+        renderMarkdownBody(bodyEl, article);
+      }
       bodyEl.hidden = false;
       break;
   }

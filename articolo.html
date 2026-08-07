@@ -264,6 +264,13 @@
   </footer>
 
   <script src="js/data.js"></script>
+  <!-- Parser markdown per il corpo articolo (widget "markdown" di Decap
+       CMS, Step A: infrastruttura di rendering — vedi commento su
+       renderMarkdownBody in js/main.js). Deve caricare PRIMA di main.js,
+       che registra un renderer personalizzato non appena questo script
+       è disponibile. Versione pinnata esplicitamente (non "latest"), per
+       non ritrovarsi un renderer rotto da un aggiornamento a sorpresa. -->
+  <script src="https://unpkg.com/marked@18.0.9/lib/marked.umd.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
