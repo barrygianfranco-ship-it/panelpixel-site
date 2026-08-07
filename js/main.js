@@ -53,7 +53,7 @@ function cardHTML(article) {
       </div>
       <div class="card-body">
         <p class="card-category">${getCategoryName(article.category)}</p>
-        <h3 class="card-title">${article.title}</h3>
+        <h2 class="card-title">${article.title}</h2>
         <p class="card-excerpt">${article.excerpt}</p>
         <p class="card-meta"><time datetime="${article.date}">${formatDateIT(article.date)}</time> · A cura di ${article.author}</p>
       </div>
@@ -69,7 +69,7 @@ function heroMiniHTML(article) {
         <img src="${article.image}" alt="${article.title}" loading="lazy">
       </div>
       <div class="hero-mini-body">
-        <h3 class="hero-mini-title">${article.title}</h3>
+        <h2 class="hero-mini-title">${article.title}</h2>
         <p class="hero-mini-excerpt">${article.excerpt}</p>
         <p class="hero-mini-author">A cura di ${article.author}</p>
       </div>
@@ -93,7 +93,7 @@ function heroMainHTML(article) {
       <h2 class="hero-main-title">${article.title}</h2>
       <p class="hero-main-excerpt">${article.excerpt}</p>
       <div class="hero-main-author">
-        <img class="hero-main-avatar" src="assets/images/gianfranco-barry.jpg" alt="">
+        <img class="hero-main-avatar" src="assets/images/gianfranco-barry.jpg" alt="Foto di ${article.author}">
         <span>${article.author}</span>
       </div>
     </a>`;
@@ -106,7 +106,7 @@ function heroSideHTML(article) {
         <img src="${article.image}" alt="${article.title}" loading="lazy">
         <span class="hero-side-tag">${getHeroTag(article)}</span>
       </div>
-      <h3 class="hero-side-title">${article.title}</h3>
+      <h2 class="hero-side-title">${article.title}</h2>
       <p class="hero-side-author">A cura di ${article.author}</p>
     </a>`;
 }
@@ -395,13 +395,21 @@ function renderContentBlocks(el, article) {
         return `<p>${block}</p>`;
       }
       if (block.type === "image") {
+        // Se il blocco non specifica un alt (campo opzionale nell'editor),
+        // ripiega sul titolo dell'articolo invece di lasciarlo vuoto: meglio
+        // un alt generico che nessun alt per un'immagine che porta contenuto
+        // (non decorativa).
         const caption = block.caption ? `<figcaption>${block.caption}</figcaption>` : "";
-        return `<figure class="article-inline-image"><img src="${block.src}" alt="${block.alt || ""}" loading="lazy">${caption}</figure>`;
+        return `<figure class="article-inline-image"><img src="${block.src}" alt="${block.alt || article.title}" loading="lazy">${caption}</figure>`;
       }
       // Blocchi di intertitolo standalone generati dall'editor: h2 = titolo
-      // di sezione, h3 = sottotitolo. Il titolo dell'articolo resta sempre
-      // e solo l'<h1> gestito dal template (renderArticleHeader), qui non
-      // è mai possibile generare un h1.
+      // di sezione, h3 = sottotitolo, e h3 dovrebbe comparire solo dopo un
+      // h2 nello stesso articolo (mai subito dopo l'h1) per non saltare
+      // livelli nella gerarchia degli heading. Non imposto questo vincolo
+      // via codice: dipende dall'ordine in cui vengono aggiunti i blocchi
+      // in fase di scrittura (editor o js/data.js). Il titolo dell'articolo
+      // resta sempre e solo l'<h1> gestito dal template (renderArticleHeader),
+      // qui non è mai possibile generare un h1.
       if (block.type === "h2") {
         return `<h2 class="article-heading">${block.text}</h2>`;
       }
@@ -427,7 +435,7 @@ function renderRadarList(el, article) {
     <li class="radar-item">
       <span class="radar-item-index">${String(i + 1).padStart(2, "0")}</span>
       <div class="radar-item-body">
-        <h3 class="radar-item-title">${item.title}</h3>
+        <h2 class="radar-item-title">${item.title}</h2>
         <p class="radar-item-meta">${[item.creator, item.publisher].filter(Boolean).join(" · ")}</p>
         <p class="radar-item-release">${item.releaseInfo}</p>
         <p class="radar-item-why">${item.why}</p>
@@ -585,6 +593,38 @@ function renderReadNext(article) {
   listEl.innerHTML = related.map((a) => cardHTML(a)).join("");
 }
 
+/* ---- Breadcrumb pagina articolo: Home / Categoria / Titolo ----
+   Aggiorna sia il markup visibile (#breadcrumb-list, popolato qui sotto)
+   sia il JSON-LD schema.org BreadcrumbList corrispondente (vedi il
+   placeholder #breadcrumb-jsonld in articolo.html), così i due restano
+   sempre sincronizzati con l'articolo caricato. */
+function renderBreadcrumbs(article) {
+  const categoryName = getCategoryName(article.category);
+  const categoryUrl = `${SITE.url}/${article.category}.html`;
+  const pageUrl = `${SITE.url}/articolo.html?slug=${encodeURIComponent(article.slug)}`;
+
+  const listEl = document.getElementById("breadcrumb-list");
+  if (listEl) {
+    listEl.innerHTML = `
+      <li><a href="index.html">Home</a></li>
+      <li><a href="${article.category}.html">${categoryName}</a></li>
+      <li aria-current="page">${article.title}</li>
+    `;
+  }
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE.url}/index.html` },
+      { "@type": "ListItem", position: 2, name: categoryName, item: categoryUrl },
+      { "@type": "ListItem", position: 3, name: article.title, item: pageUrl },
+    ],
+  };
+  const jsonLdEl = document.getElementById("breadcrumb-jsonld");
+  if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(breadcrumbJsonLd);
+}
+
 /* ---- Rendering pagina singolo articolo (articolo.html) ---- */
 function renderArticlePage() {
   const container = document.getElementById("article-content");
@@ -601,6 +641,7 @@ function renderArticlePage() {
   }
 
   updateArticleSEO(article);
+  renderBreadcrumbs(article);
   renderArticleLayout(article);
   renderComments(article);
   renderReadNext(article);

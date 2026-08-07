@@ -89,6 +89,11 @@ const COMMENTS_CONFIG = {
          Si possono alternare liberamente in qualunque ordine. Non esiste
          un blocco di tipo "h1": il titolo dell'articolo è sempre e solo
          quello del campo "title" qui sopra, gestito dal template.
+         NOTA SEO/accessibilità: per non saltare livelli nella gerarchia
+         degli heading (il titolo dell'articolo è già un h1), un blocco
+         "h3" dovrebbe comparire solo dopo almeno un "h2" nello stesso
+         articolo, mai come primo intertitolo. Non è imposto dal codice:
+         è una convenzione da rispettare in fase di scrittura.
          (Sono supportati anche i formati usati prima di avere i blocchi
          h2/h3/p — { type: "paragraph", heading (opzionale), text }, oppure
          ancora prima una stringa semplice o { heading (opz.), text } senza

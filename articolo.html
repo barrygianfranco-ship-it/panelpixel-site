@@ -27,6 +27,9 @@
   <!-- JSON-LD (schema.org Article): iniettato via JS, vedi updateArticleSEO -->
   <script type="application/ld+json" id="article-jsonld"></script>
 
+  <!-- JSON-LD (schema.org BreadcrumbList): iniettato via JS, vedi renderBreadcrumbs -->
+  <script type="application/ld+json" id="breadcrumb-jsonld"></script>
+
   <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
   <link rel="stylesheet" href="css/style.css">
 
@@ -219,6 +222,10 @@
          L'immagine hero (.article-media) vive nella fascia larga di
          .article-wrap; tutto il resto sta nella colonna di lettura stretta
          .article-content-inner. -->
+    <nav class="breadcrumbs container" aria-label="Breadcrumb">
+      <ol class="breadcrumb-list" id="breadcrumb-list"></ol>
+    </nav>
+
     <article class="article-wrap" id="article-content">
       <div class="article-media" id="article-media"></div>
       <div class="article-content-inner">
