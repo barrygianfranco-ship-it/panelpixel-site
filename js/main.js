@@ -307,35 +307,39 @@ function updateArticleSEO(article) {
 
 /* ---- Layout pagina articolo: header/corpo variano in base a article.type ---- */
 
-function renderRecensioneHeader(el, article) {
+/* Etichetta categoria mostrata sopra il titolo. Stessa logica per tutti i
+   tipi: recensione/monografia hanno un'etichetta fissa, radar usa il nome
+   della rubrica, notizia usa il nome della categoria del sito. */
+function getArticleHeaderLabel(article) {
+  switch (article.type) {
+    case "recensione":
+      return "Recensione";
+    case "monografia":
+      return "Monografia";
+    case "radar":
+      return article.rubricName || "Radar";
+    case "notizia":
+    default:
+      return getCategoryName(article.category);
+  }
+}
+
+/* Header unico per tutti i tipi di articolo: etichetta categoria, titolo,
+   (periodo per il radar), sottotitolo, linea divisoria. Prima ogni tipo
+   aveva una propria funzione con markup leggermente diverso (titolo "sober"
+   per monografia/notizia, niente sottotitolo per alcuni tipi); nel nuovo
+   layout editoriale la struttura è la stessa per tutti, cambia solo il
+   testo dell'etichetta. */
+function renderArticleHeader(el, article) {
+  const subtitle = article.type === "radar" ? (article.content && article.content.intro) || article.excerpt : article.excerpt;
+  const period = article.type === "radar" && article.period ? `<p class="radar-period">${article.period}</p>` : "";
+
   el.innerHTML = `
-    <p class="article-category"><a href="${article.category}.html">Recensione</a></p>
+    <p class="article-category"><a href="${article.category}.html">${getArticleHeaderLabel(article)}</a></p>
     <h1 class="article-title">${article.title}</h1>
-    <p class="article-subtitle">${article.excerpt}</p>
-  `;
-}
-
-function renderMonografiaHeader(el, article) {
-  el.innerHTML = `
-    <p class="article-category"><a href="${article.category}.html">Monografia</a></p>
-    <h1 class="article-title article-title--sober">${article.title}</h1>
-  `;
-}
-
-function renderNotiziaHeader(el, article) {
-  el.innerHTML = `
-    <p class="article-category"><a href="${article.category}.html">${getCategoryName(article.category)}</a></p>
-    <h1 class="article-title article-title--sober">${article.title}</h1>
-  `;
-}
-
-function renderRadarHeader(el, article) {
-  const intro = (article.content && article.content.intro) || article.excerpt;
-  el.innerHTML = `
-    <p class="article-category"><a href="${article.category}.html">${article.rubricName || "Radar"}</a></p>
-    <h1 class="article-title">${article.title}</h1>
-    ${article.period ? `<p class="radar-period">${article.period}</p>` : ""}
-    <p class="article-subtitle">${intro}</p>
+    ${period}
+    <p class="article-subtitle">${subtitle}</p>
+    <div class="article-header-divider"></div>
   `;
 }
 
@@ -359,8 +363,8 @@ function renderContentBlocks(el, article) {
       }
       // Blocchi di intertitolo standalone generati dall'editor: h2 = titolo
       // di sezione, h3 = sottotitolo. Il titolo dell'articolo resta sempre
-      // e solo l'<h1> gestito dal template (renderRecensioneHeader ecc.),
-      // qui non è mai possibile generare un h1.
+      // e solo l'<h1> gestito dal template (renderArticleHeader), qui non
+      // è mai possibile generare un h1.
       if (block.type === "h2") {
         return `<h2 class="article-heading">${block.text}</h2>`;
       }
@@ -429,25 +433,17 @@ function renderArticleLayout(article) {
   bodyEl.hidden = true;
   radarListEl.hidden = true;
 
+  renderArticleHeader(headerEl, article);
+
   switch (article.type) {
     case "radar":
-      renderRadarHeader(headerEl, article);
       renderRadarList(radarListEl, article);
       radarListEl.hidden = false;
       break;
     case "recensione":
-      renderRecensioneHeader(headerEl, article);
-      renderContentBlocks(bodyEl, article);
-      bodyEl.hidden = false;
-      break;
     case "monografia":
-      renderMonografiaHeader(headerEl, article);
-      renderContentBlocks(bodyEl, article);
-      bodyEl.hidden = false;
-      break;
     case "notizia":
     default:
-      renderNotiziaHeader(headerEl, article);
       renderContentBlocks(bodyEl, article);
       bodyEl.hidden = false;
       break;
@@ -533,38 +529,23 @@ function getRelatedArticles(article, limit) {
   return [...sameCategory, ...bySimilarity].slice(0, limit);
 }
 
-/* Card compatta per la sidebar: immagine piccola, categoria, titolo, data
-   (niente excerpt/autore, a differenza della card standard cardHTML). */
-function sidebarCardHTML(article) {
-  return `
-    <a class="sidebar-card" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
-      <div class="sidebar-card-media">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
-      </div>
-      <div class="sidebar-card-body">
-        <p class="sidebar-card-category">${getCategoryName(article.category)}</p>
-        <h3 class="sidebar-card-title">${article.title}</h3>
-        <p class="sidebar-card-date"><time datetime="${article.date}">${formatDateIT(article.date)}</time></p>
-      </div>
-    </a>`;
-}
-
-function renderRelatedSidebar(article) {
-  const sidebarEl = document.getElementById("sidebar-related");
-  if (!sidebarEl) return;
+/* "Da leggere dopo": sezione a piè di pagina (non più sidebar laterale),
+   riusa la card standard cardHTML() già usata in home/categorie, per
+   coerenza visiva col resto del sito. */
+function renderReadNext(article) {
+  const sectionEl = document.getElementById("read-next");
+  const listEl = document.getElementById("read-next-list");
+  if (!sectionEl || !listEl) return;
 
   const related = getRelatedArticles(article, 3);
 
   if (related.length === 0) {
-    sidebarEl.innerHTML = "";
+    sectionEl.hidden = true;
     return;
   }
 
-  sidebarEl.innerHTML = `
-    <h2 class="sidebar-title">Da leggere dopo</h2>
-    <div class="sidebar-list">
-      ${related.map((a) => sidebarCardHTML(a)).join("")}
-    </div>`;
+  sectionEl.hidden = false;
+  listEl.innerHTML = related.map((a) => cardHTML(a)).join("");
 }
 
 /* ---- Rendering pagina singolo articolo (articolo.html) ---- */
@@ -585,7 +566,7 @@ function renderArticlePage() {
   updateArticleSEO(article);
   renderArticleLayout(article);
   renderComments(article);
-  renderRelatedSidebar(article);
+  renderReadNext(article);
 }
 
 /* ---- Header: nome sito, tagline, menu mobile, link attivo ---- */

@@ -28,15 +28,20 @@
        questa pagina, per non toccare css/style.css: riusano le variabili
        --color-*/--font-* definite lì. -->
   <style>
-    .article-title--sober {
-      font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+    /* Header centrato: etichetta categoria, titolo, sottotitolo, linea
+       divisoria — stesso schema per tutti i tipi di articolo (vedi
+       renderArticleHeader in js/main.js). */
+    .article-header {
+      text-align: center;
     }
 
     .article-subtitle {
       color: var(--color-muted);
-      font-size: 1.15rem;
+      font-size: 1.2rem;
+      font-style: italic;
       line-height: 1.55;
-      margin: 0 0 1.75rem;
+      max-width: 560px;
+      margin: 0 auto 1.75rem;
     }
 
     .radar-period {
@@ -44,7 +49,14 @@
       font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin: -0.5rem 0 1rem;
+      margin: -0.75rem 0 1rem;
+    }
+
+    .article-header-divider {
+      width: 56px;
+      height: 2px;
+      background: var(--color-accent);
+      margin: 0 auto 2.5rem;
     }
 
     .article-heading {
@@ -196,11 +208,14 @@
   <main>
     <!-- Tutto il contenuto qui sotto è popolato via JavaScript in base a
          ?slug= e al campo "type" dell'articolo (vedi renderArticleLayout
-         in js/main.js). I blocchi non usati dal tipo corrente restano vuoti. -->
-    <div class="article-layout">
-      <article class="article-wrap" id="article-content">
+         in js/main.js). I blocchi non usati dal tipo corrente restano vuoti.
+         L'immagine hero (.article-media) vive nella fascia larga di
+         .article-wrap; tutto il resto sta nella colonna di lettura stretta
+         .article-content-inner. -->
+    <article class="article-wrap" id="article-content">
+      <div class="article-media" id="article-media"></div>
+      <div class="article-content-inner">
         <header class="article-header" id="article-header"></header>
-        <div class="article-media" id="article-media"></div>
         <div class="article-body" id="article-body"></div>
         <ol class="radar-list" id="radar-list"></ol>
         <div class="article-footer-meta" id="article-footer-meta"></div>
@@ -213,15 +228,18 @@
           <h2 class="comments-title">Commenti</h2>
           <div id="giscus-container"></div>
         </section>
-      </article>
+      </div>
+    </article>
 
-      <!-- Sidebar "Da leggere dopo": popolata da renderRelatedSidebar()
-           in js/main.js. Su desktop (≥960px) sta a destra e resta agganciata
-           durante lo scroll; su mobile scende sotto il contenuto principale. -->
-      <aside class="article-sidebar" id="article-sidebar">
-        <div id="sidebar-related"></div>
-      </aside>
-    </div>
+    <!-- "Da leggere dopo": non più sidebar laterale, ora appare in fondo
+         alla pagina dopo l'articolo (popolata da renderReadNext() in
+         js/main.js), a piena larghezza sia su desktop che su mobile. -->
+    <section class="read-next" id="read-next" hidden>
+      <div class="container">
+        <h2 class="section-title">Da leggere dopo</h2>
+        <div class="card-grid" id="read-next-list"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
