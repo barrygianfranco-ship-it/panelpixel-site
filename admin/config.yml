@@ -3,6 +3,10 @@ backend:
   repo: barrygianfranco-ship-it/panelpixel-site
   branch: main
 
+# Cartella separata da assets/images/ (usata dagli articoli scritti/gestiti
+# a mano) apposta: due convenzioni distinte e intenzionali per due flussi
+# diversi, non un errore da unificare — entrambe risolvono correttamente
+# dalla root del sito.
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
 
