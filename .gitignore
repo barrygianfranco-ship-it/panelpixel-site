@@ -3,6 +3,24 @@ editor.html
 css/editor.css
 js/editor.js
 
+# Variabili d'ambiente / credenziali locali
+.env
+.env.local
+.env.*.local
+
+# File di configurazione che in futuro potrebbero contenere token/credenziali
+netlify.toml
+wrangler.toml
+
 # File di sistema
 .DS_Store
 Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# Build / cache locali (prevenzione: non ancora in uso in questo progetto)
+node_modules/
+dist/
+.cache/
