@@ -1,0 +1,22 @@
+/* Wrapper minimo per l'anteprima Decap (iframe isolato, senza header/nav/
+   footer del sito): css/style.css (caricato insieme a questo, vedi
+   preview.js) fornisce variabili, font e classi identiche al sito, qui
+   c'è solo il minimo per rendere leggibile .article-wrap fuori dal suo
+   .container abituale. */
+body {
+  background: var(--color-bg, #faf8f5);
+  margin: 0;
+  padding: 2rem 1.25rem;
+}
+
+.pp-preview-hint {
+  font-size: 0.8rem;
+  color: var(--color-muted, #6b6b63);
+  text-align: center;
+  margin: 0 0 2rem;
+}
+
+.article-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}

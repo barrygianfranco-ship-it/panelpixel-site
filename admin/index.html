@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Panel Pixel — Admin</title>
+  <!-- Stile del form dell'editor (best-effort, non un'API ufficiale Decap
+       — vedi commento in cima al file per i limiti). -->
+  <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
   <!-- Decap CMS legge automaticamente admin/config.yml (stessa cartella).
        Nessuna configurazione inline qui: tutto vive nel config.yml. -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Registra l'anteprima live della collection "articoli": deve caricare
+       DOPO lo script CDN sopra, perché usa i globali che espone
+       (CMS, createClass, h) — vedi admin/preview.js. -->
+  <script src="preview.js"></script>
 </body>
 </html>

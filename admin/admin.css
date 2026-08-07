@@ -1,0 +1,66 @@
+/* Panel Pixel — stile personalizzato per l'editor Decap CMS (admin/).
+   NON è un'API ufficiale di Decap: il form dell'editor non ha un hook di
+   tema documentato (solo il pannello di anteprima ce l'ha, vedi preview.css
+   + preview.js). Selettori volutamente a bassa specificità (tag generici,
+   niente !important): dove Decap applica già un proprio stile più
+   specifico, questo foglio semplicemente non ha effetto lì invece di
+   romperlo. Non verificato dal vivo: /admin richiede login OAuth GitHub,
+   non testabile né in locale né in questa sessione — controllare
+   visivamente dopo il deploy e segnalare cosa non funziona.
+
+   NOTA: il raggruppamento visivo dei campi SEO (richiesto, poi scartato)
+   non è incluso qui — richiederebbe selettori che puntano a nomi di classe
+   interni di Decap che non ho modo di verificare senza ispezione dal vivo. */
+
+:root {
+  --color-bg: #faf8f5;
+  --color-bg-alt: #f1ece3;
+  --color-text: #1a1a1a;
+  --color-muted: #6b6b63;
+  --color-accent: #b23a2e;
+  --color-border: #e2dacb;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url("../assets/fonts/playfair-display-latin.woff2") format("woff2");
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+}
+
+input[type="text"],
+input[type="date"],
+input[type="search"],
+textarea,
+select {
+  font-family: var(--font-sans);
+  border-color: var(--color-border);
+  border-radius: 2px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline-color: var(--color-accent);
+}
