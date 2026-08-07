@@ -86,4 +86,13 @@ collections:
                 name: "content"
                 widget: "markdown"
                 hint: "Titoli limitati a H2/H3 dai bottoni qui sopra — livelli diversi digitati a mano vengono comunque normalizzati in fase di pubblicazione (vedi js/main.js). Per una didascalia sotto un'immagine, scrivi il testo tra virgolette dopo l'URL: ![alt](url \"didascalia\")."
-                buttons: ["bold", "italic", "heading-two", "heading-three", "quote", "bulleted-list", "numbered-list", "link", "image"]
+                buttons: ["bold", "italic", "heading-two", "heading-three", "quote", "bulleted-list", "numbered-list", "link"]
+                # "image" non è un valore valido per "buttons" (errore Decap
+                # al primo giro: 'buttons[8]' must be equal to one of the
+                # allowed values) — l'inserimento immagini nel widget
+                # markdown è un "editor_components", opzione separata.
+                # Elenco valori validi per "buttons" verificato sulla
+                # documentazione ufficiale Decap CMS: bold, italic,
+                # strikethrough, code, link, heading-one...heading-six,
+                # quote, bulleted-list, numbered-list — "image" non c'è.
+                editor_components: ["image"]
