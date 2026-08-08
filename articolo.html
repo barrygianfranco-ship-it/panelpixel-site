@@ -38,11 +38,13 @@
        questa pagina, per non toccare css/style.css: riusano le variabili
        --color-*/--font-* definite lì. -->
   <style>
-    /* Header centrato: etichetta categoria, titolo, sottotitolo, linea
-       divisoria — stesso schema per tutti i tipi di articolo (vedi
-       renderArticleHeader in js/main.js). */
+    /* Header allineato a sinistra, larghezza del blocco = stessa di
+       .article-media (diretto fratello dentro .article-wrap, vedi HTML
+       più sotto): etichetta categoria, titolo, sottotitolo, linea
+       divisoria a piena larghezza — stesso schema per tutti i tipi di
+       articolo (vedi renderArticleHeader in js/main.js). */
     .article-header {
-      text-align: center;
+      text-align: left;
     }
 
     .article-subtitle {
@@ -50,8 +52,8 @@
       font-size: 1.2rem;
       font-style: italic;
       line-height: 1.55;
-      max-width: 560px;
-      margin: 0 auto 1.75rem;
+      max-width: 680px;
+      margin: 0 0 1.75rem;
     }
 
     .radar-period {
@@ -63,10 +65,10 @@
     }
 
     .article-header-divider {
-      width: 56px;
-      height: 2px;
-      background: var(--color-accent);
-      margin: 0 auto 2.5rem;
+      width: 100%;
+      height: 1px;
+      background: var(--color-border);
+      margin: 0 0 2.5rem;
     }
 
     .article-heading {
@@ -219,8 +221,9 @@
     <!-- Tutto il contenuto qui sotto è popolato via JavaScript in base a
          ?slug= e al campo "type" dell'articolo (vedi renderArticleLayout
          in js/main.js). I blocchi non usati dal tipo corrente restano vuoti.
-         L'immagine hero (.article-media) vive nella fascia larga di
-         .article-wrap; tutto il resto sta nella colonna di lettura stretta
+         L'immagine hero (.article-media) e il blocco titolo (#article-header)
+         vivono nella fascia larga di .article-wrap, diretti fratelli; il
+         corpo/footer/commenti stanno nella colonna di lettura stretta
          .article-content-inner. -->
     <nav class="breadcrumbs container" aria-label="Breadcrumb">
       <ol class="breadcrumb-list" id="breadcrumb-list"></ol>
@@ -228,8 +231,8 @@
 
     <article class="article-wrap" id="article-content">
       <div class="article-media" id="article-media"></div>
+      <header class="article-header" id="article-header"></header>
       <div class="article-content-inner">
-        <header class="article-header" id="article-header"></header>
         <div class="article-body" id="article-body"></div>
         <ol class="radar-list" id="radar-list"></ol>
         <div class="article-footer-meta" id="article-footer-meta"></div>
@@ -271,6 +274,9 @@
        è disponibile. Versione pinnata esplicitamente (non "latest"), per
        non ritrovarsi un renderer rotto da un aggiornamento a sorpresa. -->
   <script src="https://unpkg.com/marked@18.0.9/lib/marked.umd.js"></script>
+  <!-- Personalizzazione di marked (renderer + componenti galleria/box),
+       condivisa con admin/index.html — vedi commento in cima al file. -->
+  <script src="js/markdown-components.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

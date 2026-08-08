@@ -11,39 +11,93 @@
    in data/articles.json dopo lo Step B. Il parser è marked.js: deve
    essere caricato in admin/index.html PRIMA di questo file (la preview
    gira nel contesto della pagina admin, non dentro l'iframe — solo il CSS
-   ci arriva via registerPreviewStyle, il JS no, va caricato qui). Il
-   renderer personalizzato qui sotto è lo stesso identico di
-   renderArticleLayout/renderMarkdownBody in js/main.js — duplicato di
-   proposito: l'anteprima lavora sui dati "in bozza" dell'editor (oggetti
-   Immutable), il sito sui dati fetchati, i due contesti non possono
-   condividere codice senza un build step. Se cambi il renderer in un
-   punto, cambialo anche nell'altro. */
+   ci arriva via registerPreviewStyle, il JS no, va caricato qui). La
+   personalizzazione del renderer (heading/image/paragraph, più i
+   componenti galleria/box) vive in js/markdown-components.js, condiviso
+   con js/main.js — deve caricare anche quello, PRIMA di questo file
+   (vedi admin/index.html), così sito e anteprima usano esattamente la
+   stessa logica invece di due copie a rischio di divergere. */
 
 CMS.registerPreviewStyle("/css/style.css");
 CMS.registerPreviewStyle("/admin/preview.css");
 
-if (typeof marked !== "undefined") {
-  marked.use({
-    renderer: {
-      heading({ tokens, depth }) {
-        const text = this.parser.parseInline(tokens);
-        const tag = depth <= 2 ? "h2" : "h3";
-        const cls = depth <= 2 ? "article-heading" : "article-subheading";
-        return `<${tag} class="${cls}">${text}</${tag}>`;
-      },
-      image({ href, title, text }) {
-        const caption = title ? `<figcaption>${title}</figcaption>` : "";
-        return `<figure class="article-inline-image"><img src="${href}" alt="${text || ""}" loading="lazy">${caption}</figure>`;
-      },
-      paragraph({ tokens }) {
-        if (tokens.length === 1 && tokens[0].type === "image") {
-          return this.image(tokens[0]);
-        }
-        return `<p>${this.parser.parseInline(tokens)}</p>`;
-      },
+/* ---- Componenti editoriali extra: galleria a griglia, box con bordo ----
+   Registrazione Decap-specifica (usa CMS.registerEditorComponent, non
+   disponibile sul sito pubblico) — per questo vive qui e non nel file
+   condiviso. Il rendering vero e proprio (cosa succede quando marked
+   incontra <!--gallery:...--> o <!--box:...--> nel markdown salvato) è
+   invece nel file condiviso, così sito e anteprima mostrano lo stesso
+   risultato. Qui c'è solo il form di inserimento (fields) e la
+   serializzazione da/verso quella sintassi (fromBlock/toBlock), più una
+   preview minimale per quando il blocco è "chiuso" nell'editor
+   (toPreview — diverso dalla preview a destra, che uso la nostra). */
+CMS.registerEditorComponent({
+  id: "gallery",
+  label: "Galleria immagini",
+  fields: [
+    {
+      name: "images",
+      label: "Immagini (2-4)",
+      widget: "list",
+      minimize_collapsed: true,
+      fields: [
+        { name: "src", label: "Immagine", widget: "image" },
+        { name: "alt", label: "Testo alternativo (alt)", widget: "string", required: false },
+      ],
     },
-  });
-}
+  ],
+  pattern: /^<!--gallery:(\[[\s\S]*?\])-->\n?/,
+  fromBlock: function (match) {
+    var images = [];
+    try {
+      images = JSON.parse(match[1]);
+    } catch (e) {
+      images = [];
+    }
+    return { images: images };
+  },
+  toBlock: function (obj) {
+    var images = (obj.images || []).map(function (img) {
+      return { src: img.src || "", alt: img.alt || "" };
+    });
+    return "<!--gallery:" + JSON.stringify(images) + "-->\n";
+  },
+  toPreview: function (obj) {
+    var images = obj.images || [];
+    return images
+      .map(function (img) {
+        return '<figure style="display:inline-block;width:120px;margin:4px;vertical-align:top;"><img src="' + (img.src || "") + '" style="width:100%;display:block;" alt="' + (img.alt || "") + '"></figure>';
+      })
+      .join("");
+  },
+});
+
+CMS.registerEditorComponent({
+  id: "box",
+  label: "Box con bordo",
+  fields: [
+    { name: "content", label: "Contenuto", widget: "markdown", buttons: ["bold", "italic", "link"] },
+    { name: "color", label: "Colore personalizzato (opzionale)", widget: "color", required: false, allowInput: true },
+  ],
+  pattern: /^<!--box:(\{[\s\S]*?\})-->\n?/,
+  fromBlock: function (match) {
+    var data = {};
+    try {
+      data = JSON.parse(match[1]);
+    } catch (e) {
+      data = {};
+    }
+    return { content: data.content || "", color: data.color || "" };
+  },
+  toBlock: function (obj) {
+    var data = { content: obj.content || "", color: obj.color || "" };
+    return "<!--box:" + JSON.stringify(data) + "-->\n";
+  },
+  toPreview: function (obj) {
+    var borderColor = obj.color || "#e2dacb";
+    return '<div style="border:1px solid ' + borderColor + ';padding:1rem;border-radius:4px;">' + (obj.content || "") + "</div>";
+  },
+});
 
 var CATEGORY_NAMES = {
   recensioni: "Recensioni",

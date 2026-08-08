@@ -15,6 +15,10 @@
        arriva via registerPreviewStyle in preview.js, il JS no. Stessa
        versione pinnata usata in articolo.html per il sito pubblicato. -->
   <script src="https://unpkg.com/marked@18.0.9/lib/marked.umd.js"></script>
+  <!-- Personalizzazione di marked (renderer + componenti galleria/box),
+       condivisa con articolo.html — deve caricare dopo marked.js e
+       prima di preview.js, che chiama solo marked.parse(). -->
+  <script src="../js/markdown-components.js"></script>
   <!-- Registra l'anteprima live della collection "articoli": deve caricare
        DOPO gli script CDN sopra, perché usa i globali che espongono
        (CMS, createClass, h, marked) — vedi admin/preview.js. -->
