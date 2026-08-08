@@ -773,19 +773,16 @@ h1, h2, h3 {
 }
 
 /* ---- Pagina articolo singolo: layout editoriale a colonna di lettura ----
-   .article-wrap ospita l'immagine hero a piena larghezza (960px);
-   .article-content-inner, più stretta (720px), contiene tutto il resto
-   (header, corpo, footer, box supporto, commenti) per una riga di lettura
-   comoda. */
+   .article-wrap ospita hero, titolo e corpo tutti alla stessa larghezza
+   (960px, via il padding di .article-wrap stesso — .article-media,
+   #article-header e .article-content-inner sono tutti figli diretti
+   senza un proprio max-width, stesso approccio già usato per l'header).
+   La leggibilità a questa misura di riga più larga è compensata da un
+   font-size leggermente maggiore in .article-body (vedi più sotto). */
 .article-wrap {
   max-width: 960px;
   margin: 0 auto;
   padding: 2.5rem 1.25rem 1rem;
-}
-
-.article-content-inner {
-  max-width: 720px;
-  margin: 0 auto;
 }
 
 .article-category {
@@ -901,13 +898,21 @@ h1, h2, h3 {
 
 .article-body p {
   margin: 0 0 1.25rem;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.85;
 }
 
 .article-body p:first-child {
   font-size: 1.15rem;
   color: var(--color-text);
+}
+
+.article-body ul,
+.article-body ol,
+.article-body blockquote {
+  font-size: 1.1rem;
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
 }
 
 /* "Da leggere dopo": sezione a piè di pagina (non più sidebar laterale),
