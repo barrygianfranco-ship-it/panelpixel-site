@@ -1,7 +1,16 @@
 backend:
-  name: github
-  repo: barrygianfranco-ship-it/panelpixel-site
+  name: git-gateway
   branch: main
+
+# I collaboratori si autenticano via Netlify Identity (widget in
+# admin/index.html), non più con un account GitHub diretto: Git Gateway
+# fa da proxy verso il repo usando il token salvato lato Netlify, quindi
+# nessun collaboratore riceve mai accesso diretto al codice. L'admin
+# continua ad accedere con lo stesso account GitHub di oggi grazie al
+# provider esterno GitHub configurato in Identity (dashboard Netlify,
+# non in questo file). Attivazione di Identity/Git Gateway: manuale da
+# dashboard Netlify, vedi nota in fondo a questo file.
+publish_mode: editorial_workflow
 
 # Cartella separata da assets/images/ (usata dagli articoli scritti/gestiti
 # a mano) apposta: due convenzioni distinte e intenzionali per due flussi
@@ -114,3 +123,11 @@ collections:
                 # in admin/preview.js (il rendering vero vive invece in
                 # js/markdown-components.js, condiviso col sito pubblico).
                 editor_components: ["image", "gallery", "box", "columns3"]
+
+# Attivazione Identity/Git Gateway (manuale, da dashboard Netlify, NON da
+# codice): 1) Identity > Enable Identity; 2) Identity > Registration >
+# External providers > abilita GitHub (così l'admin continua a fare
+# login col proprio account GitHub); 3) Identity > Services > Git
+# Gateway > Enable Git Gateway. Finché questi passaggi non sono fatti,
+# il login su account.html/admin non funziona: per questo queste
+# modifiche non vanno in produzione prima dell'attivazione manuale.

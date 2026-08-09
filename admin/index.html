@@ -7,6 +7,26 @@
   <title>Panel Pixel — Admin</title>
 </head>
 <body>
+  <!-- Widget Netlify Identity: deve caricare PRIMA di decap-cms.js, che al
+       proprio avvio rileva backend: git-gateway in config.yml e si aggancia
+       a window.netlifyIdentity per l'autenticazione. Lo script sotto
+       intercetta i link di invito/recupero password (?invite_token=... /
+       ?recovery_token=...) che Netlify Identity apre su questa pagina: senza
+       questo redirect, chi clicca il link di invito resta bloccato sul
+       widget di conferma invece di finire nell'editor. Setup standard,
+       identico da anni in tutte le guide Decap/Netlify CMS + Identity. -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", (user) => {
+        if (!user) {
+          window.netlifyIdentity.on("login", () => {
+            document.location.href = "/admin/";
+          });
+        }
+      });
+    }
+  </script>
   <!-- Decap CMS legge automaticamente admin/config.yml (stessa cartella).
        Nessuna configurazione inline qui: tutto vive nel config.yml. -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>

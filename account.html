@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Account — Panel Pixel</title>
+  <meta name="description" content="Accedi al tuo account Panel Pixel per scrivere e pubblicare articoli.">
+
+  <link rel="canonical" href="https://panelpixel.it/account.html">
+  <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .account-actions {
+      margin-top: 2rem;
+    }
+
+    .account-login-btn {
+      display: inline-block;
+      background: var(--color-accent);
+      color: var(--color-bg);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .account-login-btn:hover {
+      opacity: 0.88;
+    }
+
+    .account-status {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--color-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container site-header-brand">
+      <a class="site-logo" href="index.html">
+        <img src="assets/images/logo-icon.png" alt="" class="site-logo-icon">
+        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
+      </a>
+    </div>
+    <div class="site-header-nav">
+      <div class="container site-header-nav-inner">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+        <nav class="primary-nav" id="primary-nav">
+          <a class="nav-link" href="index.html">Home</a>
+          <a class="nav-link" href="recensioni.html">Recensioni</a>
+          <a class="nav-link" href="monografie.html">Monografie</a>
+          <a class="nav-link" href="attualita.html">Attualità</a>
+          <a class="nav-link" href="anteprime.html">Anteprime</a>
+          <a class="nav-link" href="approfondimenti.html">Approfondimenti</a>
+          <a class="nav-link" href="chi-sono.html">Chi sono</a>
+          <a class="nav-link" href="account.html">Account</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-hero container">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol class="breadcrumb-list">
+        <li><a href="index.html">Home</a></li>
+        <li aria-current="page">Account</li>
+      </ol>
+    </nav>
+    <h1>Account</h1>
+    <p>Accedi per scrivere e pubblicare i tuoi articoli su Panel Pixel.</p>
+  </div>
+
+  <main>
+    <div class="article-wrap">
+      <div class="article-body">
+        <p>L'accesso è riservato a chi è stato invitato come collaboratore. Dopo il login verrai portato direttamente all'editor per scrivere un nuovo articolo.</p>
+        <div class="account-actions">
+          <button type="button" class="account-login-btn" id="account-login-btn">Accedi</button>
+          <p class="account-status" id="account-status" hidden></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer-inner">
+      <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
+      <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy & Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
+    </div>
+  </footer>
+
+  <!-- Stesso widget Identity usato in admin/index.html. Qui il bottone
+       "Accedi" apre il modale di login/invito; appena l'utente risulta
+       autenticato (login riuscito, o sessione già valida al caricamento
+       della pagina) si va dritti al nuovo articolo in admin, saltando la
+       dashboard generale — vedi richiesta esplicita nel task che ha
+       introdotto questa pagina. -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function () {
+      var btn = document.getElementById("account-login-btn");
+      var status = document.getElementById("account-status");
+
+      function goToNewArticle() {
+        window.location.href = "/admin/#/collections/articoli/new";
+      }
+
+      if (!window.netlifyIdentity) {
+        status.textContent = "Servizio di login non disponibile al momento.";
+        status.hidden = false;
+        btn.hidden = true;
+        return;
+      }
+
+      window.netlifyIdentity.on("init", function (user) {
+        if (user) goToNewArticle();
+      });
+      window.netlifyIdentity.on("login", goToNewArticle);
+      btn.addEventListener("click", function () {
+        window.netlifyIdentity.open();
+      });
+    })();
+  </script>
+</body>
+</html>
