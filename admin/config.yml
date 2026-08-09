@@ -67,6 +67,16 @@ collections:
                 name: "featured"
                 widget: "boolean"
                 default: false
+              - label: "Aspetto articolo (opzionale)"
+                name: "theme"
+                widget: "object"
+                required: false
+                collapsed: true
+                hint: "Tutti i campi sono opzionali: un articolo senza nulla qui si comporta esattamente come oggi."
+                fields:
+                  - { label: "Colore sfondo (opzionale)", name: "background", widget: "color", required: false, allowInput: true }
+                  - { label: "Colore accento (opzionale)", name: "accent", widget: "color", required: false, allowInput: true }
+                  - { label: "Testo chiaro (per sfondi scuri)", name: "testoChiaro", widget: "boolean", default: false, required: false }
               - label: "Provato su (opzionale, solo recensioni)"
                 name: "triedOn"
                 widget: "string"

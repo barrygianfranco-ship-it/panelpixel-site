@@ -783,6 +783,13 @@ h1, h2, h3 {
   max-width: 960px;
   margin: 0 auto;
   padding: 2.5rem 1.25rem 1rem;
+  /* Tema colore opzionale per articolo (vedi applyArticleTheme in
+     js/main.js): le tre custom property vengono impostate inline
+     sull'elemento solo se article.theme è presente, altrimenti restano
+     non definite e questi fallback (transparent/inherit) riproducono
+     esattamente il comportamento di oggi, zero differenze visive. */
+  background-color: var(--article-bg, transparent);
+  color: var(--article-text, inherit);
 }
 
 .article-category {
@@ -795,7 +802,7 @@ h1, h2, h3 {
   letter-spacing: 0.08em;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--article-accent, var(--color-accent));
 }
 
 .article-title {
@@ -803,6 +810,7 @@ h1, h2, h3 {
   text-transform: uppercase;
   letter-spacing: 0.01em;
   margin: 0 0 1rem;
+  color: var(--article-accent, var(--color-text));
 }
 
 .article-meta {
@@ -879,9 +887,21 @@ h1, h2, h3 {
 .article-box {
   padding: 1.5rem 1.75rem;
   margin: 2rem 0;
-  border: 1px solid var(--color-border);
+  /* Fallback al tema articolo (--article-accent) solo per il bordo di
+     default — .article-box--custom sotto resta più specifica/successiva
+     nel foglio, quindi un colore proprio del box vince sempre, a
+     prescindere dal tema. Lo sfondo non segue né il tema né il colore
+     custom del box (decisione già presa in un giro precedente). */
+  border: 1px solid var(--article-accent, var(--color-border));
   border-radius: 4px;
   background: var(--color-bg-alt);
+  /* Colore testo FORZATO (non var(--article-text, ...)): lo sfondo di
+     questo box resta sempre var(--color-bg-alt), chiaro, a prescindere
+     dal tema — se il testo seguisse --article-text (chiaro, pensato per
+     lo sfondo scuro della pagina), diventerebbe illeggibile qui dentro.
+     Vale anche per .article-columns3-col.article-box, che riusa questa
+     stessa classe. */
+  color: var(--color-text);
 }
 
 .article-box p:first-child {
@@ -930,9 +950,14 @@ h1, h2, h3 {
   line-height: 1.85;
 }
 
-.article-body p:first-child {
+/* Combinatore ">" apposta, non discendente generico: senza, questo
+   selettore combacia anche col paragrafo dentro un box/colonna (che è
+   "il primo figlio" del proprio div contenitore) — bug di specificità
+   che sovrascriveva il colore forzato di .article-box col colore del
+   tema articolo, invisibile finché i due valori coincidevano sempre. */
+.article-body > p:first-child {
   font-size: 1.15rem;
-  color: var(--color-text);
+  color: var(--article-text, var(--color-text));
 }
 
 .article-body ul,

@@ -48,7 +48,7 @@
     }
 
     .article-subtitle {
-      color: var(--color-muted);
+      color: var(--article-accent, var(--color-muted));
       font-size: 1.2rem;
       font-style: italic;
       line-height: 1.55;
@@ -67,7 +67,7 @@
     .article-header-divider {
       width: 100%;
       height: 1px;
-      background: var(--color-border);
+      background: var(--article-accent, var(--color-border));
       margin: 0 0 2.5rem;
     }
 
@@ -134,6 +134,31 @@
       color: var(--color-muted);
     }
 
+    /* Fascia finale (box supporto + commenti), vedi #article-footer-standard
+       in HTML: sempre ai colori standard del sito, mai al tema
+       dell'articolo (--article-bg/--article-text) — sfondo "a piena
+       larghezza" fino al bordo di .article-wrap, annullando col margine
+       negativo il padding orizzontale del wrap e riapplicandolo uguale
+       col padding qui sotto. Stesso trattamento anche sul bordo inferiore
+       (-1rem / 1rem) per coprire il padding-bottom di .article-wrap
+       stesso: altrimenti quella striscia finale restava del colore del
+       tema (bug reale trovato in questo giro di correzione — striscia
+       scura residua sotto i commenti su articoli con tema scuro).
+       display: flow-root evita che i margini verticali di
+       support-box/comments-section "sfondino" fuori dallo sfondo qui
+       impostato (bug di margin collapse altrimenti). "color" qui è
+       necessario quanto "background": senza, un testo senza colore
+       proprio (es. .comments-title) eredita comunque il testo chiaro
+       del tema, invisibile su questo sfondo ora chiaro anche lui —
+       bug reale trovato nel primo giro di questa correzione. */
+    .article-footer-standard {
+      background: var(--color-bg);
+      color: var(--color-text);
+      margin: 0 -1.25rem -1rem;
+      padding: 0 1.25rem 1rem;
+      display: flow-root;
+    }
+
     .support-box {
       margin: 2rem 0 0;
       padding: 1.75rem;
@@ -169,7 +194,9 @@
     }
 
     /* Sezione commenti: separata visivamente dal corpo dell'articolo con
-       un bordo superiore e margine generoso, coerente col resto della pagina. */
+       un bordo superiore e margine generoso, coerente col resto della
+       pagina. Sfondo/colore standard garantiti dal contenitore
+       #article-footer-standard che la avvolge, non da regole qui. */
     .comments-section {
       margin: 3rem 0 0;
       padding-top: 2.5rem;
@@ -236,15 +263,20 @@
         <div class="article-body" id="article-body"></div>
         <ol class="radar-list" id="radar-list"></ol>
         <div class="article-footer-meta" id="article-footer-meta"></div>
-        <div class="support-box" id="support-box"></div>
 
-        <!-- Commenti: vedi COMMENTS_CONFIG in js/data.js per come attivare
-             Giscus. Finché non è attivato, mostra solo un messaggio placeholder
-             (nessuno script esterno viene caricato). -->
-        <section class="comments-section" id="comments-section">
-          <h2 class="comments-title">Commenti</h2>
-          <div id="giscus-container"></div>
-        </section>
+        <!-- Fascia finale (box supporto + commenti): sempre ai colori
+             standard del sito, mai al tema dell'articolo — vedi
+             .article-footer-standard in CSS. Commenti: vedi
+             COMMENTS_CONFIG in js/data.js per come attivare Giscus;
+             finché non è attivato, mostra solo un placeholder (nessuno
+             script esterno caricato). -->
+        <div class="article-footer-standard" id="article-footer-standard">
+          <div class="support-box" id="support-box"></div>
+          <section class="comments-section" id="comments-section">
+            <h2 class="comments-title">Commenti</h2>
+            <div id="giscus-container"></div>
+          </section>
+        </div>
       </div>
     </article>
 

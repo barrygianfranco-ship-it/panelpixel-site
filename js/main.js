@@ -526,12 +526,37 @@ function renderSupportBox() {
   `;
 }
 
+/* Tema colore opzionale per articolo (article.theme, tutti e tre i
+   sotto-campi opzionali) — vedi css/style.css per come .article-wrap e i
+   suoi discendenti (header, box, colonne) usano queste custom property
+   con fallback ai colori di sempre. Imposta le proprietà SOLO se
+   valorizzate: un articolo senza theme (o con sotto-campi mancanti) non
+   tocca affatto lo stile inline, quindi si comporta esattamente come
+   prima di questa funzionalità. */
+function applyArticleTheme(article) {
+  const wrapEl = document.getElementById("article-content");
+  if (!wrapEl) return;
+
+  wrapEl.style.removeProperty("--article-bg");
+  wrapEl.style.removeProperty("--article-accent");
+  wrapEl.style.removeProperty("--article-text");
+
+  const theme = article.theme;
+  if (!theme) return;
+
+  if (theme.background) wrapEl.style.setProperty("--article-bg", theme.background);
+  if (theme.accent) wrapEl.style.setProperty("--article-accent", theme.accent);
+  if (theme.testoChiaro) wrapEl.style.setProperty("--article-text", "var(--color-bg)");
+}
+
 function renderArticleLayout(article) {
   const headerEl = document.getElementById("article-header");
   const mediaEl = document.getElementById("article-media");
   const bodyEl = document.getElementById("article-body");
   const radarListEl = document.getElementById("radar-list");
   const footerMetaEl = document.getElementById("article-footer-meta");
+
+  applyArticleTheme(article);
 
   mediaEl.innerHTML = `<img src="${article.image}" alt="${article.title}">`;
 

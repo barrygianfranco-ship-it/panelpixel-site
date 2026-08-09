@@ -203,10 +203,37 @@ var ArticoliPreview = createClass({
     return h("div", { className: "article-body", dangerouslySetInnerHTML: { __html: html } });
   },
 
+  // Stesso meccanismo di applyArticleTheme() in js/main.js: legge
+  // article.theme (se presente) e restituisce le custom property da
+  // aggiungere allo style inline di .article-wrap. Nessuna proprietà
+  // impostata se il tema è assente o un sotto-campo non è valorizzato —
+  // stessi fallback CSS del sito pubblico, zero differenze per gli
+  // articoli senza tema.
+  buildThemeStyle: function (article) {
+    var theme = article.get("theme");
+    if (!theme) return {};
+    var get = function (key) {
+      return typeof theme.get === "function" ? theme.get(key) : theme[key];
+    };
+    var style = {};
+    var bg = get("background");
+    var accent = get("accent");
+    var testoChiaro = get("testoChiaro");
+    if (bg) style["--article-bg"] = bg;
+    if (accent) style["--article-accent"] = accent;
+    if (testoChiaro) style["--article-text"] = "var(--color-bg)";
+    return style;
+  },
+
   renderArticle: function (article, idx) {
+    var wrapStyle = { marginBottom: "4rem", borderBottom: "1px solid var(--color-border, #e2dacb)", paddingBottom: "3rem" };
+    var themeStyle = this.buildThemeStyle(article);
+    for (var key in themeStyle) {
+      wrapStyle[key] = themeStyle[key];
+    }
     return h(
       "article",
-      { key: idx, className: "article-wrap", style: { marginBottom: "4rem", borderBottom: "1px solid var(--color-border, #e2dacb)", paddingBottom: "3rem" } },
+      { key: idx, className: "article-wrap", style: wrapStyle },
       h("div", { className: "article-media" }, this.renderImage(article.get("image"), article.get("title"))),
       h(
         "div",
