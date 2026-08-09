@@ -239,6 +239,26 @@
       "seoTitle": "Intelligenza artificiale nel fumetto: chi disegna davvero? | Panel Pixel",
       "category": "attualita",
       "seoDescription": "Dal caso Kim Jung Gi alle copertine Marvel e DC ritirate, il fumetto affronta la stessa crisi d'identità già vissuta da musica e cinema con l'IA generativa."
+    },
+    {
+      "excerpt": "sasasasasa",
+      "seoKeywords": [
+        "salamonio"
+      ],
+      "theme": {
+        "testoChiaro": false
+      },
+      "author": "Gianfranco Barry",
+      "slug": "salamonio-mio",
+      "featured": false,
+      "date": "2026-08-09",
+      "title": "salamonio mio ",
+      "content": "![](/images/uploads/kamau.png)\n\n<!--box:{\"content\":\"salve a tutti\",\"color\":\"#b14545\"}-->",
+      "type": "recensione",
+      "image": "/images/uploads/kamau-studi-diversi.png",
+      "seoTitle": "saLAMONIO",
+      "category": "recensioni",
+      "seoDescription": "salalallala"
     }
   ]
 }
