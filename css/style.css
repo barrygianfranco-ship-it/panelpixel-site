@@ -873,8 +873,9 @@ h1, h2, h3 {
 /* ---- Box con bordo (componente editoriale extra, vedi
    js/markdown-components.js) — stile "callout" di default; se l'autore
    sceglie un colore personalizzato (.article-box--custom, con
-   --box-color impostata inline), bordo e sfondo diluito lo riprendono
-   via color-mix(), senza bisogno di una regola per ogni colore possibile. */
+   --box-color impostata inline), il colore si applica SOLO al bordo —
+   lo sfondo resta sempre lo stesso neutro di .article-box, mai tintato
+   in base al colore scelto. */
 .article-box {
   padding: 1.5rem 1.75rem;
   margin: 2rem 0;
@@ -893,7 +894,34 @@ h1, h2, h3 {
 
 .article-box--custom {
   border-color: var(--box-color);
-  background: color-mix(in srgb, var(--box-color) 10%, var(--color-bg));
+}
+
+/* ---- 3 colonne testo/immagine/testo (componente editoriale extra, vedi
+   js/markdown-components.js) — sempre 3 slot fissi nell'ordine testo
+   sinistra/immagine/testo destra, mai un numero variabile. Ogni colonna
+   con bordo attivo riusa .article-box (aggiunta condizionalmente dal
+   renderer), senza duplicarne le regole. Stesso breakpoint della
+   galleria: una colonna sotto i 640px (le 3 colonne si impilano
+   nell'ordine del DOM, già testo-sinistra → immagine → testo-destra,
+   nessun "order" CSS necessario), tre da 640px in su. */
+.article-columns3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+@media (min-width: 640px) {
+  .article-columns3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.article-columns3-col img {
+  width: 100%;
+  display: block;
+  border-radius: 2px;
 }
 
 .article-body p {

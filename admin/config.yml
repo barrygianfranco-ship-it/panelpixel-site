@@ -99,8 +99,8 @@ collections:
                 # documentazione ufficiale Decap CMS: bold, italic,
                 # strikethrough, code, link, heading-one...heading-six,
                 # quote, bulleted-list, numbered-list — "image" non c'è.
-                # "gallery" e "box" sono componenti personalizzati,
-                # registrati via CMS.registerEditorComponent in
-                # admin/preview.js (il rendering vero vive invece in
+                # "gallery", "box" e "columns3" sono componenti
+                # personalizzati, registrati via CMS.registerEditorComponent
+                # in admin/preview.js (il rendering vero vive invece in
                 # js/markdown-components.js, condiviso col sito pubblico).
-                editor_components: ["image", "gallery", "box"]
+                editor_components: ["image", "gallery", "box", "columns3"]

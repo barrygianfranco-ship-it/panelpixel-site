@@ -21,16 +21,18 @@
 CMS.registerPreviewStyle("/css/style.css");
 CMS.registerPreviewStyle("/admin/preview.css");
 
-/* ---- Componenti editoriali extra: galleria a griglia, box con bordo ----
+/* ---- Componenti editoriali extra: galleria a griglia, box con bordo,
+   3 colonne testo/immagine/testo ----
    Registrazione Decap-specifica (usa CMS.registerEditorComponent, non
    disponibile sul sito pubblico) — per questo vive qui e non nel file
    condiviso. Il rendering vero e proprio (cosa succede quando marked
-   incontra <!--gallery:...--> o <!--box:...--> nel markdown salvato) è
-   invece nel file condiviso, così sito e anteprima mostrano lo stesso
-   risultato. Qui c'è solo il form di inserimento (fields) e la
-   serializzazione da/verso quella sintassi (fromBlock/toBlock), più una
-   preview minimale per quando il blocco è "chiuso" nell'editor
-   (toPreview — diverso dalla preview a destra, che uso la nostra). */
+   incontra <!--gallery:...-->, <!--box:...--> o <!--columns3:...--> nel
+   markdown salvato) è invece nel file condiviso, così sito e anteprima
+   mostrano lo stesso risultato. Qui c'è solo il form di inserimento
+   (fields) e la serializzazione da/verso quella sintassi
+   (fromBlock/toBlock), più una preview minimale per quando il blocco è
+   "chiuso" nell'editor (toPreview — diverso dalla preview a destra, che
+   uso la nostra). */
 CMS.registerEditorComponent({
   id: "gallery",
   label: "Galleria immagini",
@@ -96,6 +98,66 @@ CMS.registerEditorComponent({
   toPreview: function (obj) {
     var borderColor = obj.color || "#e2dacb";
     return '<div style="border:1px solid ' + borderColor + ';padding:1rem;border-radius:4px;">' + (obj.content || "") + "</div>";
+  },
+});
+
+CMS.registerEditorComponent({
+  id: "columns3",
+  label: "3 colonne: testo/immagine/testo",
+  fields: [
+    { name: "leftText", label: "Testo sinistra", widget: "markdown", buttons: ["bold", "italic", "link"] },
+    { name: "leftBorder", label: "Bordo per il testo sinistro", widget: "boolean", default: false },
+    {
+      name: "image",
+      label: "Immagine centrale",
+      widget: "object",
+      fields: [
+        { name: "src", label: "Immagine", widget: "image" },
+        { name: "alt", label: "Testo alternativo (alt)", widget: "string", required: false },
+      ],
+    },
+    { name: "imageBorder", label: "Bordo per l'immagine", widget: "boolean", default: false },
+    { name: "rightText", label: "Testo destra", widget: "markdown", buttons: ["bold", "italic", "link"] },
+    { name: "rightBorder", label: "Bordo per il testo destro", widget: "boolean", default: false },
+  ],
+  pattern: /^<!--columns3:(\{[\s\S]*?\})-->\n?/,
+  fromBlock: function (match) {
+    var data = {};
+    try {
+      data = JSON.parse(match[1]);
+    } catch (e) {
+      data = {};
+    }
+    return {
+      leftText: data.leftText || "",
+      leftBorder: !!data.leftBorder,
+      image: data.image || { src: "", alt: "" },
+      imageBorder: !!data.imageBorder,
+      rightText: data.rightText || "",
+      rightBorder: !!data.rightBorder,
+    };
+  },
+  toBlock: function (obj) {
+    var data = {
+      leftText: obj.leftText || "",
+      leftBorder: !!obj.leftBorder,
+      image: { src: (obj.image && obj.image.src) || "", alt: (obj.image && obj.image.alt) || "" },
+      imageBorder: !!obj.imageBorder,
+      rightText: obj.rightText || "",
+      rightBorder: !!obj.rightBorder,
+    };
+    return "<!--columns3:" + JSON.stringify(data) + "-->\n";
+  },
+  toPreview: function (obj) {
+    var img = obj.image || {};
+    var borderStyle = "border:1px solid #e2dacb;padding:0.5rem;";
+    return (
+      '<div style="display:flex;gap:8px;">' +
+      '<div style="flex:1;' + (obj.leftBorder ? borderStyle : "") + '">' + (obj.leftText || "") + "</div>" +
+      '<div style="flex:1;' + (obj.imageBorder ? borderStyle : "") + '"><img src="' + (img.src || "") + '" style="width:100%;display:block;" alt="' + (img.alt || "") + '"></div>' +
+      '<div style="flex:1;' + (obj.rightBorder ? borderStyle : "") + '">' + (obj.rightText || "") + "</div>" +
+      "</div>"
+    );
   },
 });
 
