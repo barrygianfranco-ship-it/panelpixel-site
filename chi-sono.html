@@ -55,7 +55,7 @@
           <a class="nav-link" href="anteprime.html">Anteprime</a>
           <a class="nav-link" href="approfondimenti.html">Approfondimenti</a>
           <a class="nav-link" href="chi-sono.html">Chi sono</a>
-          <a class="nav-link" href="account.html">Account</a>
+          <a class="nav-link nav-link-account" href="account.html">Account</a>
         </nav>
       </div>
     </div>
@@ -103,6 +103,11 @@
     </div>
   </footer>
 
+  <!-- Widget Netlify Identity: caricato su ogni pagina (non solo
+       admin/account.html) apposta per initAccountNavLink() in
+       js/main.js, che controlla se c'è una sessione attiva per
+       decidere se mostrare la voce "Account" nel menu. -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
 </body>

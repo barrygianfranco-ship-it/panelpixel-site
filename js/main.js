@@ -762,6 +762,29 @@ function initHeader() {
   });
 }
 
+/* ---- Voce "Account" nel menu: nascosta di default via CSS
+   (.nav-link-account in css/style.css), resa visibile solo se Netlify
+   Identity rileva una sessione già attiva (utente che ha già fatto login
+   almeno una volta). Il widget Identity è caricato in fondo a ogni
+   pagina apposta per questo controllo: senza, window.netlifyIdentity
+   non esisterebbe qui. Doppio controllo (currentUser() subito +
+   l'evento "init" come fallback) perché currentUser() legge lo stato
+   già presente in localStorage appena lo script del widget è pronto,
+   ma "init" resta la garanzia documentata contro eventuali ritardi
+   interni del widget stesso. */
+function initAccountNavLink() {
+  const links = document.querySelectorAll(".nav-link-account");
+  if (!links.length || !window.netlifyIdentity) return;
+
+  const reveal = (user) => {
+    if (!user) return;
+    links.forEach((link) => link.classList.add("is-visible"));
+  };
+
+  reveal(window.netlifyIdentity.currentUser());
+  window.netlifyIdentity.on("init", reveal);
+}
+
 /* ---- Header che si nasconde scorrendo verso il basso, riappare scorrendo
    verso l'alto (o vicino alla cima della pagina). Aggiunge/rimuove solo la
    classe "header-hidden": design, logo e menu restano invariati, cambia
@@ -812,6 +835,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // restano utilizzabili anche se il caricamento degli articoli fallisce.
   initHeader();
   initHeaderScrollHide();
+  initAccountNavLink();
 
   try {
     await loadArticles();
