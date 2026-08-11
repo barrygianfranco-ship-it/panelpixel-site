@@ -885,9 +885,7 @@ h1, h2, h3 {
    tutte e tre tornano a blocco pieno impilato, comportamento invariato. */
 @media (min-width: 720px) {
   .article-inline-image--center {
-    width: 92%;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
     clear: both;
   }
   .article-inline-image--right {
