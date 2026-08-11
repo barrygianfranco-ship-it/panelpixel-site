@@ -43,10 +43,21 @@ if (typeof marked !== "undefined") {
         // article-inline-image--standalone: SOLO questa funzione la applica
         // (galleria e colonne 3 costruiscono il proprio <figure>/<img> a
         // mano, senza mai chiamare image()) — distingue esplicitamente
-        // "immagine singola nel corpo" da "immagine dentro un componente",
-        // usata dal float in css/style.css senza dipendere dalla profondità
-        // di nidificazione nel DOM (vedi commento lì).
-        return `<figure class="article-inline-image article-inline-image--standalone"><img src="${href}" alt="${text || ""}" loading="lazy">${caption}</figure>`;
+        // "immagine singola nel corpo" da "immagine dentro un componente".
+        //
+        // Allineamento scelto via prefisso nel testo alternativo, stesso
+        // pattern pipe-delimited già usato per ==#RRGGBB|testo==:
+        // "destra|"/"sinistra|" attivano il float (45%, vedi CSS), rimosso
+        // sempre dall'alt effettivo — mai letto da uno screen reader.
+        // Nessun prefisso: centrata, non flottante (default).
+        let alt = text || "";
+        let variantCls = "article-inline-image--center";
+        const variantMatch = /^(destra|sinistra)\|([\s\S]*)$/.exec(alt);
+        if (variantMatch) {
+          variantCls = variantMatch[1] === "destra" ? "article-inline-image--right" : "article-inline-image--left";
+          alt = variantMatch[2];
+        }
+        return `<figure class="article-inline-image article-inline-image--standalone ${variantCls}"><img src="${href}" alt="${alt}" loading="lazy">${caption}</figure>`;
       },
       paragraph({ tokens }) {
         if (tokens.length === 1 && tokens[0].type === "image") {

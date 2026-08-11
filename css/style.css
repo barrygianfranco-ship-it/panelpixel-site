@@ -876,18 +876,29 @@ h1, h2, h3 {
 }
 
 /* Da 720px in su, l'immagine singola nel corpo (![alt](url) sulla sua
-   riga) diventa flottante a destra, effetto testo-che-scorre da rivista.
-   .article-inline-image--standalone è applicata SOLO dal renderer
-   image() in js/markdown-components.js: galleria e colonne 3 non ci
-   passano mai (costruiscono il proprio markup a mano), quindi non serve
-   escluderle per posizione nel DOM — distinzione esplicita alla fonte,
-   non implicita nella struttura. Sotto i 720px questa regola non
-   esiste: blocco pieno, comportamento di oggi invariato. */
+   riga) ha tre varianti scelte in js/markdown-components.js dal prefisso
+   nell'alt — default centrata (non flottante, leggermente inset rispetto
+   al bordo colonna), destra/sinistra flottanti al 45% con effetto
+   testo-che-scorre da rivista. clear:both sulla centrata: stesso motivo
+   di box/galleria/colonne più sotto, non deve strizzarsi accanto a un
+   float ancora attivo. Sotto i 720px nessuna di queste regole esiste:
+   tutte e tre tornano a blocco pieno impilato, comportamento invariato. */
 @media (min-width: 720px) {
-  .article-inline-image--standalone {
+  .article-inline-image--center {
+    width: 92%;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+  }
+  .article-inline-image--right {
     float: right;
     width: 45%;
     margin: 0.35rem 0 1.5rem 2rem;
+  }
+  .article-inline-image--left {
+    float: left;
+    width: 45%;
+    margin: 0.35rem 2rem 1.5rem 0;
   }
 }
 
