@@ -74,11 +74,17 @@
     .article-heading {
       font-size: 1.3rem;
       margin: 2rem 0 1rem;
+      /* Non deve stringersi accanto a un'immagine flottante ancora
+         attiva (vedi .article-body > .article-inline-image in
+         css/style.css) — sempre a piena larghezza sotto il float.
+         Innocuo quando non c'è alcun float attivo. */
+      clear: both;
     }
 
     .article-subheading {
       font-size: 1.1rem;
       margin: 1.75rem 0 0.85rem;
+      clear: both;
     }
 
     .radar-list {

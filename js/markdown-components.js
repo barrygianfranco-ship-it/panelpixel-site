@@ -21,7 +21,13 @@
       Scelto un commento HTML apposta: se per qualsiasi motivo queste
       estensioni non fossero caricate, marked lo passerebbe comunque
       attraverso come normale HTML (invisibile a schermo) invece di
-      rompere il rendering o mostrare la sintassi grezza. */
+      rompere il rendering o mostrare la sintassi grezza.
+   3. Un'estensione INLINE (==testo==, grassetto + colore accento; o
+      ==#RRGGBB|testo== per un colore libero, stesso pattern del color
+      picker di --box-color) per evidenziare una frase dentro un
+      paragrafo senza spezzarne il flusso — a differenza dei tre
+      componenti sopra, si scrive a mano liberamente nel testo, non
+      viene inserita da un bottone editor. */
 
 if (typeof marked !== "undefined") {
   marked.use({
@@ -34,7 +40,13 @@ if (typeof marked !== "undefined") {
       },
       image({ href, title, text }) {
         const caption = title ? `<figcaption>${title}</figcaption>` : "";
-        return `<figure class="article-inline-image"><img src="${href}" alt="${text || ""}" loading="lazy">${caption}</figure>`;
+        // article-inline-image--standalone: SOLO questa funzione la applica
+        // (galleria e colonne 3 costruiscono il proprio <figure>/<img> a
+        // mano, senza mai chiamare image()) — distingue esplicitamente
+        // "immagine singola nel corpo" da "immagine dentro un componente",
+        // usata dal float in css/style.css senza dipendere dalla profondità
+        // di nidificazione nel DOM (vedi commento lì).
+        return `<figure class="article-inline-image article-inline-image--standalone"><img src="${href}" alt="${text || ""}" loading="lazy">${caption}</figure>`;
       },
       paragraph({ tokens }) {
         if (tokens.length === 1 && tokens[0].type === "image") {
@@ -44,6 +56,61 @@ if (typeof marked !== "undefined") {
       },
     },
     extensions: [
+      {
+        // Evidenziazione in linea dentro un paragrafo: ==testo== -> grassetto
+        // + colore accento (vedi .article-highlight in css/style.css), senza
+        // spezzare il flusso del paragrafo come farebbe il componente box
+        // (che è invece a blocco, su righe proprie). Estensione INLINE (non
+        // block come le tre sotto): serve tokenizzare il contenuto catturato
+        // con lexer.inlineTokens così dentro ==...== restano utilizzabili
+        // anche **grassetto**/corsivo/link, invece di trattarlo come testo
+        // puro — stesso pattern consigliato dalla documentazione di marked
+        // per le estensioni inline con contenuto annidato.
+        name: "ppHighlight",
+        level: "inline",
+        start(src) {
+          const m = src.match(/==/);
+          return m ? m.index : undefined;
+        },
+        tokenizer(src) {
+          const rule = /^==([^=\n]+)==/;
+          const match = rule.exec(src);
+          if (!match) return undefined;
+
+          // ==#RRGGBB|testo== — prefisso colore opzionale, stesso pattern
+          // del color picker libero già usato per --box-color. Regex
+          // ANCORATA (^...$) e whitelist stretta (solo # + 3 o 6 cifre
+          // esadecimali): è l'unico modo in cui "color" può finire
+          // nell'attributo style del renderer qui sotto, quindi non c'è
+          // spazio per iniettare altro CSS (punti e virgola, parentesi,
+          // url(...), virgolette) — se non combacia esattamente, niente
+          // colore, fallback silenzioso al testo normale con colore di
+          // default (nessuna eccezione, nessuna sintassi rotta).
+          let text = match[1];
+          let color = "";
+          const colorMatch = /^(#[0-9a-f]{3}|#[0-9a-f]{6})\|([\s\S]+)$/i.exec(text);
+          if (colorMatch) {
+            color = colorMatch[1];
+            text = colorMatch[2];
+          }
+
+          return {
+            type: "ppHighlight",
+            raw: match[0],
+            color,
+            tokens: this.lexer.inlineTokens(text),
+          };
+        },
+        renderer(token) {
+          // Colore come style inline sul singolo <mark>, non una classe:
+          // altrimenti servirebbe generare/registrare una classe CSS per
+          // ogni colore scelto dall'autore. Sicuro da interpolare: "color"
+          // può arrivare solo dalla whitelist esadecimale sopra, mai da
+          // testo libero dell'autore.
+          const style = token.color ? ` style="color: ${token.color}"` : "";
+          return `<mark class="article-highlight"${style}>${this.parser.parseInline(token.tokens)}</mark>`;
+        },
+      },
       {
         name: "ppGallery",
         level: "block",

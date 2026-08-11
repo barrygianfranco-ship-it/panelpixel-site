@@ -800,13 +800,13 @@ h1, h2, h3 {
 
 /* ---- Pagina articolo singolo: layout editoriale a colonna di lettura ----
    .article-wrap ospita hero, titolo e corpo tutti alla stessa larghezza
-   (960px, via il padding di .article-wrap stesso — .article-media,
+   (1140px, via il padding di .article-wrap stesso — .article-media,
    #article-header e .article-content-inner sono tutti figli diretti
    senza un proprio max-width, stesso approccio già usato per l'header).
    La leggibilità a questa misura di riga più larga è compensata da un
    font-size leggermente maggiore in .article-body (vedi più sotto). */
 .article-wrap {
-  max-width: 960px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 2.5rem 1.25rem 1rem;
   /* Tema colore opzionale per articolo (vedi applyArticleTheme in
@@ -851,8 +851,7 @@ h1, h2, h3 {
 
 .article-media img {
   width: 100%;
-  aspect-ratio: 21 / 9;
-  object-fit: cover;
+  height: auto;
   display: block;
   border-radius: 2px;
 }
@@ -876,17 +875,38 @@ h1, h2, h3 {
   text-align: center;
 }
 
+/* Da 720px in su, l'immagine singola nel corpo (![alt](url) sulla sua
+   riga) diventa flottante a destra, effetto testo-che-scorre da rivista.
+   .article-inline-image--standalone è applicata SOLO dal renderer
+   image() in js/markdown-components.js: galleria e colonne 3 non ci
+   passano mai (costruiscono il proprio markup a mano), quindi non serve
+   escluderle per posizione nel DOM — distinzione esplicita alla fonte,
+   non implicita nella struttura. Sotto i 720px questa regola non
+   esiste: blocco pieno, comportamento di oggi invariato. */
+@media (min-width: 720px) {
+  .article-inline-image--standalone {
+    float: right;
+    width: 45%;
+    margin: 0.35rem 0 1.5rem 2rem;
+  }
+}
+
 /* ---- Galleria a griglia (componente editoriale extra, vedi
    js/markdown-components.js) — riusa .article-inline-image per lo stile
-   di ogni cella, qui solo il contenitore e le proporzioni uniformi. Una
-   colonna su mobile, due da 640px in su: nessun breakpoint esistente nel
-   sito è legato alla larghezza della colonna di lettura (720px), quindi
-   se ne usa uno dedicato. */
+   di ogni cella, qui solo il contenitore. Una colonna su mobile, due da
+   640px in su: nessun breakpoint esistente nel sito è legato alla
+   larghezza della colonna di lettura (720px), quindi se ne usa uno
+   dedicato. */
 .article-gallery {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
   margin: 2rem 0;
+  /* Se capita subito dopo un'immagine flottante (vedi .article-body >
+     .article-inline-image più sopra), evita che la griglia si strizzi
+     nello spazio residuo invece di andare a piena larghezza sotto il
+     float — innocuo quando non c'è alcun float attivo. */
+  clear: both;
 }
 
 @media (min-width: 640px) {
@@ -899,10 +919,12 @@ h1, h2, h3 {
   margin: 0;
 }
 
-.article-gallery .article-inline-image img {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
+/* Niente più aspect-ratio/object-fit qui: le celle mostrano l'immagine
+   intera (vedi .article-inline-image img sopra, di cui questa eredita
+   width/display/border-radius), quindi righe della griglia con immagini
+   di proporzioni diverse tra loro possono avere altezze diverse — scelta
+   voluta, coerente con "nessuna immagine tagliata" chiesto per l'intero
+   articolo. */
 
 /* ---- Box con bordo (componente editoriale extra, vedi
    js/markdown-components.js) — stile "callout" di default; se l'autore
@@ -913,6 +935,11 @@ h1, h2, h3 {
 .article-box {
   padding: 1.5rem 1.75rem;
   margin: 2rem 0;
+  /* Stesso motivo di .article-gallery più sopra: non strizzarsi accanto
+     a un'immagine flottante ancora attiva. Innocuo anche quando questa
+     classe è riusata come colonna dentro .article-columns3 (che a sua
+     volta cancella già il float sull'intero componente). */
+  clear: both;
   /* Fallback al tema articolo (--article-accent) solo per il bordo di
      default — .article-box--custom sotto resta più specifica/successiva
      nel foglio, quindi un colore proprio del box vince sempre, a
@@ -956,6 +983,8 @@ h1, h2, h3 {
   align-items: stretch;
   gap: 1rem;
   margin: 2rem 0;
+  /* Stesso motivo di .article-gallery/.article-box più sopra. */
+  clear: both;
 }
 
 @media (min-width: 640px) {
@@ -972,8 +1001,22 @@ h1, h2, h3 {
 
 .article-body p {
   margin: 0 0 1.25rem;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   line-height: 1.85;
+}
+
+/* Evidenziazione in linea dentro un paragrafo (sintassi ==testo== nel
+   markdown, vedi estensione ppHighlight in js/markdown-components.js).
+   <mark> di suo ha uno sfondo giallo di default nel browser: qui
+   annullato, resta solo grassetto + colore accento, per non spezzare il
+   flusso di lettura come farebbe un highlighter vero. Accento del tema
+   articolo con fallback al colore accento standard, stesso pattern già
+   usato per header/box/colonne (vedi --article-accent più sopra in
+   questo file) — coerente su articoli a tema e non. */
+.article-highlight {
+  background: none;
+  color: var(--article-accent, var(--color-accent));
+  font-weight: 700;
 }
 
 /* Combinatore ">" apposta, non discendente generico: senza, questo
@@ -982,14 +1025,14 @@ h1, h2, h3 {
    che sovrascriveva il colore forzato di .article-box col colore del
    tema articolo, invisibile finché i due valori coincidevano sempre. */
 .article-body > p:first-child {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   color: var(--article-text, var(--color-text));
 }
 
 .article-body ul,
 .article-body ol,
 .article-body blockquote {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   line-height: 1.85;
   margin-bottom: 1.25rem;
 }

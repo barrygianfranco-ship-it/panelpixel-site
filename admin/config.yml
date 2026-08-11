@@ -108,7 +108,7 @@ collections:
               - label: "Corpo dell'articolo"
                 name: "content"
                 widget: "markdown"
-                hint: "Titoli limitati a H2/H3 dai bottoni qui sopra — livelli diversi digitati a mano vengono comunque normalizzati in fase di pubblicazione (vedi js/main.js). Per una didascalia sotto un'immagine, scrivi il testo tra virgolette dopo l'URL: ![alt](url \"didascalia\")."
+                hint: "Titoli limitati a H2/H3 dai bottoni qui sopra — livelli diversi digitati a mano vengono comunque normalizzati in fase di pubblicazione (vedi js/main.js). Per una didascalia sotto un'immagine, scrivi il testo tra virgolette dopo l'URL: ![alt](url \"didascalia\"). Per evidenziare una frase dentro un paragrafo (grassetto + colore d'accento), racchiudila tra doppio uguale: ==frase da evidenziare==. Per un colore diverso da quello di default, aggiungi il colore hex prima di un simbolo | dentro il doppio uguale: ==#2f7d4f|frase con colore libero==."
                 buttons: ["bold", "italic", "heading-two", "heading-three", "quote", "bulleted-list", "numbered-list", "link"]
                 # "image" non è un valore valido per "buttons" (errore Decap
                 # al primo giro: 'buttons[8]' must be equal to one of the
