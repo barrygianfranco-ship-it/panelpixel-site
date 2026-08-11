@@ -108,7 +108,7 @@ collections:
               - label: "Corpo dell'articolo"
                 name: "content"
                 widget: "markdown"
-                hint: "Titoli limitati a H2/H3 dai bottoni qui sopra — livelli diversi digitati a mano vengono comunque normalizzati in fase di pubblicazione (vedi js/main.js). Per una didascalia sotto un'immagine, scrivi il testo tra virgolette dopo l'URL: ![alt](url \"didascalia\"). Un'immagine singola nel corpo è centrata e larga per default; per farla scorrere a destra o sinistra col testo intorno, aggiungi \"destra|\" o \"sinistra|\" all'inizio del testo alternativo: ![destra|alt](url) oppure ![sinistra|alt](url) — il prefisso non compare nell'alt effettivo. Per evidenziare una frase dentro un paragrafo (grassetto + colore d'accento), racchiudila tra doppio uguale: ==frase da evidenziare==. Per un colore diverso da quello di default, aggiungi il colore hex prima di un simbolo | dentro il doppio uguale: ==#2f7d4f|frase con colore libero==."
+                hint: "Titoli limitati a H2/H3 dai bottoni qui sopra — livelli diversi digitati a mano vengono comunque normalizzati in fase di pubblicazione (vedi js/main.js). Per una didascalia sotto un'immagine, scrivi il testo tra virgolette dopo l'URL: ![alt](url \"didascalia\"). Un'immagine singola nel corpo è centrata e larga per default; per farla scorrere a destra o sinistra col testo intorno, aggiungi \"destra|\" o \"sinistra|\" all'inizio del testo alternativo: ![destra|alt](url) oppure ![sinistra|alt](url) — il prefisso non compare nell'alt effettivo. Per evidenziare una frase dentro un paragrafo (grassetto + colore d'accento), racchiudila tra doppio uguale: ==frase da evidenziare==. Per un colore diverso da quello di default, aggiungi il colore hex prima di un simbolo | dentro il doppio uguale: ==#2f7d4f|frase con colore libero==. Per un rimando a una nota a piè di pagina, scrivi [^1], [^2] ecc. nel testo dove serve, poi inserisci altrove nell'articolo il blocco \"Note a piè di pagina\" (bottone componenti editor) coi testi corrispondenti. Per un embed video YouTube o un post X/Twitter, usa il bottone \"Embed video/tweet\"."
                 buttons: ["bold", "italic", "heading-two", "heading-three", "quote", "bulleted-list", "numbered-list", "link"]
                 # "image" non è un valore valido per "buttons" (errore Decap
                 # al primo giro: 'buttons[8]' must be equal to one of the
@@ -122,7 +122,7 @@ collections:
                 # personalizzati, registrati via CMS.registerEditorComponent
                 # in admin/preview.js (il rendering vero vive invece in
                 # js/markdown-components.js, condiviso col sito pubblico).
-                editor_components: ["image", "gallery", "box", "columns3"]
+                editor_components: ["image", "gallery", "box", "columns3", "footnotes", "embed"]
 
 # Attivazione Identity/Git Gateway (manuale, da dashboard Netlify, NON da
 # codice): 1) Identity > Enable Identity; 2) Identity > Registration >

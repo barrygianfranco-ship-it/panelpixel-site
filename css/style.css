@@ -1046,6 +1046,89 @@ h1, h2, h3 {
   margin-bottom: 1.25rem;
 }
 
+/* ---- Note a piè di pagina ([^N] nel testo + blocco
+   <!--footnotes:[...]--> altrove nell'articolo, vedi estensioni
+   ppFootnoteRef/ppFootnotes in js/markdown-components.js). Il rimando
+   in linea eredita la dimensione ridotta da <sup>, colorato come
+   l'accento del sito/tema. Il blocco note in fondo segue lo stesso
+   pattern di .article-footer-meta (vedi articolo.html): font più
+   piccolo, colore muted, separatore sottile sopra. clear:both: stesso
+   motivo di box/galleria/colonne, non si strizza accanto a un'immagine
+   flottante ancora attiva. */
+.article-footnote-ref {
+  color: var(--article-accent, var(--color-accent));
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.article-footnote-ref:hover {
+  text-decoration: underline;
+}
+
+.article-footnotes {
+  margin: 2.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  clear: both;
+}
+
+.article-footnotes-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.article-footnotes-list li {
+  margin-bottom: 0.6rem;
+  line-height: 1.6;
+}
+
+.article-footnote-back {
+  color: var(--article-accent, var(--color-accent));
+  text-decoration: none;
+  margin-left: 0.3rem;
+}
+
+/* ---- Embed video/tweet (<!--embed:{"type":"youtube"|"tweet",
+   "url":"..."}-->, vedi estensione ppEmbed in
+   js/markdown-components.js). Video: iframe responsive 16:9 a piena
+   larghezza colonna. Tweet: la larghezza la impone lo script ufficiale
+   di X sul blockquote trasformato — non si può forzare in modo
+   affidabile un iframe di terze parti, qui lo si centra soltanto. */
+.article-embed {
+  margin: 2rem 0;
+  clear: both;
+}
+
+.article-embed--video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+}
+
+.article-embed--video iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.article-embed--tweet {
+  display: flex;
+  justify-content: center;
+}
+
+.article-embed-error {
+  margin: 2rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--color-bg-alt);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  text-align: center;
+  clear: both;
+}
+
 /* "Da leggere dopo": sezione a piè di pagina (non più sidebar laterale),
    a piena larghezza sia su desktop che su mobile. Riusa .card-grid/.card
    già definite più sopra. */

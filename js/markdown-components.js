@@ -27,7 +27,42 @@
       picker di --box-color) per evidenziare una frase dentro un
       paragrafo senza spezzarne il flusso — a differenza dei tre
       componenti sopra, si scrive a mano liberamente nel testo, non
-      viene inserita da un bottone editor. */
+      viene inserita da un bottone editor.
+   4. Un'estensione INLINE per il rimando a nota a piè di pagina ([^N]
+      nel testo, si scrive a mano) e una a BLOCCO per il testo delle
+      note stesse (<!--footnotes:[{"id":1,"text":"..."},...]-->,
+      inserita dal bottone editor, posizionabile ovunque
+      nell'articolo). Un rimando senza nota corrispondente, o
+      viceversa, non rompe nulla: il link punta a un'ancora che
+      semplicemente non esiste, nessun errore.
+   5. Un'estensione a BLOCCO per embed video YouTube o post X/Twitter
+      (<!--embed:{"type":"youtube"|"tweet","url":"..."}-->). URL non
+      riconosciuto o tipo sconosciuto: messaggio discreto invece di un
+      componente vuoto o un errore JS. Lo script di X
+      (platform.twitter.com/widgets.js) viene creato ed eseguito via
+      DOM reale, non incluso nell'HTML restituito dal renderer — un
+      <script> dentro una stringa assegnata a innerHTML non si esegue
+      mai, è un limite del DOM — e al massimo una volta per pagina. */
+
+function ppExtractYouTubeId(url) {
+  if (!url) return "";
+  const m = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/.exec(url);
+  return m ? m[1] : "";
+}
+
+function ppLoadTwitterWidgets() {
+  if (window.__ppTwitterWidgetsRequested) {
+    if (window.twttr && window.twttr.widgets) {
+      window.twttr.widgets.load();
+    }
+    return;
+  }
+  window.__ppTwitterWidgetsRequested = true;
+  const script = document.createElement("script");
+  script.src = "https://platform.twitter.com/widgets.js";
+  script.async = true;
+  document.head.appendChild(script);
+}
 
 if (typeof marked !== "undefined") {
   marked.use({
@@ -120,6 +155,23 @@ if (typeof marked !== "undefined") {
           // testo libero dell'autore.
           const style = token.color ? ` style="color: ${token.color}"` : "";
           return `<mark class="article-highlight"${style}>${this.parser.parseInline(token.tokens)}</mark>`;
+        },
+      },
+      {
+        name: "ppFootnoteRef",
+        level: "inline",
+        start(src) {
+          const m = src.match(/\[\^\d+\]/);
+          return m ? m.index : undefined;
+        },
+        tokenizer(src) {
+          const rule = /^\[\^(\d+)\]/;
+          const match = rule.exec(src);
+          if (!match) return undefined;
+          return { type: "ppFootnoteRef", raw: match[0], id: match[1] };
+        },
+        renderer(token) {
+          return `<sup><a class="article-footnote-ref" href="#fn-${token.id}" id="fnref-${token.id}">${token.id}</a></sup>`;
         },
       },
       {
@@ -228,6 +280,79 @@ if (typeof marked !== "undefined") {
             `<div class="${rightCls}">${rightHtml}</div>` +
             `</div>`
           );
+        },
+      },
+      {
+        name: "ppFootnotes",
+        level: "block",
+        start(src) {
+          const m = src.match(/<!--footnotes:/);
+          return m ? m.index : undefined;
+        },
+        tokenizer(src) {
+          const rule = /^<!--footnotes:(\[[\s\S]*?\])-->\n?/;
+          const match = rule.exec(src);
+          if (!match) return undefined;
+          let notes = [];
+          try {
+            notes = JSON.parse(match[1]);
+          } catch (e) {
+            notes = [];
+          }
+          return { type: "ppFootnotes", raw: match[0], notes: Array.isArray(notes) ? notes : [] };
+        },
+        renderer(token) {
+          if (!token.notes.length) return "";
+          const items = token.notes
+            .map((note) => {
+              if (note.id === undefined || note.id === null || note.id === "") return "";
+              // parseInline (non parse): una nota è una riga, non un
+              // blocco — evita di avvolgerla in un <p> ridondante
+              // dentro il <li>, restano comunque utilizzabili
+              // grassetto/corsivo/link.
+              const text = typeof marked.parseInline === "function" ? marked.parseInline(note.text || "") : (note.text || "");
+              return `<li id="fn-${note.id}" value="${note.id}">${text} <a class="article-footnote-back" href="#fnref-${note.id}">↩</a></li>`;
+            })
+            .join("");
+          return `<div class="article-footnotes"><ol class="article-footnotes-list">${items}</ol></div>`;
+        },
+      },
+      {
+        name: "ppEmbed",
+        level: "block",
+        start(src) {
+          const m = src.match(/<!--embed:/);
+          return m ? m.index : undefined;
+        },
+        tokenizer(src) {
+          const rule = /^<!--embed:(\{[\s\S]*?\})-->\n?/;
+          const match = rule.exec(src);
+          if (!match) return undefined;
+          let data = {};
+          try {
+            data = JSON.parse(match[1]);
+          } catch (e) {
+            data = {};
+          }
+          return { type: "ppEmbed", raw: match[0], embedType: data.type || "", url: data.url || "" };
+        },
+        renderer(token) {
+          if (token.embedType === "youtube") {
+            const videoId = ppExtractYouTubeId(token.url);
+            if (!videoId) {
+              return `<p class="article-embed-error">Video YouTube non riconosciuto.</p>`;
+            }
+            return `<div class="article-embed article-embed--video"><iframe src="https://www.youtube.com/embed/${videoId}" title="Video YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+          }
+          if (token.embedType === "tweet") {
+            const looksValid = /^https?:\/\/(www\.)?(twitter|x)\.com\/[^/\s]+\/status\/\d+/i.test(token.url || "");
+            if (!looksValid) {
+              return `<p class="article-embed-error">Link a un post X/Twitter non riconosciuto.</p>`;
+            }
+            ppLoadTwitterWidgets();
+            return `<div class="article-embed article-embed--tweet"><blockquote class="twitter-tweet"><a href="${token.url}"></a></blockquote></div>`;
+          }
+          return `<p class="article-embed-error">Embed non riconosciuto.</p>`;
         },
       },
     ],

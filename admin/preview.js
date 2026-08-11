@@ -161,6 +161,81 @@ CMS.registerEditorComponent({
   },
 });
 
+CMS.registerEditorComponent({
+  id: "footnotes",
+  label: "Note a piè di pagina",
+  fields: [
+    {
+      name: "notes",
+      label: "Note",
+      widget: "list",
+      minimize_collapsed: true,
+      fields: [
+        { name: "id", label: "Numero (usa [^N] nel testo per il rimando)", widget: "number", value_type: "int" },
+        { name: "text", label: "Testo della nota", widget: "string" },
+      ],
+    },
+  ],
+  pattern: /^<!--footnotes:(\[[\s\S]*?\])-->\n?/,
+  fromBlock: function (match) {
+    var notes = [];
+    try {
+      notes = JSON.parse(match[1]);
+    } catch (e) {
+      notes = [];
+    }
+    return { notes: notes };
+  },
+  toBlock: function (obj) {
+    var notes = (obj.notes || []).map(function (n) {
+      return { id: n.id, text: n.text || "" };
+    });
+    return "<!--footnotes:" + JSON.stringify(notes) + "-->\n";
+  },
+  toPreview: function (obj) {
+    var notes = obj.notes || [];
+    return (
+      '<ol style="font-size:0.85rem;color:#6b6b63;">' +
+      notes.map(function (n) { return "<li>" + (n.text || "") + "</li>"; }).join("") +
+      "</ol>"
+    );
+  },
+});
+
+CMS.registerEditorComponent({
+  id: "embed",
+  label: "Embed video/tweet",
+  fields: [
+    {
+      name: "type",
+      label: "Tipo",
+      widget: "select",
+      options: [
+        { label: "YouTube", value: "youtube" },
+        { label: "Tweet (X/Twitter)", value: "tweet" },
+      ],
+    },
+    { name: "url", label: "URL", widget: "string", hint: "Link completo al video YouTube o al post X/Twitter." },
+  ],
+  pattern: /^<!--embed:(\{[\s\S]*?\})-->\n?/,
+  fromBlock: function (match) {
+    var data = {};
+    try {
+      data = JSON.parse(match[1]);
+    } catch (e) {
+      data = {};
+    }
+    return { type: data.type || "youtube", url: data.url || "" };
+  },
+  toBlock: function (obj) {
+    var data = { type: obj.type || "youtube", url: obj.url || "" };
+    return "<!--embed:" + JSON.stringify(data) + "-->\n";
+  },
+  toPreview: function (obj) {
+    return '<p style="padding:0.75rem;border:1px dashed #e2dacb;border-radius:4px;">Embed ' + (obj.type || "") + ": " + (obj.url || "") + "</p>";
+  },
+});
+
 var CATEGORY_NAMES = {
   recensioni: "Recensioni",
   monografie: "Monografie",
