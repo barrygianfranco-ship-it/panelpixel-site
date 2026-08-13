@@ -9,18 +9,70 @@
    continuano ad agganciare l'elemento anche se l'hash cambia, finché il
    nome del componente resta lo stesso.
 
-   Nomi CONFERMATI via ispezione DOM dal vivo (7 agosto 2026): AppMainContainer,
-   ToolbarContainer, ViewControls, PreviewPaneContainer, EditorControlPane
-   (quest'ultimo era un'ipotesi dell'utente basata sullo stesso pattern, non
-   confermata esplicitamente ma verosimile). Nomi NON verificati, aggiunti
-   come ipotesi ragionevole in base alla struttura nota di Decap/Netlify CMS
-   (segnati singolarmente sotto): se non esistono, il selettore semplicemente
-   non aggancia nulla — nessun rischio, ma va controllato dal vivo.
+   Nomi CONFERMATI via ispezione DOM dal vivo, due giri:
+   - 7 agosto 2026: AppMainContainer, ToolbarContainer, ViewControls,
+     PreviewPaneContainer.
+   - 13 agosto 2026 (giro restyling "stile WordPress"), con un backend di
+     test locale (admin-test/, non committato, solo per l'ispezione) per
+     aprire davvero l'editor senza serve un login Netlify Identity reale:
+     EditorContainer (confermato — ha esattamente due figli diretti,
+     ToolbarContainer ed Editor), ControlContainer (contenitore di OGNI
+     singolo campo, sia di primo livello sia annidato dentro un widget
+     "object" come "Aspetto articolo"/"SEO" — con aria-label="{tipo}
+     field", es. "string field"/"object field"/"list field"),
+     ControlTopbar (dentro ControlContainer, contiene la label),
+     FieldLabel (la label stessa — sostituisce le ipotesi sbagliate
+     WidgetLabel/LabelComponent, che non esistono), ControlHint (il testo
+     di aiuto sotto un campo), TopBarContainer (la barra dell'accordion di
+     un widget "object"/"list" quando espanso/collassato — non la barra
+     in alto, ipotesi precedente sbagliata), PublishButton (bottone
+     "Publish" quando ci sono modifiche da pubblicare) e PublishedButton
+     (bottone quando non ce ne sono), BackStatus (il badge "Unsaved
+     Changes"/"Changes saved" in alto), AppHeaderButton/SidebarNavLink
+     (l'header/sidebar dell'app, fuori dall'editor del singolo file).
+     CONFERMATO ASSENTE: EditorControlPane non esiste — le regole che lo
+     usavano non hanno mai funzionato tramite quel nome (funzionavano solo
+     per la metà "EditorContainer" degli stessi selettori combinati, ma
+     puntata al contenitore sbagliato, vedi bug sotto).
 
-   Rispetto al giro precedente: !important ora è usato anche su
-   padding/margin sui 4 contenitori confermati e sulle righe dei campi,
-   non solo sulle proprietà cosmetiche — rischio di rottura del layout
-   accettato esplicitamente. */
+   BUG REALE TROVATO E CORRETTO in questo giro: la vecchia regola per il
+   campo "Titolo" (trattamento "hero") usava come selettore
+   "[class*='EditorContainer'] > div:first-child", nell'assunto che il
+   primo figlio diretto di EditorContainer fosse la riga del campo
+   Titolo. Con la struttura reale confermata (EditorContainer > ⁠
+   [ToolbarContainer, Editor]), quel selettore in realtà accoppiava la
+   BARRA DEGLI STRUMENTI in alto, non il campo Titolo — da qui la barra
+   nera con testo bianco che si vedeva, non un design voluto. Sostituito
+   con un selettore basato sull'id che Decap genera dal nome del campo in
+   config.yml (es. "title-field-3", il suffisso numerico non è stabile
+   ma il prefisso "title-field-" sì), via :has() — robusto rispetto a
+   riordini/annidamenti dei campi, a differenza di trucchi posizionali.
+   :has() richiede un browser recente (Chrome/Edge 105+, Safari 15.4+,
+   Firefox 121+): accettabile per uno strumento admin usato da un numero
+   ristretto di persone note, non dal pubblico del sito.
+
+   SECONDO BUG trovato scrivendo QUESTO stesso selettore, prima di
+   pubblicarlo: ":has([id^='title-field-'])" senza il combinatore diretto
+   ">" risultava vero anche per il ControlContainer più esterno di tutti
+   (aria-label="list field", il campo lista "Articoli" che avvolge ogni
+   singolo articolo) — perché l'input del Titolo è comunque un suo
+   discendente, solo più in profondità. Risultato: lo stile "hero" si
+   applicava a OGNI campo del form, non solo al Titolo (verificato via
+   getComputedStyle prima di fidarsi dell'occhio). Corretto obbligando
+   l'id a essere un FIGLIO DIRETTO: ":has(> [id^='title-field-'])" — vero
+   solo per il ControlContainer immediato del campo, non per i suoi
+   antenati. Il campo "Corpo dell'articolo" (widget markdown) non mette
+   invece l'id come figlio diretto (la sua struttura interna è diversa,
+   un div "cms-editor-visual" senza id), quindi per lui si usa
+   [aria-label="markdown field"] direttamente — unico nello schema, non
+   serve :has() lì. Lezione per chi tocca questo file in futuro: con
+   :has() verificare SEMPRE via getComputedStyle su almeno due campi
+   diversi (uno che deve combaciare, uno che non deve), non fidarsi che
+   "sembri giusto" dal solo screenshot.
+
+   !important usato ovunque i selettori sopra agganciano elementi reali:
+   necessario perché Decap inietta il proprio CSS-in-JS a runtime, con
+   specificità comparabile o l'ordine nel documento a proprio favore. */
 
 :root {
   --color-bg: #faf8f5;
@@ -58,14 +110,20 @@ body {
 
 /* ---- Confermati dal vivo ---- */
 
+/* Sfondo pagina leggermente più scuro di --color-bg: le card dei campi
+   (ControlContainer più sotto) usano --color-bg, così si staccano
+   visivamente dallo sfondo invece di sembrare un unico blocco piatto —
+   stesso principio della bacheca di WordPress (contenuto bianco su
+   grigio chiaro). */
 [class*="AppMainContainer"] {
-  background: var(--color-bg) !important;
+  background: var(--color-bg-alt) !important;
   font-family: var(--font-sans) !important;
 }
 
 [class*="ToolbarContainer"] {
-  background: var(--color-bg-alt) !important;
+  background: var(--color-bg) !important;
   border-color: var(--color-border) !important;
+  border-bottom: 1px solid var(--color-border) !important;
   font-family: var(--font-sans) !important;
   padding: 0.75rem 1.5rem !important;
 }
@@ -81,87 +139,135 @@ body {
   padding: 2rem !important;
 }
 
-/* EditorControlPane: ipotesi dell'utente sullo stesso pattern, non
-   confermata esplicitamente ma verosimile (è il nome storico in Netlify
-   CMS/Decap per il contenitore del form a sinistra). */
-[class*="EditorControlPane"],
+/* Contenitore di TUTTO (barra in alto + area di editing): qui solo un
+   font-family di sicurezza, niente più padding/margini — quelli vivono
+   ora sulle singole card dei campi (ControlContainer, più sotto), non su
+   questo contenitore esterno (la vecchia regola che lo faceva applicava
+   spaziatura solo tra i suoi DUE figli diretti, ToolbarContainer ed
+   Editor — non tra i campi del form come sembrava). */
 [class*="EditorContainer"] {
-  background: var(--color-bg) !important;
   font-family: var(--font-sans) !important;
-  padding: 1.5rem 2rem !important;
 }
 
-/* Righe dei singoli campi dentro il form: spaziatura uniforme, per un
-   aspetto più ordinato invece di "modulo grezzo". Ipotesi sulla struttura
-   (ogni campo = un div figlio diretto del contenitore) non confermata:
-   se la nidificazione reale è diversa, questa regola semplicemente non
-   aggancia nulla. */
-[class*="EditorControlPane"] > div,
-[class*="EditorContainer"] > div {
-  margin-bottom: 1.5rem !important;
-  padding-bottom: 0 !important;
-}
-
-/* ---- Ipotesi NON verificate (struttura nota di Netlify CMS/Decap CMS,
-   ma non viste nello screenshot) — da controllare dal vivo una per una ---- */
-
-[class*="Sidebar"],
-[class*="NavBar"],
-[class*="CollectionTop"],
+/* Barra dell'accordion di un widget "object"/"list" (es. l'intestazione
+   cliccabile di "Aspetto articolo (opzionale)"/"SEO (opzionale)" con la
+   freccia di espansione, o quella della lista "Articoli"): sfondo
+   leggermente diverso dal corpo della card per leggerla come
+   intestazione, non come un altro campo. */
 [class*="TopBarContainer"] {
   background: var(--color-bg-alt) !important;
-  border-color: var(--color-border) !important;
+  border-radius: 4px !important;
   font-family: var(--font-sans) !important;
 }
 
 [class*="ControlHint"] {
   color: var(--color-muted) !important;
   font-family: var(--font-sans) !important;
+  font-size: 0.82rem !important;
 }
 
-[class*="WidgetLabel"],
-[class*="LabelComponent"] {
-  color: var(--color-text) !important;
+/* ---- Etichette dei campi (point 4: differenziazione tipografica) ----
+   Base: tutte le etichette, leggermente più piccole/leggere di prima —
+   "campi di contorno" (slug, data, SEO...). I due campi principali
+   (Titolo, Corpo dell'articolo) la sovrascrivono più sotto con dimensione
+   e peso maggiori, selezionati per id — non per posizione, vedi il bug
+   spiegato in cima al file. */
+[class*="FieldLabel"] {
+  color: var(--color-muted) !important;
   font-family: var(--font-sans) !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
 }
 
-/* ---- Campo "Titolo": area hero ----
-   Più speculativo di tutto il resto del file. CSS non può selezionare un
-   campo per il testo della sua etichetta ("Titolo"), e Slug/Titolo/Autore/
-   SEO Titolo condividono tutti lo stesso componente Decap (StringControl),
-   quindi il nome del componente da solo non li distingue. L'unica leva
-   rimasta è la POSIZIONE: "Titolo" è stato spostato come primo campo in
-   admin/config.yml apposta, e qui sotto si stila "il primo campo del
-   form", chiunque esso sia. Se in futuro riordini i campi in config.yml,
-   lo stile hero si sposta silenziosamente sul nuovo primo campo — è il
-   prezzo per non avere un hook più preciso. Se dal DOM live trovi un
-   id/data-testid specifico sull'<input> del Titolo (es. qualcosa come
-   "articles.0.title"), segnalamelo: scriverei un selettore molto più
-   affidabile al posto di questo. */
-[class*="EditorControlPane"] > div:first-child,
-[class*="EditorContainer"] > div:first-child {
-  background: var(--color-text) !important;
-  padding: 2rem 1.5rem !important;
-  margin-bottom: 2rem !important;
+[class*="ControlContainer"]:has(> [id^="title-field-"]) [class*="FieldLabel"],
+[class*="ControlContainer"][aria-label="markdown field"] [class*="FieldLabel"] {
+  color: var(--color-text) !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+}
+
+/* Il campo Titolo in particolare: input in serif, più grande — un
+   accenno di "titolo di rivista" senza il trattamento scuro a tutta
+   card della vecchia regola (bug, vedi commento in cima al file), che
+   qui non si ripropone di proposito: quel design non era mai stato
+   richiesto per questo giro, solo la differenziazione delle etichette
+   (point 4) e, qui, un piccolo extra coerente solo sull'input del
+   Titolo. */
+[class*="ControlContainer"]:has(> [id^="title-field-"]) input {
+  font-family: var(--font-serif) !important;
+  font-size: 1.4rem !important;
+  font-weight: 600 !important;
+}
+
+/* ---- Card per ogni campo (point 2) ----
+   ControlContainer è il contenitore di OGNI campo, di primo livello o
+   annidato dentro un widget "object" — serve escludere: 1) il campo
+   "list" più esterno (aria-label="list field", la lista "Articoli" in
+   sé, un solo elemento, non un campo da trattare come card); 2) i campi
+   annidati dentro un "object" (Aspetto articolo/SEO), che restano piatti
+   per non avere un doppio bordo dentro l'accordion che già li
+   raggruppa — regola dopo, stessa specificità (due selettori per
+   attributo ciascuna): vince per ordine nel foglio, va tenuta DOPO
+   quella generale. */
+[class*="ControlContainer"]:not([aria-label="list field"]) {
+  background: var(--color-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(26, 26, 26, 0.07) !important;
+  padding: 1.25rem 1.5rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+[aria-label="object field"] [class*="ControlContainer"] {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Il campo "list" più esterno (Articoli): nessuna card, solo un po' di
+   respiro verticale prima del contenuto sotto. */
+[class*="ControlContainer"][aria-label="list field"] {
+  margin-bottom: 1.25rem !important;
+}
+
+/* ---- Barra in alto: Salva/Pubblica in stile più "WordPress" (point 3) ----
+   Sfondo già chiaro (vedi ToolbarContainer più sopra — il nero visto
+   prima era il bug del campo Titolo, non lo sfondo reale di questa
+   barra). Qui solo il bottone principale e il badge di stato. */
+[class*="PublishButton"] {
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
   border-radius: 4px !important;
 }
 
-[class*="EditorControlPane"] > div:first-child label,
-[class*="EditorContainer"] > div:first-child label {
-  color: var(--color-bg) !important;
-  font-family: var(--font-sans) !important;
+[class*="PublishButton"]:hover {
+  opacity: 0.88 !important;
 }
 
-[class*="EditorControlPane"] > div:first-child input,
-[class*="EditorContainer"] > div:first-child input {
+/* Stato "già pubblicato, nessuna modifica in sospeso": stesso colore ma
+   in versione "outline", meno da bottone-invito-all'azione di Publish. */
+[class*="PublishedButton"] {
   background: transparent !important;
-  border: none !important;
-  border-bottom: 2px solid var(--color-accent) !important;
-  border-radius: 0 !important;
-  color: var(--color-bg) !important;
-  font-family: var(--font-serif) !important;
-  font-size: 2rem !important;
-  padding: 0.5rem 0 !important;
+  border: 1px solid var(--color-accent) !important;
+  color: var(--color-accent) !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+}
+
+/* Badge "Unsaved Changes": di suo è un rosso pieno acceso (classe Decap
+   con "textBadgeDanger" nel nome) — qui più tenue, un arancio bruciato
+   invece del rosso di allerta, "meno aggressivo" come richiesto. */
+[class*="textBadgeDanger"] {
+  color: #b3541e !important;
+}
+
+[class*="BackStatus"] {
+  font-weight: 600 !important;
+  font-family: var(--font-sans) !important;
 }
 
 /* ---- Elementi HTML nativi dentro i contenitori sopra: titoli, campi,
@@ -170,13 +276,6 @@ body {
 
 h1, h2, h3 {
   font-family: var(--font-serif) !important;
-}
-
-[class*="AppMainContainer"] label,
-[class*="EditorControlPane"] label,
-[class*="EditorContainer"] label {
-  color: var(--color-text) !important;
-  font-family: var(--font-sans) !important;
 }
 
 input[type="text"],

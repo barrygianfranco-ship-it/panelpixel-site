@@ -331,12 +331,21 @@ function truncateForSEO(text, maxLength) {
 }
 
 function updateArticleSEO(article) {
+  // I tre campi SEO sono stati raggruppati in admin/config.yml sotto un
+  // widget "object" (name: "seo") per pulizia del form CMS — Decap salva
+  // quel gruppo come article.seo.seoTitle/ecc., non più article.seoTitle
+  // diretto. Gli articoli esistenti in data/articles.json restano però
+  // con i tre campi al livello principale (mai migrati): si legge prima
+  // dalla posizione nuova, poi da quella vecchia, così funzionano
+  // entrambi senza dover toccare i dati esistenti né duplicare la scelta
+  // in ogni punto del file che li usa (vedi anche renderReadNext più sotto).
+  const seo = article.seo || {};
   // Fallback: se seoTitle/seoDescription non sono compilati (nell'editor o
   // a mano in js/data.js), si generano da title/excerpt — la description
   // viene troncata a 160 caratteri per restare nel range consigliato
   // (140-160) per i motori di ricerca.
-  const seoTitle = article.seoTitle || `${article.title} | ${SITE.name}`;
-  const seoDescription = article.seoDescription || truncateForSEO(article.excerpt, 160);
+  const seoTitle = seo.seoTitle || article.seoTitle || `${article.title} | ${SITE.name}`;
+  const seoDescription = seo.seoDescription || article.seoDescription || truncateForSEO(article.excerpt, 160);
   // article.image non ha uno slash iniziale per le immagini gestite a mano
   // (es. "assets/images/...") ma ce l'ha per quelle caricate dal CMS (es.
   // "/images/uploads/...", per via di public_folder in admin/config.yml) —
@@ -347,8 +356,9 @@ function updateArticleSEO(article) {
 
   document.title = seoTitle;
   setMetaContent("meta-description", seoDescription);
-  if (article.seoKeywords && article.seoKeywords.length > 0) {
-    setMetaContent("meta-keywords", article.seoKeywords.join(", "));
+  const seoKeywords = seo.seoKeywords || article.seoKeywords;
+  if (seoKeywords && seoKeywords.length > 0) {
+    setMetaContent("meta-keywords", seoKeywords.join(", "));
   }
 
   setMetaContent("og-title", seoTitle);
@@ -637,6 +647,13 @@ function renderComments(article) {
   container.appendChild(script);
 }
 
+// article.seo.seoKeywords (nuovo, dal widget "object" raggruppato in
+// admin/config.yml) con fallback ad article.seoKeywords diretto (articoli
+// esistenti, mai migrati) — stessa logica di updateArticleSEO più sopra.
+function getSeoKeywords(article) {
+  return ((article.seo && article.seo.seoKeywords) || article.seoKeywords || []).map((k) => k.toLowerCase());
+}
+
 /* ---- Sidebar "Da leggere dopo": scelta degli articoli correlati ----
    Criterio: prima gli articoli della stessa categoria (esclusa la corrente).
    Se non bastano a riempire "limit" posti, si completa con gli articoli che
@@ -653,11 +670,11 @@ function getRelatedArticles(article, limit) {
   }
 
   const excludeSlugs = new Set([article.slug, ...sameCategory.map((a) => a.slug)]);
-  const articleKeywords = (article.seoKeywords || []).map((k) => k.toLowerCase());
+  const articleKeywords = getSeoKeywords(article);
 
   const bySimilarity = ARTICLES.filter((a) => !excludeSlugs.has(a.slug))
     .map((a) => {
-      const otherKeywords = (a.seoKeywords || []).map((k) => k.toLowerCase());
+      const otherKeywords = getSeoKeywords(a);
       const sharedKeywords = articleKeywords.filter((k) => otherKeywords.includes(k)).length;
       const sameType = a.type === article.type ? 1 : 0;
       return { article: a, score: sharedKeywords * 2 + sameType };

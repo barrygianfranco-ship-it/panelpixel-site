@@ -91,20 +91,26 @@ collections:
                 widget: "string"
                 required: false
                 hint: "Es. \"PC (build review)\""
-              - label: "SEO — Titolo"
-                name: "seoTitle"
-                widget: "string"
+              - label: "SEO (opzionale)"
+                name: "seo"
+                widget: "object"
                 required: false
-                hint: "Con \" | Panel Pixel\" in fondo. Se lasciato vuoto, il sito genera un fallback dal titolo."
-              - label: "SEO — Descrizione"
-                name: "seoDescription"
-                widget: "text"
-                required: false
-                hint: "140-160 caratteri. Se lasciato vuoto, il sito genera un fallback dal sottotitolo."
-              - label: "SEO — Parole chiave"
-                name: "seoKeywords"
-                widget: "list"
-                required: false
+                collapsed: true
+                fields:
+                  - label: "SEO — Titolo"
+                    name: "seoTitle"
+                    widget: "string"
+                    required: false
+                    hint: "Con \" | Panel Pixel\" in fondo. Se lasciato vuoto, il sito genera un fallback dal titolo."
+                  - label: "SEO — Descrizione"
+                    name: "seoDescription"
+                    widget: "text"
+                    required: false
+                    hint: "140-160 caratteri. Se lasciato vuoto, il sito genera un fallback dal sottotitolo."
+                  - label: "SEO — Parole chiave"
+                    name: "seoKeywords"
+                    widget: "list"
+                    required: false
               - label: "Corpo dell'articolo"
                 name: "content"
                 widget: "markdown"
