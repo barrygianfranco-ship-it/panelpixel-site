@@ -561,7 +561,13 @@ h1, h2, h3 {
 
 .hero-side-media {
   position: relative;
-  aspect-ratio: 3 / 4;
+  /* 4:3 invece del precedente 3:4 (verticale stretto): un riquadro
+     meno stretto riduce il ritaglio quando l'immagine di copertina è
+     panoramica con il soggetto non centrato — capitato con la
+     copertina di "Echoes of Aincrad" in questa posizione. Stesso
+     valore già usato altrove nel sito (vedi card della griglia
+     principale), per coerenza visiva. */
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 2px;
   background: var(--color-bg-alt);
