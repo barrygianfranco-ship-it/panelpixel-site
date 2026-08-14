@@ -93,16 +93,18 @@
   <footer class="site-footer">
     <div class="container site-footer-inner">
       <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
-      <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy & Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
+      <p><a href="chi-sono.html">Chi sono</a> · <a href="account.html">Redazione</a> · <a href="privacy.html">Privacy & Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
     </div>
   </footer>
 
-  <!-- Stesso widget Identity usato in admin/index.html. Qui il bottone
-       "Accedi" apre il modale di login/invito; appena l'utente risulta
-       autenticato (login riuscito, o sessione già valida al caricamento
-       della pagina) si va dritti al nuovo articolo in admin, saltando la
-       dashboard generale — vedi richiesta esplicita nel task che ha
-       introdotto questa pagina. -->
+  <!-- Da quando i contenuti sono migrati a Storyblok, l'editor vero è
+       Storyblok stesso: Netlify Identity qui serve solo a filtrare chi
+       può arrivarci (accesso riservato ai collaboratori invitati), non
+       a modificare articoli. Il bottone "Accedi" apre il modale di
+       login/invito; appena l'utente risulta autenticato (login riuscito,
+       o sessione già valida al caricamento della pagina) viene
+       reindirizzato all'editor di Storyblok, dove si scrive e si
+       pubblica davvero. -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="js/data.js"></script>
   <script src="js/storyblok-richtext.js"></script>
@@ -113,7 +115,7 @@
       var status = document.getElementById("account-status");
 
       function goToNewArticle() {
-        window.location.href = "/admin/#/collections/articoli/new";
+        window.location.href = "https://app.storyblok.com/#/me/spaces/294520547534020/stories";
       }
 
       if (!window.netlifyIdentity) {
