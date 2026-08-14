@@ -8,6 +8,10 @@ js/editor.js
 .env.local
 .env.*.local
 
+# Certificati HTTPS locali (mkcert) per test con Storyblok Visual Editor:
+# localhost-key.pem è una chiave privata, non va mai committata.
+*.pem
+
 # File di configurazione che in futuro potrebbero contenere token/credenziali
 netlify.toml
 wrangler.toml
