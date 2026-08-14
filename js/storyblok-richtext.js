@@ -274,13 +274,20 @@ async function fetchStoryblokArticles() {
    dentro l'editor si vuole vedere la bozza corrente, non l'ultima
    versione pubblicata. Riusa lo stesso adaptStoryblokStory() di
    fetchStoryblokArticles(), quindi il risultato ha sempre la stessa
-   forma che js/main.js si aspetta. ---- */
+   forma che js/main.js si aspetta.
+
+   cache: "no-store" + il parametro cb (cache-buster, un timestamp)
+   servono a evitare che il browser risponda con una versione già in
+   cache di questa stessa URL: durante l'anteprima live il redattore
+   si aspetta sempre l'ultimissima bozza, mai una risposta vecchia. ---- */
 async function fetchStoryblokStoryBySlug(slug, version) {
   version = version || "published";
   const url = `https://api.storyblok.com/v2/cdn/stories/${encodeURIComponent(
     slug
-  )}?token=${encodeURIComponent(STORYBLOK_CDA_TOKEN)}&version=${encodeURIComponent(version)}`;
-  const res = await fetch(url);
+  )}?token=${encodeURIComponent(STORYBLOK_CDA_TOKEN)}&version=${encodeURIComponent(
+    version
+  )}&cb=${Date.now()}`;
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Storyblok CDA: HTTP ${res.status}`);
   const data = await res.json();
   return adaptStoryblokStory(data.story);
