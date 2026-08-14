@@ -587,9 +587,23 @@ function renderBreadcrumbs(article) {
   if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(breadcrumbJsonLd);
 }
 
+// Markup originale (statico, da articolo.html) del contenitore #article-content,
+// salvato la prima volta che renderArticlePage() gira. Serve a ripristinare
+// gli elementi interni (#article-header, #article-media, ecc.) se un
+// rendering precedente li ha cancellati mostrando "Articolo non trovato"
+// (che sovrascrive container.innerHTML con un semplice messaggio) — capita
+// tipicamente nell'anteprima Storyblok: il primo giro trova solo la
+// versione pubblicata (magari non ancora esistente), il secondo giro
+// (via bridge, con la bozza) deve invece poter ricostruire il layout vero.
+let articleContentTemplate = null;
+
 function renderArticlePage() {
   const container = document.getElementById("article-content");
   if (!container) return;
+
+  if (articleContentTemplate === null) {
+    articleContentTemplate = container.innerHTML;
+  }
 
   const params = new URLSearchParams(window.location.search);
   const slug = params.get("slug");
@@ -599,6 +613,10 @@ function renderArticlePage() {
     container.innerHTML = `
       <p class="empty-state">Articolo non trovato. <a href="index.html">Torna alla home</a>.</p>`;
     return;
+  }
+
+  if (!document.getElementById("article-header")) {
+    container.innerHTML = articleContentTemplate;
   }
 
   updateArticleSEO(article);
