@@ -276,17 +276,18 @@ async function fetchStoryblokArticles() {
    fetchStoryblokArticles(), quindi il risultato ha sempre la stessa
    forma che js/main.js si aspetta.
 
-   cache: "no-store" + il parametro cb (cache-buster, un timestamp)
-   servono a evitare che il browser risponda con una versione già in
-   cache di questa stessa URL: durante l'anteprima live il redattore
-   si aspetta sempre l'ultimissima bozza, mai una risposta vecchia. ---- */
+   cache: "no-store" evita che il browser risponda con una versione
+   già in cache di questa stessa URL: durante l'anteprima live il
+   redattore si aspetta sempre l'ultimissima bozza, mai una risposta
+   vecchia. (Non usare un parametro di query tipo "cb" come cache-
+   buster: l'API Content Delivery di Storyblok valida rigidamente i
+   parametri e risponde HTTP 422 "Parameter(s) cb not allowed." su
+   qualunque parametro che non riconosce.) ---- */
 async function fetchStoryblokStoryBySlug(slug, version) {
   version = version || "published";
   const url = `https://api.storyblok.com/v2/cdn/stories/${encodeURIComponent(
     slug
-  )}?token=${encodeURIComponent(STORYBLOK_CDA_TOKEN)}&version=${encodeURIComponent(
-    version
-  )}&cb=${Date.now()}`;
+  )}?token=${encodeURIComponent(STORYBLOK_CDA_TOKEN)}&version=${encodeURIComponent(version)}`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Storyblok CDA: HTTP ${res.status}`);
   const data = await res.json();
