@@ -7,6 +7,7 @@
   <meta id="meta-description" name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
   <meta id="meta-keywords" name="keywords" content="">
 
+  <!-- Open Graph: valori di default, sovrascritti via JS in base all'articolo (vedi updateArticleSEO in js/main.js) -->
   <meta id="og-type" property="og:type" content="article">
   <meta id="og-title" property="og:title" content="Panel Pixel">
   <meta id="og-description" property="og:description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
@@ -14,20 +15,34 @@
   <meta id="og-url" property="og:url" content="">
   <meta property="og:site_name" content="Panel Pixel">
 
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta id="twitter-title" name="twitter:title" content="Panel Pixel">
   <meta id="twitter-description" name="twitter:description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
   <meta id="twitter-image" name="twitter:image" content="">
 
+  <!-- Canonical: impostato via JS in base allo slug (vedi updateArticleSEO) -->
   <link id="canonical-link" rel="canonical" href="">
 
+  <!-- JSON-LD (schema.org Article): iniettato via JS, vedi updateArticleSEO -->
   <script type="application/ld+json" id="article-jsonld"></script>
+
+  <!-- JSON-LD (schema.org BreadcrumbList): iniettato via JS, vedi renderBreadcrumbs -->
   <script type="application/ld+json" id="breadcrumb-jsonld"></script>
 
   <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
   <link rel="stylesheet" href="css/style.css">
 
+  <!-- Stili specifici delle varianti di layout per tipo di articolo
+       (radar / recensione / monografia / notizia). Vivono qui, scoped a
+       questa pagina, per non toccare css/style.css: riusano le variabili
+       --color-*/--font-* definite lì. -->
   <style>
+    /* Header allineato a sinistra, larghezza del blocco = stessa di
+       .article-media (diretto fratello dentro .article-wrap, vedi HTML
+       più sotto): etichetta categoria, titolo, sottotitolo, linea
+       divisoria a piena larghezza — stesso schema per tutti i tipi di
+       articolo (vedi renderArticleHeader in js/main.js). */
     .article-header {
       text-align: left;
     }
@@ -59,6 +74,10 @@
     .article-heading {
       font-size: 1.3rem;
       margin: 2rem 0 1rem;
+      /* Non deve stringersi accanto a un'immagine flottante ancora
+         attiva (vedi .article-body > .article-inline-image in
+         css/style.css) — sempre a piena larghezza sotto il float.
+         Innocuo quando non c'è alcun float attivo. */
       clear: both;
     }
 
@@ -121,6 +140,23 @@
       color: var(--color-muted);
     }
 
+    /* Fascia finale (box supporto + commenti), vedi #article-footer-standard
+       in HTML: sempre ai colori standard del sito, mai al tema
+       dell'articolo (--article-bg/--article-text) — sfondo "a piena
+       larghezza" fino al bordo di .article-wrap, annullando col margine
+       negativo il padding orizzontale del wrap e riapplicandolo uguale
+       col padding qui sotto. Stesso trattamento anche sul bordo inferiore
+       (-1rem / 1rem) per coprire il padding-bottom di .article-wrap
+       stesso: altrimenti quella striscia finale restava del colore del
+       tema (bug reale trovato in questo giro di correzione — striscia
+       scura residua sotto i commenti su articoli con tema scuro).
+       display: flow-root evita che i margini verticali di
+       support-box/comments-section "sfondino" fuori dallo sfondo qui
+       impostato (bug di margin collapse altrimenti). "color" qui è
+       necessario quanto "background": senza, un testo senza colore
+       proprio (es. .comments-title) eredita comunque il testo chiaro
+       del tema, invisibile su questo sfondo ora chiaro anche lui —
+       bug reale trovato nel primo giro di questa correzione. */
     .article-footer-standard {
       background: var(--color-bg);
       color: var(--color-text);
@@ -163,6 +199,10 @@
       text-decoration: underline;
     }
 
+    /* Sezione commenti: separata visivamente dal corpo dell'articolo con
+       un bordo superiore e margine generoso, coerente col resto della
+       pagina. Sfondo/colore standard garantiti dal contenitore
+       #article-footer-standard che la avvolge, non da regole qui. */
     .comments-section {
       margin: 3rem 0 0;
       padding-top: 2.5rem;
@@ -212,6 +252,13 @@
   </header>
 
   <main>
+    <!-- Tutto il contenuto qui sotto è popolato via JavaScript in base a
+         ?slug= e al campo "type" dell'articolo (vedi renderArticleLayout
+         in js/main.js). I blocchi non usati dal tipo corrente restano vuoti.
+         L'immagine hero (.article-media) e il blocco titolo (#article-header)
+         vivono nella fascia larga di .article-wrap, diretti fratelli; il
+         corpo/footer/commenti stanno nella colonna di lettura stretta
+         .article-content-inner. -->
     <nav class="breadcrumbs container" aria-label="Breadcrumb">
       <ol class="breadcrumb-list" id="breadcrumb-list"></ol>
     </nav>
@@ -224,6 +271,12 @@
         <ol class="radar-list" id="radar-list"></ol>
         <div class="article-footer-meta" id="article-footer-meta"></div>
 
+        <!-- Fascia finale (box supporto + commenti): sempre ai colori
+             standard del sito, mai al tema dell'articolo — vedi
+             .article-footer-standard in CSS. Commenti: vedi
+             COMMENTS_CONFIG in js/data.js per come attivare Giscus;
+             finché non è attivato, mostra solo un placeholder (nessuno
+             script esterno caricato). -->
         <div class="article-footer-standard" id="article-footer-standard">
           <div class="support-box" id="support-box"></div>
           <section class="comments-section" id="comments-section">
@@ -234,6 +287,9 @@
       </div>
     </article>
 
+    <!-- "Da leggere dopo": non più sidebar laterale, ora appare in fondo
+         alla pagina dopo l'articolo (popolata da renderReadNext() in
+         js/main.js), a piena larghezza sia su desktop che su mobile. -->
     <section class="read-next" id="read-next" hidden>
       <div class="container">
         <h2 class="section-title">Da leggere dopo</h2>
@@ -245,12 +301,26 @@
   <footer class="site-footer">
     <div class="container site-footer-inner">
       <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
-      <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy &amp; Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
+      <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy & Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
     </div>
   </footer>
 
+  <!-- Widget Netlify Identity: caricato su ogni pagina (non solo
+       admin/account.html) apposta per initAccountNavLink() in
+       js/main.js, che controlla se c'è una sessione attiva per
+       decidere se mostrare la voce "Account" nel menu. -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="js/data.js"></script>
-  <script src="js/storyblok-richtext.js"></script>
+  <!-- Parser markdown per il corpo articolo (widget "markdown" di Decap
+       CMS, Step A: infrastruttura di rendering — vedi commento su
+       renderMarkdownBody in js/main.js). Deve caricare PRIMA di main.js,
+       che registra un renderer personalizzato non appena questo script
+       è disponibile. Versione pinnata esplicitamente (non "latest"), per
+       non ritrovarsi un renderer rotto da un aggiornamento a sorpresa. -->
+  <script src="https://unpkg.com/marked@18.0.9/lib/marked.umd.js"></script>
+  <!-- Personalizzazione di marked (renderer + componenti galleria/box),
+       condivisa con admin/index.html — vedi commento in cima al file. -->
+  <script src="js/markdown-components.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

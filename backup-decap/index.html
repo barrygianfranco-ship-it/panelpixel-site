@@ -3,35 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anteprime — Panel Pixel</title>
-  <meta name="description" content="Le prossime uscite di fumetti, videogiochi e cinema, in anteprima.">
+  <title>Panel Pixel — Fumetti, videogiochi e cultura pop</title>
+  <meta name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Anteprime — Panel Pixel">
-  <meta property="og:description" content="Le prossime uscite di fumetti, videogiochi e cinema, in anteprima.">
+  <meta property="og:title" content="Panel Pixel — Fumetti, videogiochi e cultura pop">
+  <meta property="og:description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
   <meta property="og:image" content="https://panelpixel.it/assets/images/og-default.png">
-  <meta property="og:url" content="https://panelpixel.it/anteprime.html">
+  <meta property="og:url" content="https://panelpixel.it/index.html">
   <meta property="og:site_name" content="Panel Pixel">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Anteprime — Panel Pixel">
-  <meta name="twitter:description" content="Le prossime uscite di fumetti, videogiochi e cinema, in anteprima.">
+  <meta name="twitter:title" content="Panel Pixel — Fumetti, videogiochi e cultura pop">
+  <meta name="twitter:description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
   <meta name="twitter:image" content="https://panelpixel.it/assets/images/og-default.png">
 
-  <link rel="canonical" href="https://panelpixel.it/anteprime.html">
-
-  <!-- JSON-LD (schema.org BreadcrumbList): riflette il breadcrumb visibile qui sotto -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://panelpixel.it/index.html" },
-      { "@type": "ListItem", "position": 2, "name": "Anteprime", "item": "https://panelpixel.it/anteprime.html" }
-    ]
-  }
-  </script>
-
+  <link rel="canonical" href="https://panelpixel.it/index.html">
   <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -57,23 +44,46 @@
           <a class="nav-link" href="chi-sono.html">Chi sono</a>
           <a class="nav-link nav-link-account" href="account.html">Account</a>
         </nav>
+        <div class="search-box">
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="Cerca per titolo, categoria o autore…"
+            aria-label="Cerca articoli"
+            autocomplete="off"
+          >
+          <button type="button" class="search-clear" id="search-clear" aria-label="Cancella ricerca" hidden>&times;</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <div class="page-hero container">
-    <nav class="breadcrumbs" aria-label="Breadcrumb">
-      <ol class="breadcrumb-list">
-        <li><a href="index.html">Home</a></li>
-        <li aria-current="page">Anteprime</li>
-      </ol>
-    </nav>
-    <h1 id="category-page-title">Anteprime</h1>
-    <p>Quello che sta per arrivare, raccontato prima che arrivi.</p>
-  </div>
-
   <main class="container">
-    <div class="card-grid" id="category-list" data-category="anteprime"></div>
+
+    <h1 class="visually-hidden">Panel Pixel — Fumetti, videogiochi e cultura pop, un frame alla volta.</h1>
+
+    <section class="magazine-hero" id="magazine-hero">
+      <div class="hero-col hero-col--left" id="hero-left"></div>
+      <div class="hero-col hero-col--center" id="hero-center"></div>
+      <div class="hero-col hero-col--right" id="hero-right"></div>
+    </section>
+
+    <div id="search-results" class="search-results" hidden></div>
+
+    <section class="homepage-grid" id="homepage-grid">
+      <h2 class="section-title">Ultimi articoli</h2>
+      <div class="card-grid" id="homepage-articles"></div>
+    </section>
+
+    <section class="category-section" id="approfondimenti-section" hidden>
+      <div class="section-header">
+        <h2 class="section-title">Approfondimenti</h2>
+        <a class="section-link" href="approfondimenti.html">Vedi tutti &rarr;</a>
+      </div>
+      <div class="card-grid" id="approfondimenti-articles"></div>
+    </section>
+
   </main>
 
   <footer class="site-footer">
@@ -89,7 +99,6 @@
        decidere se mostrare la voce "Account" nel menu. -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="js/data.js"></script>
-  <script src="js/storyblok-richtext.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

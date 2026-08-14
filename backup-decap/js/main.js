@@ -1,16 +1,47 @@
 /* ==========================================================================
    Panel Pixel — logica di rendering
+   Legge SITE/CATEGORIES/COMMENTS_CONFIG da js/data.js (sincrono, invariato)
+   e gli articoli da data/articles.json + data/radar.json via fetch,
+   caricati da loadArticles() prima di popolare le pagine — vedi il blocco
+   DOMContentLoaded in fondo al file. Non serve toccare questo file per
+   aggiungere articoli "normali": si aggiungono a data/articles.json (anche
+   via admin/, Decap CMS) o, per le rubriche "radar", a data/radar.json.
    ========================================================================== */
 
+// Popolato da loadArticles() all'avvio, prima di ogni rendering — vedi
+// DOMContentLoaded in fondo al file. Finché il fetch non è completato resta
+// vuoto: nessuna funzione di rendering viene chiamata prima di allora, quindi
+// non c'è un momento in cui il codice gira su un ARTICLES vuoto per errore.
 let ARTICLES = [];
 
-// Legge da Storyblok (fetchStoryblokArticles, in js/storyblok-richtext.js).
-// Le rubriche "radar" non esistono ancora su Storyblok, quindi qui
-// ARTICLES contiene solo articoli "normali".
+/* Carica gli articoli "normali" (data/articles.json) e le rubriche radar
+   (data/radar.json) e li unisce in un unico ARTICLES, come prima quando
+   erano tutti insieme nell'array in js/data.js. Se anche uno solo dei due
+   fetch fallisce (rete offline, file mancante, JSON non valido), l'intera
+   pagina mostra un messaggio d'errore invece di restare bianca o mostrare
+   un sito vuoto con sezioni "nessun articolo" fuorvianti.
+
+   data/articles.json è un OGGETTO { articles: [...] }, non un array nudo:
+   lo richiede Decap CMS, che per le collection di tipo "files" legge/scrive
+   il contenuto del file come oggetto con una chiave per ogni field di primo
+   livello (qui il field si chiama "articles", vedi admin/config.yml) — un
+   array alla radice non ha una chiave a cui agganciarsi e il CMS lo vede
+   vuoto. data/radar.json invece resta un array nudo: non è gestito dal CMS
+   (vedi commento in quel file), quindi non ha bisogno dello stesso wrapper. */
 async function loadArticles() {
-  ARTICLES = await fetchStoryblokArticles();
+  const [articlesRes, radarRes] = await Promise.all([fetch("data/articles.json"), fetch("data/radar.json")]);
+
+  if (!articlesRes.ok) throw new Error(`data/articles.json: HTTP ${articlesRes.status}`);
+  if (!radarRes.ok) throw new Error(`data/radar.json: HTTP ${radarRes.status}`);
+
+  const [articlesData, radar] = await Promise.all([articlesRes.json(), radarRes.json()]);
+  ARTICLES = [...articlesData.articles, ...radar];
 }
 
+/* Messaggio d'errore leggibile, mostrato in cima a <body> su qualunque
+   pagina se loadArticles() fallisce — non dipende dai contenitori
+   specifici di ciascuna pagina (che restano invariati sotto: header, nav,
+   footer continuano a funzionare normalmente). */
 function showDataLoadError() {
   const banner = document.createElement("div");
   banner.className = "data-load-error";
@@ -43,6 +74,9 @@ function getTopRecentArticles(count) {
     .slice(0, count);
 }
 
+/* Etichetta mostrata come tag categoria nella hero: stessa logica usata
+   nelle intestazioni di articolo.html (recensione/monografia/radar hanno
+   un'etichetta dedicata, notizia usa il nome della categoria). */
 function getHeroTag(article) {
   switch (article.type) {
     case "recensione":
@@ -72,6 +106,8 @@ function cardHTML(article) {
     </a>`;
 }
 
+/* ---- Rendering Home: hero a 3 colonne (sinistra: 3 mini, centro: articolo
+   principale, destra: secondo articolo in evidenza), stile magazine ---- */
 function heroMiniHTML(article) {
   return `
     <a class="hero-mini" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
@@ -134,6 +170,9 @@ function renderMagazineHero() {
   leftEl.innerHTML = minis.map((a) => heroMiniHTML(a)).join("");
 }
 
+/* ---- Rendering Home: griglia unica sotto l'hero, categorie miste ----
+   Mostra gli articoli più recenti (fino a 9), esclusi i 5 già mostrati
+   nella hero sopra, per non ripeterli due volte nella stessa pagina. */
 function renderHomepageGrid() {
   const container = document.getElementById("homepage-articles");
   if (!container) return;
@@ -147,6 +186,10 @@ function renderHomepageGrid() {
   container.innerHTML = articles.map((a) => cardHTML(a)).join("");
 }
 
+/* ---- Rendering Home: sezione dedicata "Approfondimenti" ----
+   Sezione a sé (titolo + griglia), separata dalla griglia mista "Ultimi
+   articoli" sopra. Resta nascosta finché non c'è almeno un articolo con
+   category "approfondimenti", per non mostrare una sezione vuota in home. */
 function renderApprofondimentiSection() {
   const section = document.getElementById("approfondimenti-section");
   const container = document.getElementById("approfondimenti-articles");
@@ -163,11 +206,15 @@ function renderApprofondimentiSection() {
   container.innerHTML = articles.map((a) => cardHTML(a)).join("");
 }
 
+/* ---- Ricerca articoli (home): filtra per titolo, categoria, autore ---- */
 function normalizeSearchText(str) {
+  // NFD scompone le lettere accentate in lettera-base + segno diacritico
+  // separato; il replace toglie il segno diacritico (range Unicode dei
+  // diacritici combinanti U+0300-U+036F), così "attualita" trova anche "Attualità".
   return str
     .toString()
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 }
 
@@ -194,6 +241,7 @@ function renderSearchResults(query) {
   const sectionsEl = document.getElementById("homepage-grid");
   const q = query.trim();
 
+  // ricerca vuota: torna alla home normale (In evidenza + griglia articoli)
   if (!q) {
     resultsEl.hidden = true;
     resultsEl.innerHTML = "";
@@ -241,6 +289,7 @@ function initSearch() {
   }
 }
 
+/* ---- Rendering pagina di categoria (es. recensioni.html) ---- */
 function renderCategoryPage() {
   const container = document.getElementById("category-list");
   if (!container) return;
@@ -259,6 +308,7 @@ function renderCategoryPage() {
   container.innerHTML = articles.map((a) => cardHTML(a)).join("");
 }
 
+/* ---- SEO pagina articolo: title, meta description, Open Graph, Twitter Card ---- */
 function setMetaContent(id, value) {
   const el = document.getElementById(id);
   if (el) el.setAttribute("content", value);
@@ -269,6 +319,9 @@ function setLinkHref(id, value) {
   if (el) el.setAttribute("href", value);
 }
 
+// Taglia un testo a "maxLength" caratteri per la meta description, senza
+// spezzare a metà una parola: tronca all'ultimo spazio utile e aggiunge "…".
+// Se il testo è già abbastanza corto, lo restituisce invariato.
 function truncateForSEO(text, maxLength) {
   maxLength = maxLength || 160;
   if (!text || text.length <= maxLength) return text || "";
@@ -278,9 +331,26 @@ function truncateForSEO(text, maxLength) {
 }
 
 function updateArticleSEO(article) {
+  // I tre campi SEO sono stati raggruppati in admin/config.yml sotto un
+  // widget "object" (name: "seo") per pulizia del form CMS — Decap salva
+  // quel gruppo come article.seo.seoTitle/ecc., non più article.seoTitle
+  // diretto. Gli articoli esistenti in data/articles.json restano però
+  // con i tre campi al livello principale (mai migrati): si legge prima
+  // dalla posizione nuova, poi da quella vecchia, così funzionano
+  // entrambi senza dover toccare i dati esistenti né duplicare la scelta
+  // in ogni punto del file che li usa (vedi anche renderReadNext più sotto).
   const seo = article.seo || {};
+  // Fallback: se seoTitle/seoDescription non sono compilati (nell'editor o
+  // a mano in js/data.js), si generano da title/excerpt — la description
+  // viene troncata a 160 caratteri per restare nel range consigliato
+  // (140-160) per i motori di ricerca.
   const seoTitle = seo.seoTitle || article.seoTitle || `${article.title} | ${SITE.name}`;
   const seoDescription = seo.seoDescription || article.seoDescription || truncateForSEO(article.excerpt, 160);
+  // article.image non ha uno slash iniziale per le immagini gestite a mano
+  // (es. "assets/images/...") ma ce l'ha per quelle caricate dal CMS (es.
+  // "/images/uploads/...", per via di public_folder in admin/config.yml) —
+  // tolto qui prima di concatenare, altrimenti per gli upload CMS si
+  // otteneva uno slash doppio dopo il dominio (SITE.url non ne ha uno finale).
   const imageUrl = `${SITE.url}/${article.image.replace(/^\//, "")}`;
   const pageUrl = `${SITE.url}/articolo.html?slug=${encodeURIComponent(article.slug)}`;
 
@@ -302,6 +372,9 @@ function updateArticleSEO(article) {
 
   setLinkHref("canonical-link", pageUrl);
 
+  // JSON-LD (schema.org Article): aiuta i motori di ricerca a capire che
+  // questa pagina è un articolo e chi/quando l'ha pubblicato, oltre a
+  // abilitare rich result come autore e data di pubblicazione nei risultati.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -330,6 +403,11 @@ function updateArticleSEO(article) {
   if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(jsonLd);
 }
 
+/* ---- Layout pagina articolo: header/corpo variano in base a article.type ---- */
+
+/* Etichetta categoria mostrata sopra il titolo. Stessa logica per tutti i
+   tipi: recensione/monografia hanno un'etichetta fissa, radar usa il nome
+   della rubrica, notizia usa il nome della categoria del sito. */
 function getArticleHeaderLabel(article) {
   switch (article.type) {
     case "recensione":
@@ -344,6 +422,12 @@ function getArticleHeaderLabel(article) {
   }
 }
 
+/* Header unico per tutti i tipi di articolo: etichetta categoria, titolo,
+   (periodo per il radar), sottotitolo, linea divisoria. Prima ogni tipo
+   aveva una propria funzione con markup leggermente diverso (titolo "sober"
+   per monografia/notizia, niente sottotitolo per alcuni tipi); nel nuovo
+   layout editoriale la struttura è la stessa per tutti, cambia solo il
+   testo dell'etichetta. */
 function renderArticleHeader(el, article) {
   const subtitle = article.type === "radar" ? (article.content && article.content.intro) || article.excerpt : article.excerpt;
   const period = article.type === "radar" && article.period ? `<p class="radar-period">${article.period}</p>` : "";
@@ -357,6 +441,14 @@ function renderArticleHeader(el, article) {
   `;
 }
 
+/* Corpo articolo per recensione/monografia/notizia: content è un array di
+   BLOCCHI, in ordine, ciascuno testo o immagine:
+     - paragrafo: { type: "paragraph", heading?, text }
+     - immagine:  { type: "image", src, alt?, caption? }
+   Compatibile anche con i formati usati prima di avere i blocchi misti
+   (stringa semplice = paragrafo; oggetto { heading?, text } senza "type" =
+   paragrafo/sezione), così i contenuti scritti in precedenza continuano a
+   funzionare senza doverli riscrivere. */
 function renderContentBlocks(el, article) {
   el.innerHTML = article.content
     .map((block) => {
@@ -364,9 +456,21 @@ function renderContentBlocks(el, article) {
         return `<p>${block}</p>`;
       }
       if (block.type === "image") {
+        // Se il blocco non specifica un alt (campo opzionale nell'editor),
+        // ripiega sul titolo dell'articolo invece di lasciarlo vuoto: meglio
+        // un alt generico che nessun alt per un'immagine che porta contenuto
+        // (non decorativa).
         const caption = block.caption ? `<figcaption>${block.caption}</figcaption>` : "";
         return `<figure class="article-inline-image"><img src="${block.src}" alt="${block.alt || article.title}" loading="lazy">${caption}</figure>`;
       }
+      // Blocchi di intertitolo standalone generati dall'editor: h2 = titolo
+      // di sezione, h3 = sottotitolo, e h3 dovrebbe comparire solo dopo un
+      // h2 nello stesso articolo (mai subito dopo l'h1) per non saltare
+      // livelli nella gerarchia degli heading. Non imposto questo vincolo
+      // via codice: dipende dall'ordine in cui vengono aggiunti i blocchi
+      // in fase di scrittura (editor o js/data.js). Il titolo dell'articolo
+      // resta sempre e solo l'<h1> gestito dal template (renderArticleHeader),
+      // qui non è mai possibile generare un h1.
       if (block.type === "h2") {
         return `<h2 class="article-heading">${block.text}</h2>`;
       }
@@ -376,18 +480,25 @@ function renderContentBlocks(el, article) {
       if (block.type === "p") {
         return `<p>${block.text}</p>`;
       }
+      // Formato precedente: paragrafo con intertitolo opzionale incorporato.
       const heading = block.heading ? `<h2 class="article-heading">${block.heading}</h2>` : "";
       return `${heading}<p>${block.text}</p>`;
     })
     .join("");
 }
 
-// article.content è già HTML pronto (convertito da storyblokRichtextToHtml()
-// dentro l'adapter, vedi js/storyblok-richtext.js), non markdown grezzo.
+/* ---- Corpo articolo in markdown (Step A: sostituisce gradualmente i
+   blocchi tipizzati sopra — vedi renderArticleLayout più sotto per come
+   decide quale dei due usare). Il parser è marked.js, caricato via CDN
+   solo in articolo.html (non serve altrove); la personalizzazione del
+   renderer (heading/image/paragraph, più i componenti galleria/box) vive
+   in js/markdown-components.js, condiviso con admin/preview.js — non più
+   duplicata qui. */
 function renderMarkdownBody(el, article) {
-  el.innerHTML = article.content;
+  el.innerHTML = marked.parse(article.content);
 }
 
+/* Elenco radar: content.items è un array di voci { title, creator, publisher, releaseInfo, why } */
 function renderRadarList(el, article) {
   const items = (article.content && article.content.items) || [];
   el.innerHTML = items
@@ -425,6 +536,13 @@ function renderSupportBox() {
   `;
 }
 
+/* Tema colore opzionale per articolo (article.theme, tutti e tre i
+   sotto-campi opzionali) — vedi css/style.css per come .article-wrap e i
+   suoi discendenti (header, box, colonne) usano queste custom property
+   con fallback ai colori di sempre. Imposta le proprietà SOLO se
+   valorizzate: un articolo senza theme (o con sotto-campi mancanti) non
+   tocca affatto lo stile inline, quindi si comporta esattamente come
+   prima di questa funzionalità. */
 function applyArticleTheme(article) {
   const wrapEl = document.getElementById("article-content");
   if (!wrapEl) return;
@@ -468,6 +586,9 @@ function renderArticleLayout(article) {
     case "monografia":
     case "notizia":
     default:
+      // Step A della migrazione a markdown: article.content è un array di
+      // blocchi per gli articoli non ancora migrati, una stringa markdown
+      // per quelli già convertiti (Step B) — vedi renderMarkdownBody sopra.
       if (Array.isArray(article.content)) {
         renderContentBlocks(bodyEl, article);
       } else {
@@ -481,6 +602,11 @@ function renderArticleLayout(article) {
   renderSupportBox();
 }
 
+/* ---- Commenti: integrazione con servizio esterno (Giscus) ----
+   Nessun backend proprio: il widget si appoggia a Giscus (GitHub
+   Discussions). Finché COMMENTS_CONFIG.enabled è false (vedi js/data.js),
+   qui viene mostrato solo un messaggio placeholder e NON viene caricato
+   alcuno script esterno. */
 function renderComments(article) {
   const container = document.getElementById("giscus-container");
   if (!container) return;
@@ -495,6 +621,12 @@ function renderComments(article) {
     return;
   }
 
+  // COMMENTS_CONFIG.enabled è true: crea lo script di Giscus e lo inserisce
+  // nel container. "data-mapping" è "pathname" su richiesta esplicita — vedi
+  // l'avviso sopra COMMENTS_CONFIG in js/data.js: dato che tutte le pagine
+  // articolo condividono lo stesso indirizzo articolo.html?slug=... (la
+  // query string non entra nel pathname), il risultato è che tutti gli
+  // articoli del sito condividono la stessa discussione GitHub.
   const script = document.createElement("script");
   script.src = "https://giscus.app/client.js";
   script.async = true;
@@ -515,10 +647,19 @@ function renderComments(article) {
   container.appendChild(script);
 }
 
+// article.seo.seoKeywords (nuovo, dal widget "object" raggruppato in
+// admin/config.yml) con fallback ad article.seoKeywords diretto (articoli
+// esistenti, mai migrati) — stessa logica di updateArticleSEO più sopra.
 function getSeoKeywords(article) {
   return ((article.seo && article.seo.seoKeywords) || article.seoKeywords || []).map((k) => k.toLowerCase());
 }
 
+/* ---- Sidebar "Da leggere dopo": scelta degli articoli correlati ----
+   Criterio: prima gli articoli della stessa categoria (esclusa la corrente).
+   Se non bastano a riempire "limit" posti, si completa con gli articoli che
+   condividono più parole chiave SEO (seoKeywords) con quello corrente — e a
+   parità di parole chiave condivise, quelli dello stesso "type" — sempre
+   escludendo l'articolo che si sta leggendo. */
 function getRelatedArticles(article, limit) {
   limit = limit || 3;
 
@@ -544,6 +685,9 @@ function getRelatedArticles(article, limit) {
   return [...sameCategory, ...bySimilarity].slice(0, limit);
 }
 
+/* "Da leggere dopo": sezione a piè di pagina (non più sidebar laterale),
+   riusa la card standard cardHTML() già usata in home/categorie, per
+   coerenza visiva col resto del sito. */
 function renderReadNext(article) {
   const sectionEl = document.getElementById("read-next");
   const listEl = document.getElementById("read-next-list");
@@ -560,6 +704,11 @@ function renderReadNext(article) {
   listEl.innerHTML = related.map((a) => cardHTML(a)).join("");
 }
 
+/* ---- Breadcrumb pagina articolo: Home / Categoria / Titolo ----
+   Aggiorna sia il markup visibile (#breadcrumb-list, popolato qui sotto)
+   sia il JSON-LD schema.org BreadcrumbList corrispondente (vedi il
+   placeholder #breadcrumb-jsonld in articolo.html), così i due restano
+   sempre sincronizzati con l'articolo caricato. */
 function renderBreadcrumbs(article) {
   const categoryName = getCategoryName(article.category);
   const categoryUrl = `${SITE.url}/${article.category}.html`;
@@ -587,6 +736,7 @@ function renderBreadcrumbs(article) {
   if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(breadcrumbJsonLd);
 }
 
+/* ---- Rendering pagina singolo articolo (articolo.html) ---- */
 function renderArticlePage() {
   const container = document.getElementById("article-content");
   if (!container) return;
@@ -608,6 +758,7 @@ function renderArticlePage() {
   renderReadNext(article);
 }
 
+/* ---- Header: nome sito, tagline, menu mobile, link attivo ---- */
 function initHeader() {
   document.querySelectorAll("[data-site-name]").forEach((el) => (el.textContent = SITE.name));
   document.querySelectorAll("[data-site-tagline]").forEach((el) => (el.textContent = SITE.tagline));
@@ -628,6 +779,16 @@ function initHeader() {
   });
 }
 
+/* ---- Voce "Account" nel menu: nascosta di default via CSS
+   (.nav-link-account in css/style.css), resa visibile solo se Netlify
+   Identity rileva una sessione già attiva (utente che ha già fatto login
+   almeno una volta). Il widget Identity è caricato in fondo a ogni
+   pagina apposta per questo controllo: senza, window.netlifyIdentity
+   non esisterebbe qui. Doppio controllo (currentUser() subito +
+   l'evento "init" come fallback) perché currentUser() legge lo stato
+   già presente in localStorage appena lo script del widget è pronto,
+   ma "init" resta la garanzia documentata contro eventuali ritardi
+   interni del widget stesso. */
 function initAccountNavLink() {
   const links = document.querySelectorAll(".nav-link-account");
   if (!links.length || !window.netlifyIdentity) return;
@@ -641,6 +802,12 @@ function initAccountNavLink() {
   window.netlifyIdentity.on("init", reveal);
 }
 
+/* ---- Header che si nasconde scorrendo verso il basso, riappare scorrendo
+   verso l'alto (o vicino alla cima della pagina). Aggiunge/rimuove solo la
+   classe "header-hidden": design, logo e menu restano invariati, cambia
+   solo la posizione verticale (vedi .site-header.header-hidden in
+   css/style.css). Attivo su tutte le pagine, desktop e mobile allo stesso
+   modo (nessuna differenza legata alla larghezza dello schermo). */
 function initHeaderScrollHide() {
   const header = document.querySelector(".site-header");
   const nav = document.getElementById("primary-nav");
@@ -648,7 +815,7 @@ function initHeaderScrollHide() {
 
   let lastScrollY = window.scrollY;
   let ticking = false;
-  const hideThreshold = 80;
+  const hideThreshold = 80; // vicino alla cima: l'header resta sempre visibile
 
   function onScroll() {
     const currentScrollY = window.scrollY;
@@ -681,6 +848,8 @@ function initHeaderScrollHide() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Header/nav non dipendono dagli articoli: si inizializzano subito, così
+  // restano utilizzabili anche se il caricamento degli articoli fallisce.
   initHeader();
   initHeaderScrollHide();
   initAccountNavLink();

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Pixel</title>
+  <title>Panel Pixel [TEST STORYBLOK]</title>
+  <meta name="robots" content="noindex, nofollow">
   <meta id="meta-description" name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
   <meta id="meta-keywords" name="keywords" content="">
 
@@ -24,9 +25,11 @@
   <script type="application/ld+json" id="article-jsonld"></script>
   <script type="application/ld+json" id="breadcrumb-jsonld"></script>
 
-  <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="../assets/images/logo-icon.png">
+  <link rel="stylesheet" href="../css/style.css">
 
+  <!-- Stessa copia esatta del blocco <style> di articolo.html: layout
+       specifico della pagina articolo, invariato rispetto all'originale. -->
   <style>
     .article-header {
       text-align: left;
@@ -190,8 +193,8 @@
   <header class="site-header">
     <div class="container site-header-brand">
       <a class="site-logo" href="index.html">
-        <img src="assets/images/logo-icon.png" alt="" class="site-logo-icon">
-        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
+        <img src="../assets/images/logo-icon.png" alt="" class="site-logo-icon">
+        <img src="../assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
       </a>
     </div>
     <div class="site-header-nav">
@@ -244,12 +247,16 @@
 
   <footer class="site-footer">
     <div class="container site-footer-inner">
-      <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
+      <p class="footer-brand"><img src="../assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
       <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy &amp; Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
     </div>
   </footer>
 
-  <script src="js/data.js"></script>
+  <script src="../js/data.js"></script>
+  <!-- Sostituisce marked.js + js/markdown-components.js del sito reale: qui
+       il "corpo" arriva già come richtext Storyblok, non come markdown, e
+       storyblok-richtext.js lo converte nello stesso HTML che produrrebbe
+       oggi markdown-components.js (stesse classi CSS, stessi componenti). -->
   <script src="js/storyblok-richtext.js"></script>
   <script src="js/main.js"></script>
 </body>

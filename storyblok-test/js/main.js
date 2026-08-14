@@ -1,12 +1,18 @@
 /* ==========================================================================
-   Panel Pixel — logica di rendering
+   Panel Pixel — logica di rendering [COPIA DI TEST, fase 3 Storyblok]
+   Copia di js/main.js (quello vero) con ESATTAMENTE due modifiche,
+   segnalate qui sotto con "MODIFICA TEST" — tutto il resto è identico
+   all'originale, non è stato toccato apposta: qualunque differenza di
+   comportamento va isolata a quelle due funzioni, non al resto del
+   rendering (header, hero, card, ricerca, SEO, breadcrumb, tema colore).
    ========================================================================== */
 
 let ARTICLES = [];
 
-// Legge da Storyblok (fetchStoryblokArticles, in js/storyblok-richtext.js).
-// Le rubriche "radar" non esistono ancora su Storyblok, quindi qui
-// ARTICLES contiene solo articoli "normali".
+// MODIFICA TEST 1 di 2: legge da Storyblok (fetchStoryblokArticles, in
+// storyblok-richtext.js) invece che da data/articles.json + data/radar.json.
+// Le rubriche "radar" non esistono ancora su Storyblok in questa fase,
+// quindi qui ARTICLES contiene solo articoli "normali".
 async function loadArticles() {
   ARTICLES = await fetchStoryblokArticles();
 }
@@ -103,7 +109,7 @@ function heroMainHTML(article) {
       <h2 class="hero-main-title">${article.title}</h2>
       <p class="hero-main-excerpt">${article.excerpt}</p>
       <div class="hero-main-author">
-        <img class="hero-main-avatar" src="assets/images/gianfranco-barry.jpg" alt="Foto di ${article.author}">
+        <img class="hero-main-avatar" src="../assets/images/gianfranco-barry.jpg" alt="Foto di ${article.author}">
         <span>${article.author}</span>
       </div>
     </a>`;
@@ -382,8 +388,11 @@ function renderContentBlocks(el, article) {
     .join("");
 }
 
-// article.content è già HTML pronto (convertito da storyblokRichtextToHtml()
-// dentro l'adapter, vedi js/storyblok-richtext.js), non markdown grezzo.
+// MODIFICA TEST 2 di 2: article.content qui è già HTML pronto (convertito
+// da storyblokRichtextToHtml() dentro l'adapter, vedi storyblok-richtext.js),
+// non più markdown grezzo — quindi niente marked.parse(), solo assegnazione
+// diretta. marked.js e js/markdown-components.js non sono nemmeno caricati
+// in questa pagina di test (vedi <script> in articolo.html di questa cartella).
 function renderMarkdownBody(el, article) {
   el.innerHTML = article.content;
 }

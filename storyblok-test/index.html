@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Pixel — Fumetti, videogiochi e cultura pop</title>
+  <title>Panel Pixel — Fumetti, videogiochi e cultura pop [TEST STORYBLOK]</title>
+  <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
 
-  <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="../assets/images/logo-icon.png">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 
   <header class="site-header">
     <div class="container site-header-brand">
       <a class="site-logo" href="index.html">
-        <img src="assets/images/logo-icon.png" alt="" class="site-logo-icon">
-        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
+        <img src="../assets/images/logo-icon.png" alt="" class="site-logo-icon">
+        <img src="../assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
       </a>
     </div>
     <div class="site-header-nav">
@@ -75,12 +76,16 @@
 
   <footer class="site-footer">
     <div class="container site-footer-inner">
-      <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
+      <p class="footer-brand"><img src="../assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
       <p><a href="chi-sono.html">Chi sono</a> · <a href="privacy.html">Privacy &amp; Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
     </div>
   </footer>
 
-  <script src="js/data.js"></script>
+  <script src="../js/data.js"></script>
+  <!-- Copia locale di js/main.js con due sole modifiche mirate: loadArticles()
+       legge da Storyblok invece di data/articles.json, renderMarkdownBody usa
+       l'HTML già convertito dall'adapter invece di marked.parse(). Vedi
+       commenti nel file per i dettagli. -->
   <script src="js/storyblok-richtext.js"></script>
   <script src="js/main.js"></script>
 </body>
