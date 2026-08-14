@@ -103,8 +103,11 @@
        a modificare articoli. Il bottone "Accedi" apre il modale di
        login/invito; appena l'utente risulta autenticato (login riuscito,
        o sessione già valida al caricamento della pagina) viene
-       reindirizzato all'editor di Storyblok, dove si scrive e si
-       pubblica davvero. -->
+       reindirizzato alla home di Storyblok (app.storyblok.com), dove
+       sceglie lo spazio "Panel Pixel" e da lì scrive e pubblica
+       davvero. Punto alla home e non a un URL con lo space ID diretto
+       perché quel formato dava 404 (probabilmente cambiato lato
+       Storyblok). -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="js/data.js"></script>
   <script src="js/storyblok-richtext.js"></script>
@@ -115,7 +118,7 @@
       var status = document.getElementById("account-status");
 
       function goToNewArticle() {
-        window.location.href = "https://app.storyblok.com/#/me/spaces/294520547534020/stories";
+        window.location.href = "https://app.storyblok.com/";
       }
 
       if (!window.netlifyIdentity) {
