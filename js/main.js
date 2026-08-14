@@ -680,6 +680,65 @@ function initHeaderScrollHide() {
   );
 }
 
+/* ---- Anteprima live nel Visual Editor di Storyblok. Si attiva SOLO se
+   l'URL contiene "_storyblok" (parametro che Storyblok imposta da solo
+   quando apre la pagina dentro l'editor, per far capire allo script che
+   è dentro l'iframe di anteprima) — per i visitatori normali questa
+   funzione esce subito al primo controllo e non scarica né esegue
+   nulla in più. Quando attiva, sostituisce l'articolo corrente
+   (identificato dal solito parametro "slug" già usato da questa
+   pagina) con la sua bozza, e si aggiorna a ogni modifica fatta
+   nell'editor tramite il bridge ufficiale di Storyblok. ---- */
+function isStoryblokPreview() {
+  return new URLSearchParams(window.location.search).has("_storyblok");
+}
+
+function loadStoryblokBridgeScript() {
+  return new Promise((resolve, reject) => {
+    if (window.StoryblokBridge) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://app.storyblok.com/f/storyblok-v2-latest.js";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Impossibile caricare lo script bridge di Storyblok."));
+    document.head.appendChild(script);
+  });
+}
+
+async function refreshStoryblokPreviewArticle(slug) {
+  try {
+    const article = await fetchStoryblokStoryBySlug(slug, "draft");
+    ARTICLES = ARTICLES.filter((a) => a.slug !== article.slug);
+    ARTICLES.push(article);
+    renderArticlePage();
+  } catch (err) {
+    console.error("Impossibile aggiornare l'anteprima Storyblok:", err);
+  }
+}
+
+async function initStoryblokPreview() {
+  if (!isStoryblokPreview()) return;
+
+  const slug = new URLSearchParams(window.location.search).get("slug");
+  if (!slug) return;
+
+  try {
+    await loadStoryblokBridgeScript();
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+
+  await refreshStoryblokPreviewArticle(slug);
+
+  const bridge = new window.StoryblokBridge();
+  bridge.on(["input", "published", "change"], () => {
+    refreshStoryblokPreviewArticle(slug);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   initHeader();
   initHeaderScrollHide();
@@ -699,4 +758,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   initSearch();
   renderCategoryPage();
   renderArticlePage();
+  initStoryblokPreview();
 });

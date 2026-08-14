@@ -267,3 +267,21 @@ async function fetchStoryblokArticles() {
   const data = await res.json();
   return (data.stories || []).map(adaptStoryblokStory);
 }
+
+/* ---- Fetch di UNA sola story per slug, in una versione specifica
+   ("draft" o "published"). Usata da initStoryblokPreview() in
+   js/main.js per l'anteprima live nel Visual Editor di Storyblok:
+   dentro l'editor si vuole vedere la bozza corrente, non l'ultima
+   versione pubblicata. Riusa lo stesso adaptStoryblokStory() di
+   fetchStoryblokArticles(), quindi il risultato ha sempre la stessa
+   forma che js/main.js si aspetta. ---- */
+async function fetchStoryblokStoryBySlug(slug, version) {
+  version = version || "published";
+  const url = `https://api.storyblok.com/v2/cdn/stories/${encodeURIComponent(
+    slug
+  )}?token=${encodeURIComponent(STORYBLOK_CDA_TOKEN)}&version=${encodeURIComponent(version)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Storyblok CDA: HTTP ${res.status}`);
+  const data = await res.json();
+  return adaptStoryblokStory(data.story);
+}
