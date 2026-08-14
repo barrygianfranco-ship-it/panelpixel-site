@@ -178,26 +178,47 @@ function loadTwitterWidgetsScript() {
   document.head.appendChild(script);
 }
 
+/* ---- Rendering di un nodo "image" nativo di richtext (attrs.src/alt/
+   title) → <figure> centrata. Riusata sia per i nodi image di primo
+   livello (dentro corpo.content) sia per quelli annidati dentro un
+   paragrafo (vedi case "paragraph" più sotto): capita quando, nell'
+   editor Storyblok, un'immagine viene inserita in coda a un testo
+   esistente invece che come blocco a sé — senza questa gestione,
+   quell'immagine sparirebbe silenziosamente dal rendering. ---- */
+function storyblokImageNodeToHtml(node) {
+  const src = (node.attrs && node.attrs.src) || "";
+  const alt = (node.attrs && node.attrs.alt) || "";
+  const title = node.attrs && node.attrs.title;
+  const caption = title ? `<figcaption>${title}</figcaption>` : "";
+  // Sempre centrata: il nodo image nativo non ha un campo per
+  // destra/sinistra, vedi limite noto in cima al file.
+  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${src}" alt="${alt}" loading="lazy">${caption}</figure>`;
+}
+
 /* ---- Nodo singolo del documento richtext → HTML ---- */
 function storyblokNodeToHtml(node) {
   switch (node.type) {
-    case "paragraph":
-      return `<p>${storyblokInlineToHtml(node.content)}</p>`;
+    case "paragraph": {
+      // Un paragrafo può contenere, oltre al testo, nodi "image"
+      // annidati (vedi commento su storyblokImageNodeToHtml). Li
+      // separiamo dal testo e li rendiamo come <figure> a parte,
+      // subito dopo il paragrafo, mantenendo l'ordine originale.
+      const content = node.content || [];
+      const textNodes = content.filter((n) => n.type !== "image");
+      const imageNodes = content.filter((n) => n.type === "image");
+      const textHtml = storyblokInlineToHtml(textNodes);
+      const paragraphHtml = textHtml ? `<p>${textHtml}</p>` : "";
+      const imagesHtml = imageNodes.map(storyblokImageNodeToHtml).join("");
+      return paragraphHtml + imagesHtml;
+    }
     case "heading": {
       const level = (node.attrs && node.attrs.level) || 2;
       const tag = level <= 2 ? "h2" : "h3";
       const cls = level <= 2 ? "article-heading" : "article-subheading";
       return `<${tag} class="${cls}">${storyblokInlineToHtml(node.content)}</${tag}>`;
     }
-    case "image": {
-      const src = (node.attrs && node.attrs.src) || "";
-      const alt = (node.attrs && node.attrs.alt) || "";
-      const title = node.attrs && node.attrs.title;
-      const caption = title ? `<figcaption>${title}</figcaption>` : "";
-      // Sempre centrata: il nodo image nativo non ha un campo per
-      // destra/sinistra, vedi limite noto in cima al file.
-      return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${src}" alt="${alt}" loading="lazy">${caption}</figure>`;
-    }
+    case "image":
+      return storyblokImageNodeToHtml(node);
     case "blok":
       return storyblokBlokToHtml(node);
     case "bullet_list": {
