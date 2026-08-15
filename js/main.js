@@ -103,7 +103,7 @@ function heroMainHTML(article) {
       <h2 class="hero-main-title">${article.title}</h2>
       <p class="hero-main-excerpt">${article.excerpt}</p>
       <div class="hero-main-author">
-        <img class="hero-main-avatar" src="assets/images/gianfranco-barry.jpg" alt="Foto di ${article.author}">
+        <img class="hero-main-avatar" src="${getAuthorAvatar(article.author)}" alt="Foto di ${article.author}">
         <span>${article.author}</span>
       </div>
     </a>`;
@@ -757,6 +757,81 @@ async function initStoryblokPreview() {
   });
 }
 
+/* ---- Lista collaboratori su chi-sono.html. Si attiva solo se la
+   pagina ha il contenitore #about-collaborators-list (quindi nessun
+   effetto sulle altre pagine). Dati presi da AUTHORS (js/authors.js),
+   ogni collaboratore linka alla sua pagina autore.html?nome=<slug>. ---- */
+function renderAboutCollaborators() {
+  const container = document.getElementById("about-collaborators-list");
+  if (!container) return;
+
+  container.innerHTML = AUTHORS.map(
+    (a) => `
+    <li class="about-collaborator">
+      <a href="autore.html?nome=${encodeURIComponent(a.slug)}">
+        <img src="${a.photo}" alt="Foto di ${a.name}" class="about-collaborator-photo">
+        <span class="about-collaborator-info">
+          <span class="about-collaborator-name">${a.name}</span>
+          <span class="about-collaborator-role">${a.role}</span>
+        </span>
+      </a>
+    </li>`
+  ).join("");
+}
+
+/* ---- Pagina autore.html: foto, ruolo, bio, e lista degli articoli
+   scritti da quella persona. Si attiva solo se la pagina ha il
+   contenitore #author-page. Lo slug arriva da ?nome= nell'URL e
+   viene cercato in AUTHORS; gli articoli si trovano confrontando
+   article.author con il nome esatto dell'autore (case-insensitive,
+   vedi getAuthorByName in js/authors.js). ---- */
+function renderAuthorPage() {
+  const container = document.getElementById("author-page");
+  if (!container) return;
+
+  const slug = new URLSearchParams(window.location.search).get("nome");
+  const author = getAuthorBySlug(slug);
+
+  if (!author) {
+    container.innerHTML = `
+      <p class="empty-state">Autore non trovato. <a href="chi-sono.html">Torna a Chi siamo</a>.</p>`;
+    return;
+  }
+
+  document.title = `${author.name} — ${SITE.name}`;
+  setMetaContent("og-title", `${author.name} — ${SITE.name}`);
+  setMetaContent("og-description", author.bio);
+  setMetaContent("twitter-title", `${author.name} — ${SITE.name}`);
+  setMetaContent("twitter-description", author.bio);
+  setLinkHref("canonical-link", `https://panelpixel.it/autore.html?nome=${encodeURIComponent(author.slug)}`);
+
+  const breadcrumbNameEl = document.getElementById("author-breadcrumb-name");
+  if (breadcrumbNameEl) breadcrumbNameEl.textContent = author.name;
+
+  container.innerHTML = `
+    <div class="author-header">
+      <img src="${author.photo}" alt="Foto di ${author.name}" class="author-photo">
+      <div>
+        <h1>${author.name}</h1>
+        <p class="author-role">${author.role}</p>
+        <p class="author-bio">${author.bio}</p>
+      </div>
+    </div>`;
+
+  const authorArticles = ARTICLES.filter(
+    (a) => a.author && a.author.toLowerCase() === author.name.toLowerCase()
+  );
+
+  const articlesEl = document.getElementById("author-articles-list");
+  if (!articlesEl) return;
+
+  if (authorArticles.length === 0) {
+    articlesEl.innerHTML = `<p class="empty-state">Nessun articolo pubblicato ancora.</p>`;
+    return;
+  }
+  articlesEl.innerHTML = authorArticles.map((a) => cardHTML(a)).join("");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   initHeader();
   initHeaderScrollHide();
@@ -776,5 +851,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initSearch();
   renderCategoryPage();
   renderArticlePage();
+  renderAboutCollaborators();
+  renderAuthorPage();
   initStoryblokPreview();
 });
