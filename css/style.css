@@ -1018,6 +1018,16 @@ h1, h2, h3 {
   margin: 0 0 1.25rem;
   font-size: 1.2rem;
   line-height: 1.85;
+  font-family: var(--font-serif);
+  text-align: justify;
+  /* Senza sillabazione, il testo giustificato crea spazi enormi e
+     irregolari tra le parole su righe con poche parole lunghe —
+     verificato con screenshot reale prima di aggiungere questa riga.
+     hyphens richiede l'attributo lang sull'elemento html (già
+     presente, lang="it") per sapere le regole di sillabazione. */
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
 }
 
 /* Evidenziazione in linea dentro un paragrafo (sintassi ==testo== nel
@@ -1044,12 +1054,29 @@ h1, h2, h3 {
   color: var(--article-text, var(--color-text));
 }
 
+/* Font serif coerente col resto del corpo articolo anche su liste e
+   citazioni. Niente text-align: justify qui apposta: su elenchi
+   puntati il giustificato produce spaziature irregolari tra le
+   parole, specialmente su voci brevi — resta solo sui paragrafi e
+   sulle citazioni (blockquote), che sono testo continuo come i
+   paragrafi normali. */
 .article-body ul,
-.article-body ol,
+.article-body ol {
+  font-size: 1.2rem;
+  line-height: 1.85;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-serif);
+}
+
 .article-body blockquote {
   font-size: 1.2rem;
   line-height: 1.85;
   margin-bottom: 1.25rem;
+  font-family: var(--font-serif);
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
 }
 
 /* ---- Note a piè di pagina ([^N] nel testo + blocco
