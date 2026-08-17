@@ -838,7 +838,7 @@ h1, h2, h3 {
 }
 
 .article-title {
-  font-size: clamp(2.1rem, 5.5vw, 3.4rem);
+  font-size: clamp(1.7rem, 6.5vw, 3.4rem);
   text-transform: uppercase;
   letter-spacing: 0.01em;
   margin: 0 0 1rem;
