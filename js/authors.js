@@ -20,7 +20,7 @@ const AUTHORS = [
     name: "Gianfranco Barry",
     role: "Fondatore",
     photo: "assets/images/gianfranco-barry.jpg",
-    bio: "Fondatore di Panel Pixel. Scrivo di fumetti e videogiochi. Sono cresciuto tra i fumetti Bonelli — Tex, Dylan Dog — e i videogiochi della PS2, ed è lì che è nata la mia passione: da allora non ho mai smesso di andare al cinema e di giocare, fino a diventare un appassionato dell'arte videoludica e della sua storia. Studio DAMS, amo la scrittura, i manga e gli anime, e ho un debole per il vecchio cinema italiano, quello dagli anni Quaranta agli anni Ottanta. Mi piace raccontare le mie passioni e fare divulgazione su quello che amo.",
+    bio: "Fondatore di Panel Pixel. Scrivo di fumetti e videogiochi. Sono cresciuto tra i fumetti Bonelli, Tex e Dylan Dog, e i videogiochi della PS2, ed è lì che è nata la mia passione: da allora non ho mai smesso di andare al cinema e di giocare, fino a diventare un appassionato dell'arte videoludica e della sua storia. Studio DAMS, amo la scrittura, i manga e gli anime, e ho un debole per il vecchio cinema italiano, quello dagli anni Quaranta agli anni Ottanta. Mi piace raccontare le mie passioni e fare divulgazione su quello che amo.",
   },
   {
     slug: "pietro-ciuffreda",
