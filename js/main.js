@@ -360,6 +360,7 @@ function renderArticleHeader(el, article) {
     <h1 class="article-title">${article.title}</h1>
     ${period}
     <p class="article-subtitle">${subtitle}</p>
+    <p class="article-byline">di ${article.author}</p>
     <div class="article-header-divider"></div>
   `;
 }

@@ -829,12 +829,41 @@ h1, h2, h3 {
 }
 
 .article-category a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--article-accent, var(--color-accent));
+}
+
+/* Filetto decorativo prima dell'etichetta, tocco tipografico da
+   testata stampata (kicker/occhiello) invece di una semplice
+   etichetta colorata. */
+.article-category a::before {
+  content: "";
+  display: inline-block;
+  width: 1.75rem;
+  height: 2px;
+  background: currentColor;
+}
+
+/* Byline in stile stampa ("DI NOME COGNOME"), sotto il sottotitolo:
+   maiuscolo e spaziato invece del semplice "A cura di" in tondo
+   usato nelle card — qui, in testa all'articolo, vogliamo un tocco
+   più da testata giornalistica. L'"A cura di" resta invariato nelle
+   card (home/categoria) e nel footer meta dell'articolo stesso, che
+   ha un ruolo diverso (credito + data di pubblicazione insieme). */
+.article-byline {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 1.5rem;
 }
 
 .article-title {
@@ -1052,6 +1081,21 @@ h1, h2, h3 {
 .article-body > p:first-child {
   font-size: 1.25rem;
   color: var(--article-text, var(--color-text));
+}
+
+/* Capolettera (drop cap): prima lettera del primo paragrafo, grande
+   e in float, tocco classico da rivista stampata. ::first-letter
+   funziona sul primo carattere di testo effettivo, quindi se il
+   paragrafo inizia con corsivo/link resta comunque la prima lettera
+   vera, non un'icona o altro elemento non testuale. */
+.article-body > p:first-child::first-letter {
+  font-family: var(--font-serif);
+  font-size: 4.6rem;
+  line-height: 0.82;
+  font-weight: 700;
+  float: left;
+  padding: 0.1rem 0.5rem 0 0;
+  color: var(--article-accent, var(--color-accent));
 }
 
 /* Font serif coerente col resto del corpo articolo anche su liste e
