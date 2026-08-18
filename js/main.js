@@ -135,6 +135,7 @@ function renderMagazineHero() {
 }
 
 function renderHomepageGrid() {
+  const section = document.getElementById("homepage-grid");
   const container = document.getElementById("homepage-articles");
   if (!container) return;
 
@@ -144,6 +145,12 @@ function renderHomepageGrid() {
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 9);
 
+  if (articles.length === 0) {
+    if (section) section.hidden = true;
+    return;
+  }
+
+  if (section) section.hidden = false;
   container.innerHTML = articles.map((a) => cardHTML(a)).join("");
 }
 
