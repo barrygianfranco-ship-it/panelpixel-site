@@ -8,8 +8,9 @@
 
   <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/home.css">
 </head>
-<body>
+<body class="editorial-home">
 
   <header class="site-header">
     <div class="container site-header-brand">
@@ -36,7 +37,7 @@
             type="search"
             id="search-input"
             class="search-input"
-            placeholder="Cerca per titolo, categoria o autore…"
+            placeholder="Cerca articoli…"
             aria-label="Cerca articoli"
             autocomplete="off"
           >
@@ -50,16 +51,15 @@
 
     <h1 class="visually-hidden">Panel Pixel — Fumetti, videogiochi e cultura pop, un frame alla volta.</h1>
 
-    <section class="magazine-hero" id="magazine-hero">
-      <div class="hero-col hero-col--left" id="hero-left"></div>
-      <div class="hero-col hero-col--center" id="hero-center"></div>
-      <div class="hero-col hero-col--right" id="hero-right"></div>
+    <section class="editorial-lead" id="magazine-hero" aria-label="In evidenza">
+      <p class="editorial-kicker">In evidenza</p>
+      <div id="hero-center"></div>
     </section>
 
     <div id="search-results" class="search-results" hidden></div>
 
     <section class="homepage-grid" id="homepage-grid">
-      <h2 class="section-title">Ultimi articoli</h2>
+      <h2 class="section-title">Altre storie</h2>
       <div class="card-grid" id="homepage-articles"></div>
     </section>
 

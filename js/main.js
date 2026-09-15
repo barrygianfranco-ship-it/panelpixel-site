@@ -125,37 +125,43 @@ function heroSideHTML(article) {
     </a>`;
 }
 
+// La home presenta una storia in evidenza e le altre senza duplicazioni.
+function getHomepageLead() {
+  const sorted = getTopRecentArticles(ARTICLES.length);
+  return sorted.find((article) => article.featured) || sorted[0];
+}
+
+function editorialStoryHTML(article, lead = false) {
+  const href = "articolo.html?slug=" + encodeURIComponent(article.slug);
+  const safe = (value) => escapeHTML(String(value || "")).replace(/"/g, "&quot;");
+  return `<article class="editorial-story${lead ? " editorial-story--lead" : ""}">
+    <a class="editorial-image" href="${href}" aria-label="${safe(article.title)}">
+      <img src="${safe(article.image)}" alt="${safe(article.title)}" ${lead ? 'fetchpriority="high"' : 'loading="lazy"'}>
+    </a>
+    <p class="editorial-category">${safe(getCategoryName(article.category))}</p>
+    <h2 class="editorial-title"><a href="${href}">${safe(article.title)}</a></h2>
+    <p class="editorial-excerpt">${safe(article.excerpt)}</p>
+    <p class="editorial-byline">Di ${safe(article.author)}</p>
+  </article>`;
+}
+
 function renderMagazineHero() {
-  const leftEl = document.getElementById("hero-left");
-  const centerEl = document.getElementById("hero-center");
-  const rightEl = document.getElementById("hero-right");
-  if (!leftEl || !centerEl || !rightEl) return;
-
-  const [main, side, ...minis] = getTopRecentArticles(5);
-
-  centerEl.innerHTML = main ? heroMainHTML(main) : "";
-  rightEl.innerHTML = side ? heroSideHTML(side) : "";
-  leftEl.innerHTML = minis.map((a) => heroMiniHTML(a)).join("");
+  const section = document.getElementById("magazine-hero");
+  const container = document.getElementById("hero-center");
+  if (!section || !container) return;
+  const lead = getHomepageLead();
+  section.hidden = !lead;
+  container.innerHTML = lead ? editorialStoryHTML(lead, true) : "";
 }
 
 function renderHomepageGrid() {
   const section = document.getElementById("homepage-grid");
   const container = document.getElementById("homepage-articles");
-  if (!container) return;
-
-  const heroSlugs = new Set(getTopRecentArticles(5).map((a) => a.slug));
-
-  const articles = ARTICLES.filter((a) => !heroSlugs.has(a.slug))
-    .sort((a, b) => (a.date < b.date ? 1 : -1))
-    .slice(0, 9);
-
-  if (articles.length === 0) {
-    if (section) section.hidden = true;
-    return;
-  }
-
-  if (section) section.hidden = false;
-  container.innerHTML = articles.map((a) => cardHTML(a)).join("");
+  if (!section || !container) return;
+  const lead = getHomepageLead();
+  const articles = getTopRecentArticles(ARTICLES.length).filter((a) => a.slug !== lead?.slug);
+  section.hidden = articles.length === 0;
+  container.innerHTML = articles.map((a) => editorialStoryHTML(a)).join("");
 }
 
 function renderApprofondimentiSection() {
@@ -163,7 +169,8 @@ function renderApprofondimentiSection() {
   const container = document.getElementById("approfondimenti-articles");
   if (!section || !container) return;
 
-  const articles = getArticlesByCategory("approfondimenti").slice(0, 3);
+  const shownOnHome = document.body.classList.contains("editorial-home");
+  const articles = shownOnHome ? [] : getArticlesByCategory("approfondimenti").slice(0, 3);
 
   if (articles.length === 0) {
     section.hidden = true;
@@ -208,8 +215,8 @@ function renderSearchResults(query) {
   if (!q) {
     resultsEl.hidden = true;
     resultsEl.innerHTML = "";
-    if (featuredEl) featuredEl.hidden = false;
-    if (sectionsEl) sectionsEl.hidden = false;
+    renderMagazineHero();
+    renderHomepageGrid();
     return;
   }
 
