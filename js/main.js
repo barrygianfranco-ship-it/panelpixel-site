@@ -20,8 +20,12 @@ function showDataLoadError() {
 }
 
 function formatDateIT(iso) {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:$|[T ])/.exec(String(iso || ""));
+  if (!match) return "Data non disponibile";
+  const [, year, month, day] = match.map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day));
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) return "Data non disponibile";
+  return d.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 function getCategoryName(slug) {
@@ -733,12 +737,21 @@ function loadStoryblokBridgeScript() {
   });
 }
 
+let storyblokPreviewRevision = 0;
+
+function displayStoryblokPreviewArticle(article, slug) {
+  // Mantiene la rotta dell'iframe anche durante la modifica del campo slug.
+  ARTICLES = ARTICLES.filter((a) => a.slug !== slug);
+  ARTICLES.push({ ...article, slug });
+  renderArticlePage();
+}
+
 async function refreshStoryblokPreviewArticle(slug) {
+  const revision = ++storyblokPreviewRevision;
   try {
     const article = await fetchStoryblokStoryBySlug(slug, "draft");
-    ARTICLES = ARTICLES.filter((a) => a.slug !== article.slug);
-    ARTICLES.push(article);
-    renderArticlePage();
+    // Le risposte in ritardo non devono sovrascrivere input piu recenti.
+    if (revision === storyblokPreviewRevision) displayStoryblokPreviewArticle(article, slug);
   } catch (err) {
     console.error("Impossibile aggiornare l'anteprima Storyblok:", err);
   }
@@ -757,12 +770,17 @@ async function initStoryblokPreview() {
     return;
   }
 
-  await refreshStoryblokPreviewArticle(slug);
-
   const bridge = new window.StoryblokBridge();
-  bridge.on(["input", "published", "change"], () => {
+  const expectedId = new URLSearchParams(window.location.search).get("_storyblok");
+  bridge.on("input", (event) => {
+    if (!event.story || !event.story.content || String(event.story.id) !== expectedId) return;
+    ++storyblokPreviewRevision;
+    displayStoryblokPreviewArticle(adaptStoryblokStory(event.story), slug);
+  });
+  bridge.on(["published", "change"], () => {
     refreshStoryblokPreviewArticle(slug);
   });
+  await refreshStoryblokPreviewArticle(slug);
 }
 
 /* ---- Lista collaboratori su chi-sono.html. Si attiva solo se la
@@ -845,11 +863,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   initHeaderScrollHide();
   initAccountNavLink();
 
+  renderAboutCollaborators();
+  if (!document.querySelector("#magazine-hero, #homepage-articles, #category-list, #article-content, #author-page")) return;
+
   try {
     await loadArticles();
   } catch (err) {
     console.error("Impossibile caricare gli articoli:", err);
     showDataLoadError();
+    await initStoryblokPreview();
     return;
   }
 
@@ -859,7 +881,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   initSearch();
   renderCategoryPage();
   renderArticlePage();
-  renderAboutCollaborators();
   renderAuthorPage();
   initStoryblokPreview();
 });

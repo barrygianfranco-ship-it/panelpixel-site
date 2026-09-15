@@ -68,6 +68,7 @@ function storyblokInlineToHtml(content) {
   return content
     .map((node) => {
       if (node.type === "text") return applyStoryblokMarks(node.text || "", node.marks);
+      if (node.type === "hard_break") return "<br>";
       return "";
     })
     .join("");
@@ -78,6 +79,7 @@ function storyblokInlineToHtml(content) {
    <!--columns3:...-->, <!--embed:...-->, <!--footnotes:...--> ---- */
 function storyblokBlokToHtml(blokNode) {
   const body = (blokNode.attrs && blokNode.attrs.body) || [];
+  if (body.length > 1) return body.map((comp) => storyblokBlokToHtml({ attrs: { body: [comp] } })).join("");
   const comp = body[0];
   if (!comp) return "";
 
@@ -199,17 +201,22 @@ function storyblokImageNodeToHtml(node) {
 function storyblokNodeToHtml(node) {
   switch (node.type) {
     case "paragraph": {
-      // Un paragrafo può contenere, oltre al testo, nodi "image"
-      // annidati (vedi commento su storyblokImageNodeToHtml). Li
-      // separiamo dal testo e li rendiamo come <figure> a parte,
-      // subito dopo il paragrafo, mantenendo l'ordine originale.
-      const content = node.content || [];
-      const textNodes = content.filter((n) => n.type !== "image");
-      const imageNodes = content.filter((n) => n.type === "image");
-      const textHtml = storyblokInlineToHtml(textNodes);
-      const paragraphHtml = textHtml ? `<p>${textHtml}</p>` : "";
-      const imagesHtml = imageNodes.map(storyblokImageNodeToHtml).join("");
-      return paragraphHtml + imagesHtml;
+      // Conserva l'ordine testo/immagine/testo senza figure dentro un <p>.
+      let html = "";
+      let inline = [];
+      const flush = () => {
+        const text = storyblokInlineToHtml(inline);
+        if (text) html += `<p>${text}</p>`;
+        inline = [];
+      };
+      for (const child of node.content || []) {
+        if (child.type === "image" || child.type === "blok") {
+          flush();
+          html += storyblokNodeToHtml(child);
+        } else inline.push(child);
+      }
+      flush();
+      return html;
     }
     case "heading": {
       const level = (node.attrs && node.attrs.level) || 2;
@@ -221,14 +228,23 @@ function storyblokNodeToHtml(node) {
       return storyblokImageNodeToHtml(node);
     case "blok":
       return storyblokBlokToHtml(node);
-    case "bullet_list": {
-      const items = (node.content || []).map((li) => `<li>${storyblokInlineToHtml((li.content && li.content[0] && li.content[0].content) || [])}</li>`).join("");
-      return `<ul>${items}</ul>`;
-    }
+    case "bullet_list":
+      return `<ul>${(node.content || []).map(storyblokNodeToHtml).join("")}</ul>`;
     case "ordered_list": {
-      const items = (node.content || []).map((li) => `<li>${storyblokInlineToHtml((li.content && li.content[0] && li.content[0].content) || [])}</li>`).join("");
-      return `<ol>${items}</ol>`;
+      const order = Number(node.attrs && node.attrs.order);
+      const start = Number.isInteger(order) && order > 1 ? ` start="${order}"` : "";
+      return `<ol${start}>${(node.content || []).map(storyblokNodeToHtml).join("")}</ol>`;
     }
+    case "list_item": {
+      const children = node.content || [];
+      const inner = children.length === 1 && children[0].type === "paragraph" &&
+        !(children[0].content || []).some((n) => n.type === "image" || n.type === "blok")
+        ? storyblokInlineToHtml(children[0].content)
+        : children.map(storyblokNodeToHtml).join("");
+      return `<li>${inner}</li>`;
+    }
+    case "hard_break":
+      return "<br>";
     case "blockquote": {
       const inner = (node.content || []).map(storyblokNodeToHtml).join("");
       return `<blockquote>${inner}</blockquote>`;
