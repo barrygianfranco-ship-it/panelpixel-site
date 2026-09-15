@@ -274,7 +274,9 @@ function renderCategoryPage() {
     container.innerHTML = `<p class="empty-state">Nessun articolo disponibile in questa categoria per ora.</p>`;
     return;
   }
-  container.innerHTML = articles.map((a) => cardHTML(a)).join("");
+  container.innerHTML = document.body.classList.contains("editorial-category-page")
+    ? articles.map((a) => editorialStoryHTML(a)).join("")
+    : articles.map((a) => cardHTML(a)).join("");
 }
 
 function setMetaContent(id, value) {
