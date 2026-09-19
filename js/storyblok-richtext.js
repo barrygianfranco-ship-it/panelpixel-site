@@ -148,6 +148,26 @@ function storyblokBlokToHtml(blokNode) {
       return `<p class="article-embed-error">Embed non riconosciuto.</p>`;
     }
 
+    case "takeaway": {
+      // Blocco conclusivo facoltativo: se manca il testo principale non
+      // viene prodotto alcun markup. Anche la nota finale è indipendente.
+      const title = String(comp.title || "Cosa ci resta").trim();
+      const text = String(comp.text || "").trim();
+      const noteLabel = String(comp.note_label || "Vale il viaggio?").trim();
+      const note = String(comp.note || "").trim();
+      if (!text) return "";
+
+      const noteHtml = note
+        ? `<div class="article-takeaway-note"><span>${noteLabel}</span><p>${note}</p></div>`
+        : "";
+      return (
+        `<section class="article-takeaway" aria-label="${title}">` +
+        `<div class="article-takeaway-heading"><p class="article-takeaway-kicker">Il punto</p><h2>${title}</h2></div>` +
+        `<p class="article-takeaway-statement">${text}</p>` +
+        noteHtml +
+        `</section>`
+      );
+    }
     case "footnotes": {
       const notes = comp.note || [];
       if (!notes.length) return "";

@@ -1205,6 +1205,103 @@ h1, h2, h3 {
   -ms-hyphens: auto;
 }
 
+/* ---- Conclusione editoriale opzionale (componente Storyblok takeaway).
+   Non compare se il blocco non viene aggiunto manualmente al richtext. */
+.article-takeaway {
+  position: relative;
+  clear: both;
+  margin: 3.5rem 0;
+  padding: 2.25rem 2.5rem;
+  border-top: 4px solid var(--article-text, var(--color-text));
+  border-bottom: 1px solid var(--article-text, var(--color-text));
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+}
+
+.article-takeaway::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2.5rem;
+  width: 5rem;
+  height: 4px;
+  background: var(--article-accent, var(--color-accent));
+}
+
+.article-takeaway-heading {
+  margin-bottom: 1.5rem;
+}
+
+.article-takeaway-kicker {
+  margin: 0 0 0.55rem;
+  color: var(--article-accent, var(--color-accent));
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.article-takeaway h2 {
+  margin: 0;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.article-takeaway-statement {
+  max-width: 800px;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+  line-height: 1.65;
+  text-align: left;
+  hyphens: none;
+}
+
+.article-takeaway-note {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding: 1.25rem 0 0 1.25rem;
+  border-top: 1px solid var(--color-border);
+  border-left: 2px solid var(--article-accent, var(--color-accent));
+}
+
+.article-takeaway-note span {
+  color: var(--article-accent, var(--color-accent));
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.article-takeaway-note p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.65;
+  text-align: left;
+  hyphens: none;
+}
+
+@media (max-width: 680px) {
+  .article-takeaway {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .article-takeaway::before {
+    left: 1.25rem;
+    width: 3.5rem;
+  }
+
+  .article-takeaway-note {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+    padding-left: 1rem;
+  }
+}
 /* ---- Note a piè di pagina ([^N] nel testo + blocco
    <!--footnotes:[...]--> altrove nell'articolo, vedi estensioni
    ppFootnoteRef/ppFootnotes in js/markdown-components.js). Il rimando
