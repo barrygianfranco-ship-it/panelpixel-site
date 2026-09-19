@@ -1056,7 +1056,7 @@ function renderAuthorPage() {
     articlesEl.innerHTML = `<p class="empty-state">Nessun articolo pubblicato ancora.</p>`;
     return;
   }
-  articlesEl.innerHTML = authorArticles.map((a) => cardHTML(a)).join("");
+  articlesEl.innerHTML = authorArticles.map((a) => editorialStoryHTML(a)).join("");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
