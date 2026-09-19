@@ -409,6 +409,64 @@ function renderMarkdownBody(el, article) {
   el.innerHTML = article.content;
 }
 
+/* ---- Indice automatico degli articoli lunghi. Usa gli H2/H3 già
+   presenti nel corpo e non modifica i contenuti salvati su Storyblok. ---- */
+function renderArticleToc(bodyEl) {
+  const contentInner = bodyEl && bodyEl.parentElement;
+  if (!contentInner) return;
+
+  const previousToc = contentInner.querySelector(".article-toc");
+  if (previousToc) previousToc.remove();
+
+  const headings = Array.from(bodyEl.querySelectorAll("h2, h3"));
+  if (headings.length < 3) return;
+
+  const usedIds = new Set();
+  headings.forEach((heading, index) => {
+    let baseId = heading.id || heading.textContent
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || `sezione-${index + 1}`;
+    let uniqueId = baseId;
+    let suffix = 2;
+    while (usedIds.has(uniqueId) || (document.getElementById(uniqueId) && document.getElementById(uniqueId) !== heading)) {
+      uniqueId = `${baseId}-${suffix++}`;
+    }
+    heading.id = uniqueId;
+    usedIds.add(uniqueId);
+  });
+
+  const nav = document.createElement("nav");
+  nav.className = "article-toc";
+  nav.setAttribute("aria-label", "Indice dell'articolo");
+
+  const details = document.createElement("details");
+  details.className = "article-toc-details";
+  details.open = !window.matchMedia("(max-width: 640px)").matches;
+
+  const summary = document.createElement("summary");
+  summary.className = "article-toc-title";
+  summary.textContent = "In questo articolo";
+
+  const list = document.createElement("ol");
+  list.className = "article-toc-list";
+  headings.forEach((heading) => {
+    const item = document.createElement("li");
+    item.className = heading.tagName === "H3" ? "article-toc-item article-toc-item--sub" : "article-toc-item";
+    const link = document.createElement("a");
+    link.href = `#${heading.id}`;
+    link.textContent = heading.textContent.trim();
+    item.appendChild(link);
+    list.appendChild(item);
+  });
+
+  details.append(summary, list);
+  nav.appendChild(details);
+  contentInner.insertBefore(nav, bodyEl);
+}
 function renderRadarList(el, article) {
   const items = (article.content && article.content.items) || [];
   el.innerHTML = items
@@ -498,6 +556,7 @@ function renderArticleLayout(article) {
       break;
   }
 
+  renderArticleToc(bodyEl);
   renderArticleFooterMeta(footerMetaEl, article);
   renderSupportBox();
 }

@@ -1043,6 +1043,73 @@ h1, h2, h3 {
   border-radius: 2px;
 }
 
+/* Indice automatico per gli articoli con almeno tre sezioni. */
+.article-toc {
+  margin: 0 0 2.75rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--article-accent, var(--color-border));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.article-toc-title {
+  color: var(--article-accent, var(--color-text));
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.article-toc-details[open] .article-toc-title {
+  margin-bottom: 1rem;
+}
+
+.article-toc-list {
+  margin: 0;
+  padding-left: 1.4rem;
+  columns: 2;
+  column-gap: 3rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.article-toc-item {
+  break-inside: avoid;
+  margin: 0 0 0.65rem;
+  padding-left: 0.2rem;
+}
+
+.article-toc-item--sub {
+  margin-left: 1rem;
+  color: var(--color-muted);
+}
+
+.article-toc a {
+  color: inherit;
+  text-decoration-color: var(--article-accent, var(--color-border));
+  text-underline-offset: 0.2em;
+}
+
+.article-toc a:hover {
+  color: var(--article-accent, var(--color-accent));
+}
+
+.article-body h2,
+.article-body h3 {
+  scroll-margin-top: 2rem;
+}
+
+@media (max-width: 640px) {
+  .article-toc {
+    margin-bottom: 2rem;
+    padding-block: 1rem;
+  }
+
+  .article-toc-list {
+    columns: 1;
+    padding-top: 0.25rem;
+  }
+}
 .article-body p {
   margin: 0 0 1.25rem;
   font-size: 1.2rem;
