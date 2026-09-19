@@ -168,6 +168,41 @@ function storyblokBlokToHtml(blokNode) {
         `</section>`
       );
     }
+    case "work_card": {
+      const title = String(comp.title || "").trim();
+      if (!title) return "";
+
+      const items = [1, 2, 3, 4]
+        .map((index) => ({
+          label: String(comp[`item_${index}_label`] || "").trim(),
+          value: String(comp[`item_${index}_value`] || "").trim(),
+        }))
+        .filter((item) => item.label && item.value)
+        .map((item) => `<div><dt>${item.label}</dt><dd>${item.value}</dd></div>`)
+        .join("");
+
+      if (!items) return "";
+      return (
+        `<section class="article-work-card" aria-label="Scheda dell'opera">` +
+        `<div class="article-work-card-heading"><p class="article-work-card-kicker">In breve</p><h2>${title}</h2></div>` +
+        `<dl class="article-work-card-list">${items}</dl>` +
+        `</section>`
+      );
+    }
+
+    case "pullquote": {
+      const text = String(comp.text || "").trim();
+      const source = String(comp.source || "").trim();
+      if (!text) return "";
+
+      const sourceHtml = source ? `<cite>${source}</cite>` : "";
+      return (
+        `<aside class="article-pullquote" aria-label="Citazione in evidenza">` +
+        `<p class="article-pullquote-kicker">Passaggio chiave</p>` +
+        `<blockquote>${text}</blockquote>${sourceHtml}` +
+        `</aside>`
+      );
+    }
     case "footnotes": {
       const notes = comp.note || [];
       if (!notes.length) return "";
