@@ -624,17 +624,43 @@ function renderArticleFooterMeta(el, article) {
     `A cura di ${authorCreditHTML(article.author, "author-link")}`,
   ];
   if (article.triedOn) parts.push(`Provato su ${article.triedOn}`);
-  el.innerHTML = `<p>${parts.join(" · ")}</p>`;
+  const keywords = getSeoKeywords(article);
+  const paths = keywords.length ? `<div class="article-paths"><span>In questo percorso</span>${keywords.slice(0, 5).map((keyword) => `<a href="archivio.html?q=${encodeURIComponent(keyword)}">${escapeHTML(keyword)}</a>`).join("")}</div>` : "";
+  el.innerHTML = `<p>${parts.join(" · ")}</p>${paths}`;
 }
 
-function renderSupportBox() {
+function renderSupportBox(article) {
   const el = document.getElementById("support-box");
   if (!el) return;
   el.innerHTML = `
     <p class="support-eyebrow">Sostieni Panel Pixel</p>
     <p class="support-text">Se questo articolo ti è piaciuto, il modo più utile per sostenerci è condividerlo con chi pensi possa apprezzarlo. Niente pubblicità invasiva, nessun paywall: solo lettori che si passano parola.</p>
+    <div class="share-actions" aria-label="Condividi questo articolo">
+      <button type="button" class="share-button share-button--primary" data-share-native>Condividi</button>
+      <button type="button" class="share-button" data-share-copy>Copia il link</button>
+    </div>
+    <p class="share-feedback" role="status" aria-live="polite"></p>
     <a class="support-cta" href="chi-sono.html">Scopri chi c'è dietro Panel Pixel &rarr;</a>
   `;
+  const url = SITE.url + "/articolo.html?slug=" + encodeURIComponent(article.slug);
+  const feedback = el.querySelector(".share-feedback");
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      feedback.textContent = "Link copiato.";
+    } catch (_) {
+      window.prompt("Copia questo link:", url);
+    }
+  };
+  el.querySelector("[data-share-copy]").addEventListener("click", copyLink);
+  el.querySelector("[data-share-native]").addEventListener("click", async () => {
+    if (!navigator.share) return copyLink();
+    try {
+      await navigator.share({ title: article.title, text: article.excerpt, url });
+    } catch (error) {
+      if (error.name !== "AbortError") copyLink();
+    }
+  });
 }
 
 function applyArticleTheme(article) {
@@ -662,7 +688,7 @@ function renderArticleLayout(article) {
 
   applyArticleTheme(article);
 
-  mediaEl.innerHTML = `<img src="${article.image}" alt="${article.title}">`;
+  mediaEl.innerHTML = `<img src="${article.image}" alt="${article.title}" fetchpriority="high" decoding="async">`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";
@@ -691,7 +717,7 @@ function renderArticleLayout(article) {
 
   renderArticleToc(bodyEl);
   renderArticleFooterMeta(footerMetaEl, article);
-  renderSupportBox();
+  renderSupportBox(article);
 }
 
 function renderComments(article) {
@@ -1059,13 +1085,53 @@ function renderAuthorPage() {
   articlesEl.innerHTML = authorArticles.map((a) => editorialStoryHTML(a)).join("");
 }
 
+function getArticleYear(article) {
+  return String(article.date || "").slice(0, 4);
+}
+
+function renderArchivePage() {
+  const listEl = document.getElementById("archive-list");
+  if (!listEl) return;
+  const categoryEl = document.getElementById("archive-category");
+  const authorEl = document.getElementById("archive-author");
+  const yearEl = document.getElementById("archive-year");
+  const searchEl = document.getElementById("archive-search");
+  const countEl = document.getElementById("archive-count");
+  const params = new URLSearchParams(window.location.search);
+  searchEl.value = params.get("q") || "";
+  const categories = [...new Set(ARTICLES.map((a) => a.category))].sort();
+  const authors = [...new Set(ARTICLES.map((a) => a.author).filter(Boolean))].sort();
+  const years = [...new Set(ARTICLES.map(getArticleYear).filter(Boolean))].sort().reverse();
+  categoryEl.insertAdjacentHTML("beforeend", categories.map((value) => `<option value="${escapeHTML(value)}">${escapeHTML(getCategoryName(value))}</option>`).join(""));
+  authorEl.insertAdjacentHTML("beforeend", authors.map((value) => `<option value="${escapeHTML(value)}">${escapeHTML(value)}</option>`).join(""));
+  yearEl.insertAdjacentHTML("beforeend", years.map((value) => `<option value="${escapeHTML(value)}">${escapeHTML(value)}</option>`).join(""));
+  const update = () => {
+    const query = normalizeSearchText(searchEl.value);
+    const matches = ARTICLES.filter((article) => {
+      const text = normalizeSearchText(`${article.title} ${article.excerpt} ${article.author} ${getCategoryName(article.category)} ${getSeoKeywords(article).join(" ")}`);
+      return (!categoryEl.value || article.category === categoryEl.value)
+        && (!authorEl.value || article.author === authorEl.value)
+        && (!yearEl.value || getArticleYear(article) === yearEl.value)
+        && (!query || text.includes(query));
+    }).sort((a, b) => (a.date < b.date ? 1 : -1));
+    countEl.textContent = `${matches.length} ${matches.length === 1 ? "articolo" : "articoli"}`;
+    listEl.innerHTML = matches.length ? matches.map((article) => editorialStoryHTML(article)).join("") : `<p class="archive-empty">Nessun articolo corrisponde ai filtri scelti.</p>`;
+  };
+  [categoryEl, authorEl, yearEl].forEach((el) => el.addEventListener("change", update));
+  searchEl.addEventListener("input", update);
+  document.getElementById("archive-reset").addEventListener("click", () => {
+    categoryEl.value = authorEl.value = yearEl.value = searchEl.value = "";
+    update();
+  });
+  update();
+}
 document.addEventListener("DOMContentLoaded", async () => {
   initHeader();
   initHeaderScrollHide();
   initAccountNavLink();
 
   renderAboutCollaborators();
-  if (!document.querySelector("#magazine-hero, #homepage-articles, #category-list, #article-content, #author-page")) return;
+  if (!document.querySelector("#magazine-hero, #homepage-articles, #category-list, #article-content, #author-page, #archive-list")) return;
 
   try {
     await loadArticles();
@@ -1083,5 +1149,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderCategoryPage();
   renderArticlePage();
   renderAuthorPage();
+  renderArchivePage();
   initStoryblokPreview();
 });

@@ -143,3 +143,17 @@
   .editorial-about .about-text h1 { font-size:clamp(2.8rem,15vw,4.2rem); }
   .editorial-about .about-lede { font-size:1.18rem !important; }
 }
+
+/* Newsletter editoriale: il modulo viene raccolto da Netlify dopo il deploy. */
+.newsletter-panel { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(2rem, 7vw, 6rem); align-items: center; margin: 5rem 0 3rem; padding: clamp(2rem, 5vw, 4rem); border-top: 3px double var(--color-text); border-bottom: 1px solid var(--color-text); background: var(--color-bg-alt); }
+.newsletter-panel h2 { max-width: 660px; font-size: clamp(2rem, 4vw, 3.8rem); line-height: 1.02; }
+.newsletter-panel > div > p:last-child { max-width: 570px; color: var(--color-muted); }
+.newsletter-form { display: grid; gap: 0.55rem; }
+.newsletter-form > label:first-of-type { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.newsletter-fields { display: flex; }
+.newsletter-fields input { min-width: 0; flex: 1; min-height: 48px; border: 1px solid var(--color-text); background: var(--color-bg); padding: .75rem; font: inherit; }
+.newsletter-fields button { min-height: 48px; border: 1px solid var(--color-text); background: var(--color-text); color: var(--color-bg); padding: .75rem 1.1rem; font-weight: 700; cursor: pointer; }
+.newsletter-consent { display: flex; align-items: flex-start; gap: .5rem; color: var(--color-muted); font-size: .72rem; line-height: 1.4; }
+.newsletter-consent input { margin-top: .15rem; }
+@media (max-width: 760px) { .newsletter-panel { grid-template-columns: 1fr; } }
+@media (max-width: 420px) { .newsletter-fields { display: grid; } }

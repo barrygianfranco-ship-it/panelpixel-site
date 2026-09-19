@@ -5,10 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Pixel — Fumetti, videogiochi e cultura pop</title>
   <meta name="description" content="Panel Pixel: recensioni, monografie, attualità e anteprime su fumetti, videogiochi e cinema.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Panel Pixel — Fumetti, videogiochi e cultura pop">
+  <meta property="og:description" content="Una rivista digitale indipendente dedicata a fumetti, videogiochi e cultura pop.">
+  <meta property="og:image" content="https://panelpixel.it/assets/images/og-default.png">
+  <meta property="og:url" content="https://panelpixel.it/index.html">
+  <meta property="og:site_name" content="Panel Pixel">
+  <meta property="og:locale" content="it_IT">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Panel Pixel — Fumetti, videogiochi e cultura pop">
+  <meta name="twitter:description" content="Una rivista digitale indipendente dedicata a fumetti, videogiochi e cultura pop.">
+  <meta name="twitter:image" content="https://panelpixel.it/assets/images/og-default.png">
+  <link rel="canonical" href="https://panelpixel.it/index.html">
 
   <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
-  <link rel="stylesheet" href="css/style.css?v=20260919-1">
-  <link rel="stylesheet" href="css/home.css?v=20260919-1">
+  <link rel="stylesheet" href="css/style.css?v=20260919-2">
+  <link rel="stylesheet" href="css/home.css?v=20260919-2">
 </head>
 <body class="editorial-home">
 
@@ -71,18 +83,36 @@
       <div class="card-grid" id="approfondimenti-articles"></div>
     </section>
 
+    <section class="newsletter-panel" aria-labelledby="newsletter-title">
+      <div>
+        <p class="editorial-kicker">Lettere dalla redazione</p>
+        <h2 id="newsletter-title">Le storie che meritano tempo, nella tua casella.</h2>
+        <p>Una selezione periodica di articoli, percorsi e nuove uscite. Nessun rumore di fondo.</p>
+      </div>
+      <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/grazie.html">
+        <input type="hidden" name="form-name" value="newsletter">
+        <p class="visually-hidden"><label>Non compilare: <input name="bot-field"></label></p>
+        <label for="newsletter-email">Indirizzo email</label>
+        <div class="newsletter-fields">
+          <input id="newsletter-email" name="email" type="email" autocomplete="email" placeholder="nome@email.it" required>
+          <button type="submit">Iscriviti</button>
+        </div>
+        <label class="newsletter-consent"><input type="checkbox" name="privacy" required> Ho letto la <a href="privacy.html">Privacy Policy</a> e acconsento a ricevere la newsletter.</label>
+      </form>
+    </section>
+
   </main>
 
   <footer class="site-footer">
     <div class="container site-footer-inner">
       <p class="footer-brand"><img src="assets/images/logo-icon.png" alt="" class="footer-mark">&copy; 2026 Panel Pixel. Tutti i diritti riservati.</p>
-      <p><a href="chi-sono.html">Chi siamo</a> · <a href="account.html">Redazione</a> · <a href="privacy.html">Privacy &amp; Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
+      <p><a href="chi-sono.html">Chi siamo</a> · <a href="archivio.html">Archivio</a> · <a href="account.html">Redazione</a> · <a href="privacy.html">Privacy &amp; Cookie</a> · <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a></p>
     </div>
   </footer>
 
-  <script src="js/data.js?v=20260919-1"></script>
-  <script src="js/authors.js?v=20260919-1"></script>
-  <script src="js/storyblok-richtext.js?v=20260919-1"></script>
-  <script src="js/main.js?v=20260919-1"></script>
+  <script src="js/data.js?v=20260919-2"></script>
+  <script src="js/authors.js?v=20260919-2"></script>
+  <script src="js/storyblok-richtext.js?v=20260919-2"></script>
+  <script src="js/main.js?v=20260919-2"></script>
 </body>
 </html>

@@ -33,9 +33,10 @@
   </script>
 
   <link rel="icon" type="image/png" href="assets/images/logo-icon.png">
-  <link rel="stylesheet" href="css/style.css?v=20260919-1">
+  <link rel="stylesheet" href="css/style.css?v=20260919-2">
+  <link rel="stylesheet" href="css/home.css?v=20260919-2">
 </head>
-<body>
+<body class="editorial-category-page privacy-page">
 
   <header class="site-header">
     <div class="container site-header-brand">
@@ -72,17 +73,60 @@
     <p>Come funziona Panel Pixel dal punto di vista di dati e cookie, spiegato in modo semplice.</p>
   </div>
 
-  <main>
-    <div class="article-wrap">
-      <div class="article-body">
-        <p>Panel Pixel è un sito personale, gestito da me, Gianfranco Barry, senza redazione, agenzie o terze parti coinvolte nella sua gestione tecnica.</p>
-        <p>Al momento questo sito non utilizza cookie di profilazione né strumenti di tracciamento pubblicitario. Vengono utilizzati esclusivamente cookie tecnici, necessari al corretto funzionamento delle pagine (ad esempio per ricordare le tue preferenze di visualizzazione): questi cookie non richiedono consenso perché non raccolgono dati personali a scopo di profilazione.</p>
-        <p>Nelle pagine degli articoli è attivo un sistema di commenti basato su <a href="https://giscus.app" target="_blank" rel="noopener">Giscus</a>, un servizio esterno gratuito che si appoggia alle GitHub Discussions del repository del sito. Aprendo la pagina di un articolo, il tuo browser carica uno script da giscus.app e comunica con i server di GitHub per mostrare i commenti esistenti; per scriverne uno devi accedere con un account GitHub, che gestisce l'autenticazione secondo la propria informativa privacy. Non uso Giscus per profilarti o tracciare la tua navigazione: serve solo a mostrare e raccogliere i commenti.</p>
-        <p>A parte questo, non ci sono strumenti di analytics, statistiche di terze parti o pixel di tracciamento installati sul sito.</p>
-        <p>In futuro potrei decidere di aggiungere strumenti di analisi del traffico (ad esempio per capire quali articoli funzionano meglio) o altri servizi di terze parti oltre a Giscus. Se e quando succederà, questa pagina verrà aggiornata con l'elenco preciso degli strumenti utilizzati, i dati raccolti e le modalità per gestire il consenso, prima che quegli strumenti vengano attivati.</p>
-        <p>Per qualsiasi domanda su questa pagina puoi scrivermi a <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a>.</p>
-      </div>
-    </div>
+  <main class="container privacy-layout">
+    <aside class="privacy-summary" aria-label="Indice della pagina">
+      <p class="privacy-summary-label">In breve</p>
+      <p>Nessuna pubblicità comportamentale e nessun sistema di profilazione installato da Panel Pixel.</p>
+      <nav>
+        <a href="#titolare">Chi gestisce i dati</a>
+        <a href="#dati">Dati raccolti</a>
+        <a href="#servizi">Servizi esterni</a>
+        <a href="#cookie">Cookie</a>
+        <a href="#diritti">I tuoi diritti</a>
+      </nav>
+      <p class="privacy-updated">Ultimo aggiornamento<br><time datetime="2026-09-19">19 settembre 2026</time></p>
+    </aside>
+
+    <article class="privacy-content">
+      <section id="titolare">
+        <p class="privacy-section-number">01</p>
+        <h2>Chi gestisce i dati</h2>
+        <p>Panel Pixel è un magazine indipendente. Per richieste riguardanti privacy, dati personali o cancellazioni puoi scrivere a <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a>.</p>
+      </section>
+
+      <section id="dati">
+        <p class="privacy-section-number">02</p>
+        <h2>Quali dati raccogliamo</h2>
+        <div class="privacy-cards">
+          <div><h3>Navigazione</h3><p>Panel Pixel non installa strumenti pubblicitari, pixel di tracciamento o servizi di profilazione. Il fornitore di hosting può registrare dati tecnici di sicurezza, come indirizzo IP, orario e pagina richiesta.</p></div>
+          <div><h3>Newsletter</h3><p>Se ti iscrivi, Netlify Forms raccoglie l’indirizzo email e la conferma del consenso. Li useremo solo per comunicazioni editoriali e potrai chiedere la cancellazione in qualsiasi momento.</p></div>
+          <div><h3>Commenti</h3><p>Se utilizzi Giscus, commenti e autenticazione vengono gestiti tramite GitHub Discussions e il tuo account GitHub.</p></div>
+        </div>
+      </section>
+
+      <section id="servizi">
+        <p class="privacy-section-number">03</p>
+        <h2>Servizi esterni</h2>
+        <dl class="privacy-services">
+          <div><dt>Netlify</dt><dd>Hosting del sito, gestione tecnica dei moduli e accesso riservato alla redazione.</dd></div>
+          <div><dt>Storyblok</dt><dd>Gestione e distribuzione dei contenuti editoriali mostrati nelle pagine.</dd></div>
+          <div><dt>Giscus e GitHub</dt><dd>Visualizzazione e pubblicazione dei commenti sotto gli articoli.</dd></div>
+        </dl>
+        <p>Questi servizi trattano i dati secondo le proprie informative e possono operare da Paesi diversi da quello dell’utente.</p>
+      </section>
+
+      <section id="cookie">
+        <p class="privacy-section-number">04</p>
+        <h2>Cookie e tecnologie simili</h2>
+        <p>Panel Pixel non usa cookie pubblicitari o di profilazione. Funzioni esterne come l’accesso alla redazione e i commenti possono usare cookie o memoria locale necessari al loro funzionamento. Se non utilizzi queste funzioni, il sito resta consultabile normalmente.</p>
+      </section>
+
+      <section id="diritti">
+        <p class="privacy-section-number">05</p>
+        <h2>I tuoi diritti</h2>
+        <p>Puoi chiedere accesso, rettifica o cancellazione dei dati che ci hai fornito, oppure revocare il consenso alla newsletter. Scrivi a <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a>: risponderemo appena possibile.</p>
+      </section>
+    </article>
   </main>
 
   <footer class="site-footer">
@@ -97,8 +141,8 @@
        js/main.js, che controlla se c'è una sessione attiva per
        decidere se mostrare la voce "Account" nel menu. -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="js/data.js?v=20260919-1"></script>
-  <script src="js/storyblok-richtext.js?v=20260919-1"></script>
-  <script src="js/main.js?v=20260919-1"></script>
+  <script src="js/data.js?v=20260919-2"></script>
+  <script src="js/storyblok-richtext.js?v=20260919-2"></script>
+  <script src="js/main.js?v=20260919-2"></script>
 </body>
 </html>
