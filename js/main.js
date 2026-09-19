@@ -191,10 +191,9 @@ function renderApprofondimentiSection() {
 }
 
 function normalizeSearchText(str) {
-  return str
-    .toString()
+  return String(str || "")
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 }
 
@@ -204,13 +203,78 @@ function escapeHTML(str) {
   return div.innerHTML;
 }
 
+// Evidenzia la query conservando accenti e maiuscole del testo originale.
+function highlightSearchMatch(value, query) {
+  const text = String(value || "");
+  const needle = normalizeSearchText(query.trim());
+  if (!needle) return escapeHTML(text);
+
+  let normalized = "";
+  const sourceIndex = [];
+  Array.from(text).forEach((character, index) => {
+    const part = normalizeSearchText(character);
+    normalized += part;
+    for (let i = 0; i < part.length; i += 1) sourceIndex.push(index);
+  });
+
+  const ranges = [];
+  let from = 0;
+  let matchIndex = normalized.indexOf(needle, from);
+  while (matchIndex !== -1) {
+    const start = sourceIndex[matchIndex];
+    const end = sourceIndex[matchIndex + needle.length - 1] + 1;
+    ranges.push([start, end]);
+    from = matchIndex + needle.length;
+    matchIndex = normalized.indexOf(needle, from);
+  }
+  if (!ranges.length) return escapeHTML(text);
+
+  let html = "";
+  let cursor = 0;
+  ranges.forEach(([start, end]) => {
+    html += escapeHTML(text.slice(cursor, start));
+    html += `<mark>${escapeHTML(text.slice(start, end))}</mark>`;
+    cursor = end;
+  });
+  return html + escapeHTML(text.slice(cursor));
+}
+
 function searchArticles(query) {
   const q = normalizeSearchText(query.trim());
   if (!q) return [];
-  return ARTICLES.filter((a) => {
-    const haystack = normalizeSearchText(`${a.title} ${getCategoryName(a.category)} ${a.author}`);
+  return ARTICLES.filter((article) => {
+    const haystack = normalizeSearchText(
+      `${article.title} ${article.excerpt || ""} ${getCategoryName(article.category)} ${article.author || ""}`
+    );
     return haystack.includes(q);
   }).sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+function searchResultHTML(article, query) {
+  const href = `articolo.html?slug=${encodeURIComponent(article.slug)}`;
+  const title = highlightSearchMatch(article.title, query);
+  const excerpt = highlightSearchMatch(article.excerpt || "", query);
+  const category = highlightSearchMatch(getCategoryName(article.category), query);
+  const author = highlightSearchMatch(article.author || "", query);
+
+  return `<article class="search-result-item">
+    <a class="search-result-media" href="${href}" aria-label="${escapeHTML(article.title)}">
+      <img src="${escapeHTML(article.image)}" alt="" loading="lazy">
+    </a>
+    <div class="search-result-copy">
+      <p class="search-result-eyebrow"><span>${category}</span><time datetime="${escapeHTML(article.date)}">${formatDateIT(article.date)}</time></p>
+      <h2><a href="${href}">${title}</a></h2>
+      <p class="search-result-excerpt">${excerpt}</p>
+      <p class="search-result-author">Di ${author}</p>
+    </div>
+  </article>`;
+}
+
+function resetSearch(input, clearBtn) {
+  input.value = "";
+  if (clearBtn) clearBtn.hidden = true;
+  renderSearchResults("");
+  input.focus();
 }
 
 function renderSearchResults(query) {
@@ -234,17 +298,32 @@ function renderSearchResults(query) {
   resultsEl.hidden = false;
 
   const matches = searchArticles(q);
+  const countLabel = `${matches.length} articol${matches.length === 1 ? "o" : "i"}`;
+  resultsEl.innerHTML = `<section class="search-results-panel" aria-labelledby="search-results-title">
+    <header class="search-results-header">
+      <div>
+        <p class="search-results-kicker">Archivio Panel Pixel</p>
+        <h1 id="search-results-title">Risultati per “${escapeHTML(q)}”</h1>
+      </div>
+      <p class="search-results-count" aria-live="polite">${countLabel}</p>
+    </header>
+    ${matches.length
+      ? `<div class="search-results-list">${matches.map((article) => searchResultHTML(article, q)).join("")}</div>`
+      : `<div class="search-empty">
+          <p class="search-empty-title">Nessun articolo trovato</p>
+          <p>Prova con un titolo, una categoria o il nome di un autore.</p>
+          <button type="button" class="search-reset" data-search-reset>Azzera la ricerca</button>
+        </div>`}
+  </section>`;
 
-  if (matches.length === 0) {
-    resultsEl.innerHTML = `<p class="empty-state">Nessun articolo trovato per "${escapeHTML(q)}".</p>`;
-    return;
+  const resetBtn = resultsEl.querySelector("[data-search-reset]");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      const input = document.getElementById("search-input");
+      const clearBtn = document.getElementById("search-clear");
+      if (input) resetSearch(input, clearBtn);
+    });
   }
-
-  resultsEl.innerHTML = `
-    <p class="search-results-count">${matches.length} articol${matches.length === 1 ? "o trovato" : "i trovati"}</p>
-    <div class="card-grid">
-      ${matches.map((a) => cardHTML(a)).join("")}
-    </div>`;
 }
 
 function initSearch() {
@@ -252,22 +331,36 @@ function initSearch() {
   const clearBtn = document.getElementById("search-clear");
   if (!input) return;
 
+  input.setAttribute("aria-keyshortcuts", "/");
+  input.setAttribute("aria-controls", "search-results");
+
   input.addEventListener("input", () => {
     const hasQuery = input.value.trim().length > 0;
     if (clearBtn) clearBtn.hidden = !hasQuery;
     renderSearchResults(input.value);
   });
 
-  if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-      input.value = "";
-      clearBtn.hidden = true;
-      renderSearchResults("");
-      input.focus();
-    });
-  }
-}
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && input.value) {
+      event.preventDefault();
+      resetSearch(input, clearBtn);
+    }
+  });
 
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => resetSearch(input, clearBtn));
+  }
+
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    const isEditing = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable;
+    if (event.key === "/" && !isEditing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      event.preventDefault();
+      input.focus();
+      input.select();
+    }
+  });
+}
 function renderCategoryPage() {
   const container = document.getElementById("category-list");
   if (!container) return;
