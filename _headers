@@ -1,0 +1,10 @@
+# Le pagine e gli asset applicativi vengono sempre riconvalidati con Netlify.
+# Il browser può riusare una copia solo dopo aver verificato che sia attuale.
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/js/*
+  Cache-Control: public, max-age=0, must-revalidate
