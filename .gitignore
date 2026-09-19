@@ -13,7 +13,6 @@ js/editor.js
 *.pem
 
 # File di configurazione che in futuro potrebbero contenere token/credenziali
-netlify.toml
 wrangler.toml
 
 # File di sistema
