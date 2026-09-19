@@ -266,19 +266,50 @@ function renderCategoryPage() {
   const slug = container.getAttribute("data-category");
   const titleEl = document.getElementById("category-page-title");
   const articles = getArticlesByCategory(slug);
+  const pageHero = titleEl && titleEl.closest(".page-hero");
+  let countEl = document.getElementById("category-article-count");
 
   if (titleEl) titleEl.textContent = getCategoryName(slug);
   document.title = `${getCategoryName(slug)} — ${SITE.name}`;
+
+  if (pageHero && !countEl) {
+    countEl = document.createElement("p");
+    countEl.id = "category-article-count";
+    countEl.className = "category-article-count";
+    pageHero.appendChild(countEl);
+  }
+  if (countEl) {
+    countEl.textContent = `${articles.length} ${articles.length === 1 ? "articolo" : "articoli"}`;
+  }
 
   if (articles.length === 0) {
     container.innerHTML = `<p class="empty-state">Nessun articolo disponibile in questa categoria per ora.</p>`;
     return;
   }
-  container.innerHTML = document.body.classList.contains("editorial-category-page")
-    ? articles.map((a) => editorialStoryHTML(a)).join("")
-    : articles.map((a) => cardHTML(a)).join("");
-}
 
+  if (!document.body.classList.contains("editorial-category-page")) {
+    container.innerHTML = articles.map((a) => cardHTML(a)).join("");
+    return;
+  }
+
+  const [lead, ...archive] = articles;
+  container.innerHTML = `
+    <section class="category-lead" aria-label="Articolo in evidenza">
+      <p class="category-section-kicker">In primo piano</p>
+      ${editorialStoryHTML(lead, true)}
+    </section>
+    ${archive.length ? `
+      <section class="category-archive" aria-label="Archivio della categoria">
+        <div class="category-archive-heading">
+          <h2>Archivio</h2>
+          <span>${archive.length} ${archive.length === 1 ? "articolo" : "articoli"}</span>
+        </div>
+        <div class="category-archive-grid">
+          ${archive.map((article) => editorialStoryHTML(article)).join("")}
+        </div>
+      </section>` : ""}
+  `;
+}
 function setMetaContent(id, value) {
   const el = document.getElementById(id);
   if (el) el.setAttribute("content", value);
