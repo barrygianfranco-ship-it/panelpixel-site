@@ -61,21 +61,30 @@ function getHeroTag(article) {
   }
 }
 
-function cardHTML(article) {
-  return `
-    <a class="card" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
-      <div class="card-media">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
-      </div>
-      <div class="card-body">
-        <p class="card-category">${getCategoryName(article.category)}</p>
-        <h2 class="card-title">${article.title}</h2>
-        <p class="card-excerpt">${article.excerpt}</p>
-        <p class="card-meta"><time datetime="${article.date}">${formatDateIT(article.date)}</time> · A cura di ${article.author}</p>
-      </div>
-    </a>`;
+function authorCreditHTML(name, className) {
+  const safeName = escapeHTML(String(name || ""));
+  const author = typeof getAuthorByName === "function" ? getAuthorByName(name) : null;
+  const cssClass = className || "author-link";
+
+  if (!author) return `<span class="${cssClass}">${safeName}</span>`;
+  return `<a class="${cssClass}" href="autore.html?nome=${encodeURIComponent(author.slug)}">${safeName}</a>`;
 }
 
+function cardHTML(article) {
+  const href = `articolo.html?slug=${encodeURIComponent(article.slug)}`;
+  return `
+    <article class="card">
+      <a class="card-media" href="${href}" aria-label="${article.title}">
+        <img src="${article.image}" alt="${article.title}" loading="lazy">
+      </a>
+      <div class="card-body">
+        <p class="card-category">${getCategoryName(article.category)}</p>
+        <h2 class="card-title"><a href="${href}">${article.title}</a></h2>
+        <p class="card-excerpt">${article.excerpt}</p>
+        <p class="card-meta"><time datetime="${article.date}">${formatDateIT(article.date)}</time> · A cura di ${authorCreditHTML(article.author, "author-link")}</p>
+      </div>
+    </article>`;
+}
 function heroMiniHTML(article) {
   return `
     <a class="hero-mini" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
@@ -141,7 +150,7 @@ function editorialStoryHTML(article, lead = false) {
     <p class="editorial-category">${safe(getCategoryName(article.category))}</p>
     <h2 class="editorial-title"><a href="${href}">${safe(article.title)}</a></h2>
     <p class="editorial-excerpt">${safe(article.excerpt)}</p>
-    <p class="editorial-byline">Di ${safe(article.author)}</p>
+    <p class="editorial-byline">Di ${authorCreditHTML(article.author, "author-link")}</p>
   </article>`;
 }
 
@@ -404,7 +413,7 @@ function renderArticleHeader(el, article) {
     <h1 class="article-title">${article.title}</h1>
     ${period}
     <p class="article-subtitle">${subtitle}</p>
-    <p class="article-byline">di ${article.author}</p>
+    <p class="article-byline">di ${authorCreditHTML(article.author, "author-link")}</p>
     <div class="article-header-divider"></div>
   `;
 }
@@ -519,7 +528,7 @@ function renderRadarList(el, article) {
 function renderArticleFooterMeta(el, article) {
   const parts = [
     `Pubblicato il <time datetime="${article.date}">${formatDateIT(article.date)}</time>`,
-    `A cura di ${article.author}`,
+    `A cura di ${authorCreditHTML(article.author, "author-link")}`,
   ];
   if (article.triedOn) parts.push(`Provato su ${article.triedOn}`);
   el.innerHTML = `<p>${parts.join(" · ")}</p>`;
