@@ -337,12 +337,14 @@ function adaptStoryblokStory(story) {
     author: c.author,
     date: c.date,
     image: (c.image && c.image.filename) || "",
+    imageAlt: (c.image && (c.image.alt || c.image.title)) || "",
     featured: !!c.featured,
     theme: theme,
     triedOn: c.tried_on || "",
     seoTitle: c.seo_title || "",
     seoDescription: c.seo_description || "",
     seoKeywords: c.seo_keywords ? c.seo_keywords.split(",").map((k) => k.trim()).filter(Boolean) : [],
+    hasContent: !!(c.corpo && Array.isArray(c.corpo.content) && c.corpo.content.length),
     // Già HTML pronto, non markdown: vedi renderMarkdownBody in js/main.js.
     content: storyblokRichtextToHtml(c.corpo),
   };

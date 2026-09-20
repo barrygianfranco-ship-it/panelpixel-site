@@ -966,7 +966,79 @@ function loadStoryblokBridgeScript() {
 
 let storyblokPreviewRevision = 0;
 
+
+function getEditorialChecks(article) {
+  const errors = [];
+  const warnings = [];
+  const value = (field) => String(article[field] || "").trim();
+  const title = value("title");
+  const slug = value("slug");
+  const excerpt = value("excerpt");
+  const seoTitle = value("seoTitle");
+  const seoDescription = value("seoDescription");
+  const author = value("author");
+  const addError = (label) => errors.push(label);
+  const addWarning = (label) => warnings.push(label);
+
+  if (!title) addError("Inserisci il titolo.");
+  if (!slug) addError("Inserisci lo slug.");
+  else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) addError("Lo slug deve contenere solo lettere minuscole, numeri e trattini.");
+  if (!value("category")) addError("Seleziona la categoria.");
+  if (!value("type")) addError("Seleziona il tipo di articolo.");
+  if (!excerpt) addError("Inserisci il sottotitolo / excerpt.");
+  if (!author) addError("Inserisci l’autore.");
+  else if (typeof getAuthorByName === "function" && !getAuthorByName(author)) addError("L’autore non corrisponde a un profilo presente sul sito.");
+  if (!value("date") || Number.isNaN(Date.parse(value("date")))) addError("Inserisci una data valida.");
+  if (!value("image")) addError("Aggiungi la copertina.");
+  if (!article.hasContent) addError("Il corpo dell’articolo è vuoto.");
+
+  if (title && (title.length < 35 || title.length > 75)) addWarning(`Il titolo è lungo ${title.length} caratteri: la fascia consigliata è 35–75.`);
+  if (excerpt && (excerpt.length < 100 || excerpt.length > 180)) addWarning(`Il sottotitolo è lungo ${excerpt.length} caratteri: la fascia consigliata è 100–180.`);
+  if (value("image") && !value("imageAlt")) addWarning("Aggiungi il testo alternativo alla copertina.");
+  if (!seoTitle) addWarning("Compila il titolo SEO.");
+  else if (seoTitle.length > 60) addWarning(`Il titolo SEO è lungo ${seoTitle.length} caratteri: resta entro 60.`);
+  if (!seoDescription) addWarning("Compila la descrizione SEO.");
+  else if (seoDescription.length < 120 || seoDescription.length > 160) addWarning(`La descrizione SEO è lunga ${seoDescription.length} caratteri: la fascia consigliata è 120–160.`);
+  if (!Array.isArray(article.seoKeywords) || article.seoKeywords.length === 0) addWarning("Aggiungi almeno una parola chiave SEO.");
+  if (/recensione/i.test(`${value("category")} ${value("type")}`) && !value("triedOn")) addWarning("Per una recensione, indica su quale piattaforma o formato è stata provata.");
+
+  return { errors, warnings };
+}
+
+function renderEditorialCheck(article) {
+  if (!isStoryblokPreview()) return;
+  const { errors, warnings } = getEditorialChecks(article);
+  let panel = document.getElementById("editorial-check");
+  if (!panel) {
+    panel = document.createElement("aside");
+    panel.id = "editorial-check";
+    panel.className = "editorial-check";
+    panel.setAttribute("aria-live", "polite");
+    document.body.appendChild(panel);
+  }
+
+  const statusClass = errors.length ? "has-errors" : warnings.length ? "has-warnings" : "is-ready";
+  const statusText = errors.length ? `${errors.length} ${errors.length === 1 ? "errore" : "errori"}` : warnings.length ? `${warnings.length} ${warnings.length === 1 ? "avviso" : "avvisi"}` : "Pronto";
+  const list = (items, kind) => items.map((item) => `<li class="editorial-check__item editorial-check__item--${kind}">${item}</li>`).join("");
+
+  panel.className = `editorial-check ${statusClass}`;
+  panel.innerHTML = `
+    <details ${errors.length ? "open" : ""}>
+      <summary>
+        <span class="editorial-check__heading">Controllo editoriale</span>
+        <span class="editorial-check__status">${statusText}</span>
+      </summary>
+      <div class="editorial-check__body">
+        ${errors.length ? `<h2>Da correggere</h2><ul>${list(errors, "error")}</ul>` : ""}
+        ${warnings.length ? `<h2>Da valutare</h2><ul>${list(warnings, "warning")}</ul>` : ""}
+        ${!errors.length && !warnings.length ? "<p>Tutti i controlli sono superati. L’articolo è pronto per la revisione finale.</p>" : ""}
+      </div>
+    </details>`;
+}
+
+
 function displayStoryblokPreviewArticle(article, slug) {
+  renderEditorialCheck(article);
   // Mantiene la rotta dell'iframe anche durante la modifica del campo slug.
   ARTICLES = ARTICLES.filter((a) => a.slug !== slug);
   ARTICLES.push({ ...article, slug });

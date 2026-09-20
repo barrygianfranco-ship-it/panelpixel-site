@@ -1850,3 +1850,28 @@ main {
   .privacy-cards { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) { .privacy-services div { grid-template-columns: 1fr; gap: .25rem; } }
+
+
+/* Controllo editoriale: visibile soltanto nell'anteprima Storyblok. */
+.editorial-check { position: fixed; right: 1rem; bottom: 1rem; z-index: 10000; width: min(380px, calc(100vw - 2rem)); background: #fff; color: #171717; border: 1px solid #cfc8bc; box-shadow: 0 12px 36px rgba(0,0,0,.18); font-family: var(--font-sans); }
+.editorial-check summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1rem; cursor: pointer; list-style: none; }
+.editorial-check summary::-webkit-details-marker { display: none; }
+.editorial-check__heading { font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.editorial-check__status { flex: 0 0 auto; border-radius: 999px; padding: .25rem .55rem; background: #ede9e2; font-size: .68rem; font-weight: 800; }
+.editorial-check.has-errors { border-top: 4px solid #aa2e22; }
+.editorial-check.has-errors .editorial-check__status { background: #f5dedb; color: #84241b; }
+.editorial-check.has-warnings { border-top: 4px solid #b46b00; }
+.editorial-check.has-warnings .editorial-check__status { background: #fff0cf; color: #764600; }
+.editorial-check.is-ready { border-top: 4px solid #26734d; }
+.editorial-check.is-ready .editorial-check__status { background: #dff1e7; color: #195437; }
+.editorial-check__body { max-height: min(55vh, 440px); overflow: auto; padding: .85rem 1rem 1rem; border-top: 1px solid #ded8ce; }
+.editorial-check__body h2 { margin: .2rem 0 .55rem; font: 800 .67rem/1.3 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; }
+.editorial-check__body h2:not(:first-child) { margin-top: 1rem; }
+.editorial-check__body ul { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.editorial-check__body p { margin: 0; font-size: .82rem; line-height: 1.5; }
+.editorial-check__item { position: relative; padding-left: 1rem; font-size: .78rem; line-height: 1.45; }
+.editorial-check__item::before { content: ""; position: absolute; left: 0; top: .48em; width: 6px; height: 6px; border-radius: 50%; background: #777; }
+.editorial-check__item--error::before { background: #aa2e22; }
+.editorial-check__item--warning::before { background: #b46b00; }
+@media (max-width: 600px) { .editorial-check { right: .6rem; bottom: .6rem; width: calc(100vw - 1.2rem); } .editorial-check__body { max-height: 45vh; } }
+
