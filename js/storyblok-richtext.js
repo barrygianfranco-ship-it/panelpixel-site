@@ -379,11 +379,19 @@ async function fetchStoryblokArticles() {
    qualunque parametro che non riconosce.) ---- */
 async function fetchStoryblokStoryBySlug(slug, version) {
   version = version || "published";
-  const url = `https://api.storyblok.com/v2/cdn/stories/${encodeURIComponent(
-    slug
-  )}?token=${encodeURIComponent(STORYBLOK_CDA_TOKEN)}&version=${encodeURIComponent(version)}`;
+  const params = new URLSearchParams({
+    token: STORYBLOK_CDA_TOKEN,
+    version,
+    content_type: "articolo",
+    per_page: "1",
+  });
+  params.set("filter_query[slug][in]", slug);
+
+  const url = `https://api.storyblok.com/v2/cdn/stories?${params.toString()}`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Storyblok CDA: HTTP ${res.status}`);
   const data = await res.json();
-  return adaptStoryblokStory(data.story);
+  const story = (data.stories || [])[0];
+  if (!story) throw new Error(`Storyblok CDA: articolo non trovato per lo slug "${slug}"`);
+  return adaptStoryblokStory(story);
 }

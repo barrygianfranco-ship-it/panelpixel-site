@@ -41,6 +41,11 @@ function getArticleBySlug(slug) {
   return ARTICLES.find((a) => a.slug === slug);
 }
 
+function getRequestedArticleSlug() {
+  const rawSlug = new URLSearchParams(window.location.search).get("slug") || "";
+  return rawSlug.split(/[/?#]/, 1)[0].trim();
+}
+
 function getTopRecentArticles(count) {
   return ARTICLES.slice()
     .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -53,6 +58,8 @@ function getHeroTag(article) {
       return "Recensione";
     case "monografia":
       return "Monografia";
+    case "approfondimento":
+      return "Approfondimento";
     case "radar":
       return article.rubricName || "Radar";
     case "notizia":
@@ -489,6 +496,8 @@ function getArticleHeaderLabel(article) {
       return "Recensione";
     case "monografia":
       return "Monografia";
+    case "approfondimento":
+      return "Approfondimento";
     case "radar":
       return article.rubricName || "Radar";
     case "notizia":
@@ -844,8 +853,7 @@ function renderArticlePage() {
     articleContentTemplate = container.innerHTML;
   }
 
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get("slug");
+  const slug = getRequestedArticleSlug();
   const article = getArticleBySlug(slug);
 
   if (!article) {
@@ -1059,8 +1067,11 @@ async function refreshStoryblokPreviewArticle(slug) {
 async function initStoryblokPreview() {
   if (!isStoryblokPreview()) return;
 
-  const slug = new URLSearchParams(window.location.search).get("slug");
+  const slug = getRequestedArticleSlug();
   if (!slug) return;
+
+  // Mostra subito la bozza; il bridge serve solo per gli aggiornamenti live successivi.
+  await refreshStoryblokPreviewArticle(slug);
 
   try {
     await loadStoryblokBridgeScript();
@@ -1079,7 +1090,6 @@ async function initStoryblokPreview() {
   bridge.on(["published", "change"], () => {
     refreshStoryblokPreviewArticle(slug);
   });
-  await refreshStoryblokPreviewArticle(slug);
 }
 
 /* ---- Lista collaboratori su chi-sono.html. Si attiva solo se la
