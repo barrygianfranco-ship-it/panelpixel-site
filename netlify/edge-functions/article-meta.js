@@ -31,17 +31,28 @@ export default async (request, context) => {
   }
 
   try {
-    const storyUrl = new URL("https://api.storyblok.com/v2/cdn/stories/" + encodeURIComponent(slug));
+    // Il sito cerca gli articoli per il campo "slug" del contenuto, che può
+    // essere diverso dallo slug della story su Storyblok.
+    const storyUrl = new URL("https://api.storyblok.com/v2/cdn/stories");
     storyUrl.searchParams.set("token", STORYBLOK_TOKEN);
     storyUrl.searchParams.set("version", "published");
+    storyUrl.searchParams.set("content_type", "articolo");
+    storyUrl.searchParams.set("per_page", "1");
+    storyUrl.searchParams.set("filter_query[slug][in]", slug);
     const storyResponse = await fetch(storyUrl, { headers: { accept: "application/json" } });
     if (!storyResponse.ok) return response;
 
-    const { story } = await storyResponse.json();
-    const content = story?.content || {};
+    const story = (await storyResponse.json()).stories?.[0];
+    if (!story) return response;
+    const content = story.content || {};
     const title = content.seo_title || (content.title ? content.title + " | Panel Pixel" : "Panel Pixel");
     const description = content.seo_description || truncate(content.excerpt);
-    const image = content.image?.filename || SITE_URL + "/assets/images/og-default.png";
+    // Copertina ridimensionata a 1200x630 in JPEG: l'originale può superare
+    // di molto il limite di peso delle anteprime social.
+    const cover = content.image?.filename;
+    const image = cover
+      ? (/\.(svg|gif)$/i.test(cover) ? cover : cover + "/m/1200x630/filters:format(jpeg):quality(80)")
+      : SITE_URL + "/assets/images/og-default.png";
     const canonical = SITE_URL + "/articolo.html?slug=" + encodeURIComponent(slug);
 
     let html = await response.text();

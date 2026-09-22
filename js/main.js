@@ -82,7 +82,7 @@ function cardHTML(article) {
   return `
     <article class="card">
       <a class="card-media" href="${href}" aria-label="${article.title}">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
+        <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
       </a>
       <div class="card-body">
         <p class="card-category">${getCategoryName(article.category)}</p>
@@ -96,7 +96,7 @@ function heroMiniHTML(article) {
   return `
     <a class="hero-mini" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
       <div class="hero-mini-media">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
+        <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
       </div>
       <div class="hero-mini-body">
         <h2 class="hero-mini-title">${article.title}</h2>
@@ -110,7 +110,7 @@ function heroMainHTML(article) {
   return `
     <a class="hero-main" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
       <div class="hero-main-media">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
+        <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
         <span class="hero-main-tag">${getHeroTag(article)}</span>
       </div>
       <div class="hero-main-meta-row">
@@ -133,7 +133,7 @@ function heroSideHTML(article) {
   return `
     <a class="hero-side" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
       <div class="hero-side-media">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
+        <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
         <span class="hero-side-tag">${getHeroTag(article)}</span>
       </div>
       <h2 class="hero-side-title">${article.title}</h2>
@@ -152,7 +152,7 @@ function editorialStoryHTML(article, lead = false) {
   const safe = (value) => escapeHTML(String(value || "")).replace(/"/g, "&quot;");
   return `<article class="editorial-story${lead ? " editorial-story--lead" : ""}">
     <a class="editorial-image" href="${href}" aria-label="${safe(article.title)}">
-      <img src="${safe(article.image)}" alt="${safe(article.title)}" ${lead ? 'fetchpriority="high"' : 'loading="lazy"'}>
+      <img src="${safe(storyblokImageUrl(article.image, lead ? 1600 : 900))}" alt="${safe(article.title)}" ${lead ? 'fetchpriority="high"' : 'loading="lazy"'}>
     </a>
     <p class="editorial-category">${safe(getCategoryName(article.category))}</p>
     <h2 class="editorial-title"><a href="${href}">${safe(article.title)}</a></h2>
@@ -266,7 +266,7 @@ function searchResultHTML(article, query) {
 
   return `<article class="search-result-item">
     <a class="search-result-media" href="${href}" aria-label="${escapeHTML(article.title)}">
-      <img src="${escapeHTML(article.image)}" alt="" loading="lazy">
+      <img src="${escapeHTML(storyblokImageUrl(article.image, 600))}" alt="" loading="lazy">
     </a>
     <div class="search-result-copy">
       <p class="search-result-eyebrow"><span>${category}</span><time datetime="${escapeHTML(article.date)}">${formatDateIT(article.date)}</time></p>
@@ -441,7 +441,9 @@ function updateArticleSEO(article) {
   const seo = article.seo || {};
   const seoTitle = seo.seoTitle || article.seoTitle || `${article.title} | ${SITE.name}`;
   const seoDescription = seo.seoDescription || article.seoDescription || truncateForSEO(article.excerpt, 160);
-  const imageUrl = `${SITE.url}/${article.image.replace(/^\//, "")}`;
+  const imageUrl = /^https?:\/\//.test(article.image)
+    ? storyblokImageUrl(article.image, 1200, 630, "jpeg")
+    : `${SITE.url}/${article.image.replace(/^\//, "")}`;
   const pageUrl = `${SITE.url}/articolo.html?slug=${encodeURIComponent(article.slug)}`;
 
   document.title = seoTitle;
@@ -528,7 +530,7 @@ function renderContentBlocks(el, article) {
       }
       if (block.type === "image") {
         const caption = block.caption ? `<figcaption>${block.caption}</figcaption>` : "";
-        return `<figure class="article-inline-image"><img src="${block.src}" alt="${block.alt || article.title}" loading="lazy">${caption}</figure>`;
+        return `<figure class="article-inline-image"><img src="${storyblokImageUrl(block.src, 1400)}" alt="${block.alt || article.title}" loading="lazy">${caption}</figure>`;
       }
       if (block.type === "h2") {
         return `<h2 class="article-heading">${block.text}</h2>`;
@@ -697,7 +699,7 @@ function renderArticleLayout(article) {
 
   applyArticleTheme(article);
 
-  mediaEl.innerHTML = `<img src="${article.image}" alt="${article.title}" fetchpriority="high" decoding="async">`;
+  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}" alt="${article.title}" fetchpriority="high" decoding="async">`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";

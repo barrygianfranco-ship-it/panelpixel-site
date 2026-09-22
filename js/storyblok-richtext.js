@@ -103,7 +103,7 @@ function storyblokBlokToHtml(blokNode) {
         .map((img) => {
           const src = (img && img.filename) || "";
           const alt = (img && img.alt) || "";
-          return `<figure class="article-inline-image"><img src="${src}" alt="${alt}" loading="lazy"></figure>`;
+          return `<figure class="article-inline-image"><img src="${storyblokImageUrl(src, 1400)}" alt="${alt}" loading="lazy"></figure>`;
         })
         .join("");
       return `<div class="article-gallery">${items}</div>`;
@@ -126,7 +126,7 @@ function storyblokBlokToHtml(blokNode) {
       return (
         `<div class="article-columns3">` +
         `<div class="${leftCls}">${leftHtml}</div>` +
-        `<div class="${imgCls}"><img src="${src}" alt="${alt}" loading="lazy"></div>` +
+        `<div class="${imgCls}"><img src="${storyblokImageUrl(src, 800)}" alt="${alt}" loading="lazy"></div>` +
         `<div class="${rightCls}">${rightHtml}</div>` +
         `</div>`
       );
@@ -235,6 +235,22 @@ function loadTwitterWidgetsScript() {
   document.head.appendChild(script);
 }
 
+/* ---- Le immagini caricate su Storyblok arrivano alla risoluzione
+   originale (uno screenshot 4K in PNG pesa anche 16 MB). Il servizio
+   immagini di Storyblok le ridimensiona al volo: basta aggiungere
+   /m/<larghezza>x<altezza> all'URL (0 = proporzionale). SVG e GIF
+   restano originali, perché il servizio non li gestisce. ---- */
+function storyblokImageUrl(url, width, height, format) {
+  if (!/^https:\/\/a\.storyblok\.com\/f\//.test(url || "") || /\/m\//.test(url) || /\.(svg|gif)$/i.test(url)) {
+    return url || "";
+  }
+  // Gli URL recenti contengono le dimensioni originali (/f/<spazio>/<L>x<A>/):
+  // senza un'altezza fissa non ha senso ingrandire oltre l'originale.
+  const original = /\/f\/\d+\/(\d+)x\d+\//.exec(url);
+  if (original && !height) width = Math.min(width, Number(original[1]));
+  return `${url}/m/${width}x${height || 0}/filters:format(${format || "webp"}):quality(80)`;
+}
+
 /* ---- Rendering di un nodo "image" nativo di richtext (attrs.src/alt/
    title) → <figure> centrata. Riusata sia per i nodi image di primo
    livello (dentro corpo.content) sia per quelli annidati dentro un
@@ -249,7 +265,7 @@ function storyblokImageNodeToHtml(node) {
   const caption = title ? `<figcaption>${title}</figcaption>` : "";
   // Sempre centrata: il nodo image nativo non ha un campo per
   // destra/sinistra, vedi limite noto in cima al file.
-  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${src}" alt="${alt}" loading="lazy">${caption}</figure>`;
+  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${storyblokImageUrl(src, 1400)}" alt="${alt}" loading="lazy">${caption}</figure>`;
 }
 
 /* ---- Nodo singolo del documento richtext → HTML ---- */
