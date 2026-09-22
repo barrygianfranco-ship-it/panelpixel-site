@@ -83,7 +83,7 @@ const COMMENTS_CONFIG = {
    data/radar.json, dove ora vivono i dati veri. Riepilogo rapido:
    - category: deve corrispondere a uno slug in CATEGORIES qui sopra.
    - type: determina il TEMPLATE/layout della pagina articolo (vedi
-     renderArticleLayout in js/main.js). "recensione"/"monografia"/"notizia"
+     renderArticleLayout in js/main.js). "recensione"/"monografia"/"approfondimento"/"intervista"/"notizia"
      usano un array di blocchi ({ type: "h2"|"h3"|"p", text } oppure
      { type: "image", src, alt?, caption? }); "radar" usa un oggetto
      { intro, items } — vedi data/radar.json.

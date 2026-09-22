@@ -60,6 +60,8 @@ function getHeroTag(article) {
       return "Monografia";
     case "approfondimento":
       return "Approfondimento";
+    case "intervista":
+      return "Intervista";
     case "radar":
       return article.rubricName || "Radar";
     case "notizia":
@@ -500,6 +502,8 @@ function getArticleHeaderLabel(article) {
       return "Monografia";
     case "approfondimento":
       return "Approfondimento";
+    case "intervista":
+      return "Intervista";
     case "radar":
       return article.rubricName || "Radar";
     case "notizia":
