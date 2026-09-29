@@ -103,7 +103,7 @@ function storyblokBlokToHtml(blokNode) {
         .map((img) => {
           const src = (img && img.filename) || "";
           const alt = (img && img.alt) || "";
-          return `<figure class="article-inline-image"><img src="${storyblokImageUrl(src, 1400)}" alt="${alt}" loading="lazy"></figure>`;
+          return `<figure class="article-inline-image"><img src="${storyblokImageUrl(src, 1400)}"${storyblokImageAttrs(src, 1400)} alt="${alt}" loading="lazy"></figure>`;
         })
         .join("");
       return `<div class="article-gallery">${items}</div>`;
@@ -126,7 +126,7 @@ function storyblokBlokToHtml(blokNode) {
       return (
         `<div class="article-columns3">` +
         `<div class="${leftCls}">${leftHtml}</div>` +
-        `<div class="${imgCls}"><img src="${storyblokImageUrl(src, 800)}" alt="${alt}" loading="lazy"></div>` +
+        `<div class="${imgCls}"><img src="${storyblokImageUrl(src, 800)}"${storyblokImageAttrs(src, 800)} alt="${alt}" loading="lazy"></div>` +
         `<div class="${rightCls}">${rightHtml}</div>` +
         `</div>`
       );
@@ -240,6 +240,21 @@ function loadTwitterWidgetsScript() {
    immagini di Storyblok le ridimensiona al volo: basta aggiungere
    /m/<larghezza>x<altezza> all'URL (0 = proporzionale). SVG e GIF
    restano originali, perché il servizio non li gestisce. ---- */
+/* Dimensioni da scrivere nell'HTML: così il browser riserva lo spazio prima
+   ancora di scaricare l'immagine e il testo sotto non scivola mentre la pagina
+   si compone. Le ricava dalle misure originali che stanno nell'indirizzo di
+   Storyblok (/f/<spazio>/<larghezza>x<altezza>/). */
+function storyblokImageAttrs(url, width) {
+  const m = /\/f\/\d+\/(\d+)x(\d+)\//.exec(url || "");
+  if (!m) return "";
+  const ow = Number(m[1]);
+  const oh = Number(m[2]);
+  if (!ow || !oh) return "";
+  const w = Math.min(width, ow);
+  const h = Math.round((w * oh) / ow);
+  return ' width="' + w + '" height="' + h + '"';
+}
+
 function storyblokImageUrl(url, width, height, format) {
   if (!/^https:\/\/a\.storyblok\.com\/f\//.test(url || "") || /\/m\//.test(url) || /\.(svg|gif)$/i.test(url)) {
     return url || "";
@@ -265,7 +280,7 @@ function storyblokImageNodeToHtml(node) {
   const caption = title ? `<figcaption>${title}</figcaption>` : "";
   // Sempre centrata: il nodo image nativo non ha un campo per
   // destra/sinistra, vedi limite noto in cima al file.
-  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${storyblokImageUrl(src, 1400)}" alt="${alt}" loading="lazy">${caption}</figure>`;
+  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${storyblokImageUrl(src, 1400)}"${storyblokImageAttrs(src, 1400)} alt="${alt}" loading="lazy">${caption}</figure>`;
 }
 
 /* ---- Nodo singolo del documento richtext → HTML ---- */

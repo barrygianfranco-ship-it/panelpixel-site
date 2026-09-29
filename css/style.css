@@ -1038,6 +1038,7 @@ h1, h2, h3 {
 
 .article-inline-image img {
   width: 100%;
+  height: auto;
   display: block;
   border-radius: 2px;
 }
@@ -1179,6 +1180,7 @@ h1, h2, h3 {
 
 .article-columns3-col img {
   width: 100%;
+  height: auto;
   display: block;
   border-radius: 2px;
 }

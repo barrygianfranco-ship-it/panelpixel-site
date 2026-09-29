@@ -703,7 +703,7 @@ function renderArticleLayout(article) {
 
   applyArticleTheme(article);
 
-  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}" alt="${article.title}" fetchpriority="high" decoding="async">`;
+  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${article.title}" fetchpriority="high" decoding="async">`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";
