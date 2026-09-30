@@ -301,9 +301,13 @@ h1, h2, h3 {
   margin: 0 0 0.85rem;
 }
 
+/* Una riga sola, con altezza riservata anche da vuota: negli articoli il
+   percorso viene riempito da JS e, andando a capo con i titoli lunghi,
+   spingeva giù la pagina (CLS). Il titolo corrente si tronca con "…". */
 .breadcrumb-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-height: 1.55em;
   align-items: center;
   gap: 0.35rem;
   margin: 0;
@@ -335,7 +339,16 @@ h1, h2, h3 {
 }
 
 .breadcrumb-list li[aria-current="page"] {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--color-text);
+}
+
+.breadcrumb-list li:not([aria-current="page"]) {
+  flex-shrink: 0;
 }
 
 /* ---- Hero / pagina header ---- */
@@ -962,6 +975,18 @@ h1, h2, h3 {
      esattamente il comportamento di oggi, zero differenze visive. */
   background-color: var(--article-bg, transparent);
   color: var(--article-text, inherit);
+}
+
+/* Finché l'articolo non arriva da Storyblok, la parte bassa (commenti,
+   supporto) resta nascosta e il footer sta sotto la piega: altrimenti
+   comparivano subito e poi venivano spinti giù dal testo, ed era quel
+   salto a tenere il CLS in rosso. La classe la toglie renderArticlePage(). */
+.article-wrap.is-loading {
+  min-height: 100vh;
+}
+
+.article-wrap.is-loading .article-content-inner {
+  display: none;
 }
 
 .article-category {

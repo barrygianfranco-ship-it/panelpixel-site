@@ -154,7 +154,7 @@ function editorialStoryHTML(article, lead = false) {
   const safe = (value) => escapeHTML(String(value || "")).replace(/"/g, "&quot;");
   return `<article class="editorial-story${lead ? " editorial-story--lead" : ""}">
     <a class="editorial-image" href="${href}" aria-label="${safe(article.title)}">
-      <img src="${safe(storyblokImageUrl(article.image, lead ? 1600 : 900))}" alt="${safe(article.title)}" ${lead ? 'fetchpriority="high"' : 'loading="lazy"'}>
+      <img src="${safe(storyblokImageUrl(article.image, lead ? 1600 : 900))}"${storyblokImageAttrs(article.image, lead ? 1600 : 900)} alt="${safe(article.title)}" ${lead ? 'fetchpriority="high"' : 'loading="lazy"'}>
     </a>
     <p class="editorial-category">${safe(getCategoryName(article.category))}</p>
     <h2 class="editorial-title"><a href="${href}">${safe(article.title)}</a></h2>
@@ -870,6 +870,7 @@ function renderArticlePage() {
   if (!article) {
     container.innerHTML = `
       <p class="empty-state">Articolo non trovato. <a href="index.html">Torna alla home</a>.</p>`;
+    container.classList.remove("is-loading");
     return;
   }
 
@@ -882,6 +883,7 @@ function renderArticlePage() {
   renderArticleLayout(article);
   renderComments(article);
   renderReadNext(article);
+  container.classList.remove("is-loading");
 }
 
 function initHeader() {
@@ -1231,6 +1233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Impossibile caricare gli articoli:", err);
     showDataLoadError();
+    document.querySelector("main.is-loading")?.classList.remove("is-loading");
     await initStoryblokPreview();
     return;
   }
@@ -1243,5 +1246,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderArticlePage();
   renderAuthorPage();
   renderArchivePage();
+  // home: gli articoli sono al loro posto, si può mostrare il resto (vedi home.css)
+  document.querySelector("main.is-loading")?.classList.remove("is-loading");
   initStoryblokPreview();
 });

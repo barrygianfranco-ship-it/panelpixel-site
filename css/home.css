@@ -18,6 +18,15 @@
   .editorial-home .search-box { flex-basis: 190px; }
 }
 .editorial-lead { padding-top: 1.5rem; }
+/* Finché gli articoli non arrivano da Storyblok, "In evidenza" occupa una
+   schermata e il resto resta nascosto: altrimenti "Altre storie" e la
+   newsletter comparivano subito e venivano spinti giù (CLS). */
+.editorial-home main.is-loading #magazine-hero { min-height: 100vh; }
+.editorial-home main.is-loading #homepage-grid,
+.editorial-home main.is-loading .newsletter-panel { display: none; }
+/* Stesso principio per categorie e pagina autore: il footer resta sotto la piega. */
+.editorial-category-page main.is-loading { min-height: 100vh; }
+.editorial-author-page main.is-loading .author-articles-section { display: none; }
 .editorial-kicker { display: flex; align-items: center; gap: 1rem; margin: 0 0 1rem; color: var(--color-accent); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .2em; }
 .editorial-kicker::after { content: ""; flex: 1; height: 1px; background: var(--color-accent); opacity: .5; }
 .editorial-story { min-width: 0; }
