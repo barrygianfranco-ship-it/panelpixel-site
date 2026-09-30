@@ -103,20 +103,41 @@
         <h3>Video verticali</h3>
         <p>Reel brevi: una recensione in 45 secondi, tre cose da sapere su un gioco, le uscite della settimana. Non devi per forza metterci la faccia. Contano il montaggio, il ritmo e la voce.</p>
 
-        <h2>Come candidarti</h2>
-        <p>Scrivi a <a href="mailto:redazione@panelpixel.it?subject=Collabora%20con%20noi">redazione@panelpixel.it</a> con oggetto «Collabora con noi» e il ruolo che ti interessa. Nel messaggio mettici:</p>
+        <h2 id="candidatura">Come candidarti</h2>
+        <p>Compila il modulo qui sotto. Oltre a due righe su di te, ti chiediamo una proposta concreta, con la data in cui pensi di consegnarla:</p>
         <ul>
-          <li>due righe su di te e su quello che ti appassiona;</li>
-          <li>un link a qualcosa che hai già fatto, se ce l'hai (non è obbligatorio);</li>
-          <li>una proposta concreta, con la data in cui pensi di consegnarla:
-            <ul>
-              <li>se scrivi, l'argomento di un primo pezzo e come lo affronteresti;</li>
-              <li>se ti occupi di social, il piano di una settimana di post e storie per un nostro articolo già uscito;</li>
-              <li>se fai video, un reel di 30 secondi su un nostro articolo già uscito.</li>
-            </ul>
-          </li>
+          <li>se scrivi, l'argomento di un primo pezzo e come lo affronteresti;</li>
+          <li>se ti occupi di social, il piano di una settimana di post e storie per un nostro articolo già uscito;</li>
+          <li>se fai video, un reel di 30 secondi su un nostro articolo già uscito.</li>
         </ul>
-        <p>Rispondiamo a tutti, di solito entro pochi giorni.</p>
+
+        <form class="collabora-form" name="candidature" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/candidatura-ricevuta.html">
+          <input type="hidden" name="form-name" value="candidature">
+          <p class="visually-hidden"><label>Non compilare: <input name="bot-field"></label></p>
+
+          <div class="collabora-form-row">
+            <label>Nome e cognome<input type="text" name="nome" autocomplete="name" required></label>
+            <label>Email<input type="email" name="email" autocomplete="email" required></label>
+          </div>
+          <label>Ruolo
+            <select name="ruolo" required>
+              <option value="">Scegli un ruolo</option>
+              <option>Redazione</option>
+              <option>Social media</option>
+              <option>Video verticali</option>
+            </select>
+          </label>
+          <label>Chi sei<textarea name="presentazione" rows="4" placeholder="Due righe su di te e su quello che ti appassiona" required></textarea></label>
+          <label>La tua proposta<textarea name="proposta" rows="5" placeholder="Un primo pezzo, una settimana di storie o un reel di 30 secondi" required></textarea></label>
+          <div class="collabora-form-row">
+            <label>Entro quando la consegni<input type="date" name="consegna" required></label>
+            <label><span>Un tuo lavoro <em>(facoltativo)</em></span><input type="text" name="link" inputmode="url" placeholder="Link a un articolo, un profilo, un video"></label>
+          </div>
+          <label class="collabora-form-consent"><input type="checkbox" name="privacy" required><span>Ho letto la <a href="privacy.html">Privacy Policy</a> e acconsento all'uso di questi dati per valutare la mia candidatura.</span></label>
+          <button type="submit">Invia la candidatura</button>
+        </form>
+
+        <p>Rispondiamo a tutti, di solito entro pochi giorni. Se preferisci l'email, scrivi a <a href="mailto:redazione@panelpixel.it">redazione@panelpixel.it</a> con oggetto «Collabora con noi».</p>
 
         <h2>Come lavoriamo</h2>
         <p>Non chiediamo un numero fisso di pezzi al mese. Ti chiediamo solo di darci una data e di rispettarla, o di avvisarci se non ci riesci. Si lavora a distanza, perché la redazione è sparsa per l'Italia.</p>
@@ -135,7 +156,7 @@
           <dt>Tempi</dt>
           <dd>Le date le proponi tu</dd>
         </dl>
-        <a class="collabora-cta" href="mailto:redazione@panelpixel.it?subject=Collabora%20con%20noi">Candidati</a>
+        <a class="collabora-cta" href="#candidatura">Candidati</a>
       </aside>
     </div>
   </main>
