@@ -93,6 +93,15 @@
 .editorial-about .about-collaborators-title { font-size:1.25rem; }
 .editorial-about .about-collaborator { padding-bottom:1rem; border-bottom:1px solid var(--color-border); }
 .editorial-about .about-collaborator:last-child { padding-bottom:0; border-bottom:0; }
+/* Collabora con noi: stessa impaginazione di "Chi siamo", con ruoli, elenchi e un riquadro riassuntivo. */
+.editorial-about .about-text h3 { font-size:1.25rem; margin:1.75rem 0 .5rem; }
+.editorial-about .about-text ul { margin:0 0 1.25rem; padding-left:1.2rem; font-family:var(--font-serif); font-size:1.12rem; line-height:1.75; }
+.editorial-about .about-text ul ul { margin:.25rem 0 0; }
+.collabora-summary dl { margin:0 0 1.5rem; }
+.collabora-summary dt { margin-top:.9rem; font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--color-muted); }
+.collabora-summary dd { margin:.15rem 0 0; font-family:var(--font-serif); }
+.collabora-cta { display:block; min-height:48px; padding:.8rem 1rem; background:var(--color-text); color:var(--color-bg); font-weight:700; text-align:center; text-decoration:none; }
+.collabora-cta:hover { background:var(--color-accent); }
 .editorial-home [hidden] { display: none !important; }
 .editorial-home a:focus-visible, .editorial-home button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
 /* Pagina autore: ritratto editoriale e archivio coerente con la home. */
