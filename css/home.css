@@ -11,6 +11,12 @@
 .editorial-home .primary-nav .nav-link, .editorial-category-page .primary-nav .nav-link, .editorial-article-page .primary-nav .nav-link { font-family: var(--font-serif); text-transform: none; letter-spacing: .01em; font-weight: 600; font-size: 1rem; color: var(--color-text); line-height: 1.25; }
 .editorial-home .search-box { flex: 0 1 220px; min-width: 0; max-width: 100%; }
 .editorial-home .search-input { width: 100%; min-width: 0; }
+/* Con la voce "Collabora" il menu è più lungo: tra 800 e 1199px stringiamo
+   un po' gli spazi, così voci e ricerca restano su una riga sola. */
+@media (min-width: 800px) and (max-width: 1199px) {
+  .editorial-home .primary-nav, .editorial-category-page .primary-nav, .editorial-article-page .primary-nav { gap: 1rem; }
+  .editorial-home .search-box { flex-basis: 190px; }
+}
 .editorial-lead { padding-top: 1.5rem; }
 .editorial-kicker { display: flex; align-items: center; gap: 1rem; margin: 0 0 1rem; color: var(--color-accent); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .2em; }
 .editorial-kicker::after { content: ""; flex: 1; height: 1px; background: var(--color-accent); opacity: .5; }
