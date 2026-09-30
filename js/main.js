@@ -685,13 +685,18 @@ function applyArticleTheme(article) {
   wrapEl.style.removeProperty("--article-bg");
   wrapEl.style.removeProperty("--article-accent");
   wrapEl.style.removeProperty("--article-text");
+  wrapEl.style.removeProperty("--article-muted");
 
   const theme = article.theme;
   if (!theme) return;
 
   if (theme.background) wrapEl.style.setProperty("--article-bg", theme.background);
   if (theme.accent) wrapEl.style.setProperty("--article-accent", theme.accent);
-  if (theme.testoChiaro) wrapEl.style.setProperty("--article-text", "var(--color-bg)");
+  if (theme.testoChiaro) {
+    wrapEl.style.setProperty("--article-text", "var(--color-bg)");
+    // Firma, data, didascalie: il grigio normale sui fondi scuri non si legge.
+    wrapEl.style.setProperty("--article-muted", "rgba(250, 248, 245, 0.72)");
+  }
 }
 
 function renderArticleLayout(article) {
