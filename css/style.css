@@ -1473,6 +1473,238 @@ h1, h2, h3 {
 .article-pullquote::before { content: "“"; position: absolute; top: -0.65rem; left: 0.55rem; font-family: var(--font-serif); font-size: 5rem; line-height: 1; color: color-mix(in srgb, var(--article-accent, var(--color-accent)) 24%, transparent); }
 .article-pullquote blockquote { position: relative; margin: 0; font-family: var(--font-serif); font-size: clamp(1.55rem, 3vw, 2.35rem); font-weight: 600; line-height: 1.22; text-align: left; }
 .article-pullquote cite { display: block; margin-top: 1rem; font-family: var(--font-sans); font-size: 0.78rem; font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--article-muted, var(--color-muted)); }
+
+/* ---- Impaginazione "tavola": l'articolo come una pagina a fumetti ----
+   Si attiva dal campo "impaginazione" in Storyblok (classe .layout-tavola,
+   vedi applyArticleLayout in js/main.js) e riveste i pezzi che esistono già:
+   copertina, titoletti, citazione, evidenziatore, galleria. Colori dal tema
+   dell'articolo: --article-accent (principale), --article-accent-2 (ombre ed
+   evidenziatore), --article-accent-3 (sottotitolo dell'opera e citazioni).
+   Bordi in currentColor, così funzionano anche sui temi scuri. */
+.layout-tavola .article-media {
+  position: relative;
+  margin-bottom: 3rem;
+  border: 3px solid currentColor;
+  box-shadow: 10px 10px 0 var(--article-accent-2, var(--color-accent));
+}
+
+.layout-tavola .article-media img {
+  border-radius: 0;
+}
+
+.tavola-cover-box {
+  position: absolute;
+  left: -3px;
+  bottom: -3px;
+  max-width: min(78%, 640px);
+  padding: 1rem 1.4rem 0.9rem;
+  background: var(--article-bg, var(--color-bg-alt));
+  border: 3px solid currentColor;
+}
+
+.tavola-cover-line1 {
+  margin: 0;
+  font: 800 clamp(1.5rem, 4.6vw, 3.5rem) / 0.95 var(--font-serif);
+  text-transform: uppercase;
+  color: var(--article-accent, var(--color-text));
+}
+
+.tavola-cover-line2 {
+  margin: 0.45rem 0 0;
+  font: 800 clamp(0.8rem, 1.6vw, 1.3rem) / 1 var(--font-sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--article-accent-3, var(--color-accent));
+}
+
+.layout-tavola .article-header {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.layout-tavola .article-title {
+  text-transform: none;
+  font-weight: 800;
+  color: inherit;
+}
+
+.layout-tavola .article-subtitle {
+  margin-inline: auto;
+  max-width: 760px;
+  font-family: var(--font-serif);
+}
+
+/* colonna di lettura centrata; le gallerie escono ai lati (più sotto) */
+.layout-tavola .article-toc,
+.layout-tavola .article-body,
+.layout-tavola .article-footer-meta {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* sezioni numerate: 01, 02… nel quadrato del colore principale, con la
+   fascia del motivo sopra il titoletto */
+.layout-tavola .article-body {
+  counter-reset: tavola-sezione;
+}
+
+.layout-tavola .article-body > h2.article-heading {
+  counter-increment: tavola-sezione;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 3.4rem 0 1.2rem;
+  padding-top: 2.1rem;
+  border-top: 2px solid currentColor;
+  background: var(--tavola-pattern, none) 0 0 / 14px 14px repeat-x;
+  font-size: clamp(1.45rem, 2.6vw, 1.9rem);
+  line-height: 1.15;
+}
+
+.layout-tavola .article-body > h2.article-heading::before {
+  content: counter(tavola-sezione, decimal-leading-zero);
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  background: var(--article-accent, var(--color-text));
+  color: var(--article-bg, var(--color-bg));
+  font: 800 1rem / 1 var(--font-sans);
+  letter-spacing: 0.04em;
+}
+
+/* frasi chiave: evidenziatore, non grassetto colorato */
+.layout-tavola .article-highlight {
+  color: inherit;
+  font-weight: 600;
+  background: linear-gradient(transparent 58%, color-mix(in srgb, var(--article-accent-2, var(--color-accent)) 45%, transparent) 58%);
+}
+
+/* citazione: box da didascalia di fumetto */
+.layout-tavola .article-pullquote {
+  margin: 2.5rem -1.75rem;
+  padding: 1.2rem 1.4rem;
+  border: 3px solid currentColor;
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+  box-shadow: 6px 6px 0 var(--article-accent-3, var(--article-accent, var(--color-accent)));
+}
+
+.layout-tavola .article-pullquote::before {
+  content: none;
+}
+
+.layout-tavola .article-pullquote blockquote {
+  font-size: clamp(1.2rem, 2.3vw, 1.55rem);
+  font-style: italic;
+}
+
+/* gallerie: vignette con bordo e spazi bianchi, più larghe del testo */
+.layout-tavola .article-body .article-gallery {
+  width: min(1100px, calc(100vw - 2.5rem));
+  margin: 2.5rem 0 2.5rem 50%;
+  transform: translateX(-50%);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.layout-tavola .article-gallery .article-inline-image {
+  position: relative;
+  grid-column: span 3;
+  border: 3px solid currentColor;
+}
+
+.layout-tavola .article-gallery .article-inline-image:only-child {
+  grid-column: 1 / -1;
+}
+
+.layout-tavola .article-gallery .article-inline-image:first-child:nth-last-child(3),
+.layout-tavola .article-gallery .article-inline-image:first-child:nth-last-child(3) ~ .article-inline-image {
+  grid-column: span 2;
+}
+
+.layout-tavola .article-gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
+.layout-tavola .article-gallery figcaption {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  max-width: 85%;
+  margin: 0;
+  padding: 0.3rem 0.65rem;
+  border: 3px solid var(--color-text);
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+  font: 600 0.8rem / 1.35 var(--font-sans);
+  text-align: left;
+}
+
+/* avviso prima della parte spoiler */
+.tavola-stop {
+  margin: 3.5rem 0 0;
+  padding: 1.1rem 1.4rem;
+  border: 3px solid var(--color-text);
+  background: var(--article-accent, var(--color-text));
+  color: #fff;
+  box-shadow: 8px 8px 0 var(--color-accent);
+}
+
+.article-body .tavola-stop p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  text-align: left;
+  color: #fff;
+}
+
+.article-body .tavola-stop .tavola-stop-kicker {
+  margin-bottom: 0.3rem;
+  font: 800 0.78rem / 1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--article-accent-2, #f1c45a);
+}
+
+.layout-tavola .tavola-stop + h2.article-heading {
+  margin-top: 2rem;
+}
+
+@media (max-width: 640px) {
+  .layout-tavola .article-media {
+    box-shadow: 6px 6px 0 var(--article-accent-2, var(--color-accent));
+  }
+
+  /* sul telefono la copertina è bassa: il riquadro col nome dell'opera
+     va sotto l'immagine, come una striscia della stessa vignetta,
+     invece di coprirla quasi tutta */
+  .tavola-cover-box {
+    position: static;
+    max-width: none;
+    padding: 0.7rem 0.9rem 0.6rem;
+    border-width: 3px 0 0;
+  }
+
+  .layout-tavola .article-pullquote {
+    margin: 2rem 0;
+  }
+
+  .layout-tavola .article-body .article-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .layout-tavola .article-gallery .article-inline-image {
+    grid-column: auto !important;
+  }
+}
 @media (max-width: 680px) {
   .article-work-card { grid-template-columns: 1fr; }
   .article-work-card-heading { border-right: 0; border-bottom: 1px solid var(--color-border); }

@@ -686,17 +686,73 @@ function applyArticleTheme(article) {
   wrapEl.style.removeProperty("--article-accent");
   wrapEl.style.removeProperty("--article-text");
   wrapEl.style.removeProperty("--article-muted");
+  wrapEl.style.removeProperty("--article-accent-2");
+  wrapEl.style.removeProperty("--article-accent-3");
 
   const theme = article.theme;
   if (!theme) return;
 
   if (theme.background) wrapEl.style.setProperty("--article-bg", theme.background);
   if (theme.accent) wrapEl.style.setProperty("--article-accent", theme.accent);
+  if (theme.accent2) wrapEl.style.setProperty("--article-accent-2", theme.accent2);
+  if (theme.accent3) wrapEl.style.setProperty("--article-accent-3", theme.accent3);
   if (theme.testoChiaro) {
     wrapEl.style.setProperty("--article-text", "var(--color-bg)");
     // Firma, data, didascalie: il grigio normale sui fondi scuri non si legge.
     wrapEl.style.setProperty("--article-muted", "rgba(250, 248, 245, 0.72)");
   }
+}
+
+/* ---- Impaginazione "tavola": l'articolo impaginato come una pagina a
+   fumetti (vedi la sezione omonima in css/style.css). Qui solo ciò che il
+   CSS non può fare da solo: la classe sul contenitore, il motivo delle
+   fasce tra le sezioni (un SVG con i colori del tema), il riquadro con il
+   nome dell'opera sulla copertina e l'avviso prima della parte spoiler. ---- */
+function tavolaPatternUrl(name, theme) {
+  const t = theme || {};
+  const hex = (value, fallback) => (/^#[0-9a-f]{3,8}$/i.test(String(value || "").trim()) ? String(value).trim() : fallback);
+  const c1 = hex(t.accent, "#1a1a1a");
+  const c2 = hex(t.accent2, "#b23a2e");
+  const c3 = hex(t.accent3, "#faf8f5");
+  let svg = "";
+  if (name === "persiano") {
+    // stella a otto punte: due quadrati ruotati, con un tondo al centro
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><rect width='24' height='24' fill='${c1}'/><g transform='translate(12 12)'><rect x='-6' y='-6' width='12' height='12' fill='${c2}'/><rect x='-6' y='-6' width='12' height='12' fill='${c2}' transform='rotate(45)'/><circle r='2.6' fill='${c3}'/></g></svg>`;
+  } else if (name !== "nessuno") {
+    // "pixel" (predefinito): i quadrati del logo di Panel Pixel
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><rect width='24' height='24' fill='${c3}'/><rect x='2' y='2' width='9' height='9' fill='${c1}'/><rect x='13' y='13' width='9' height='9' fill='${c1}'/><rect x='15' y='4' width='5' height='5' fill='${c2}'/></svg>`;
+  }
+  if (!svg) return "";
+  return `url('data:image/svg+xml;utf8,${encodeURIComponent(svg).replace(/'/g, "%27")}')`;
+}
+
+function applyArticleLayout(article) {
+  const wrapEl = document.getElementById("article-content");
+  if (!wrapEl) return;
+  const tavola = article.layout === "tavola";
+  wrapEl.classList.toggle("layout-tavola", tavola);
+  wrapEl.style.removeProperty("--tavola-pattern");
+  if (!tavola) return;
+  const pattern = tavolaPatternUrl(article.pattern, article.theme);
+  if (pattern) wrapEl.style.setProperty("--tavola-pattern", pattern);
+}
+
+function tavolaCoverBoxHTML(article) {
+  const m = article.masthead || {};
+  if (article.layout !== "tavola" || !m.line1) return "";
+  const line2 = m.line2 ? `<p class="tavola-cover-line2">${escapeHTML(m.line2)}</p>` : "";
+  return `<div class="tavola-cover-box"><p class="tavola-cover-line1">${escapeHTML(m.line1)}</p>${line2}</div>`;
+}
+
+// Prima del titoletto che contiene "spoiler" mette un avviso ben visibile.
+function renderTavolaSpoilerNotice(bodyEl) {
+  const heading = Array.from(bodyEl.querySelectorAll(":scope > h2")).find((h) => /spoiler/i.test(h.textContent));
+  if (!heading) return;
+  const notice = document.createElement("div");
+  notice.className = "tavola-stop";
+  notice.setAttribute("role", "note");
+  notice.innerHTML = `<p class="tavola-stop-kicker">Attenzione</p><p>Da qui in poi si parla del finale. Se non l'hai finito, fermati qui.</p>`;
+  heading.before(notice);
 }
 
 function renderArticleLayout(article) {
@@ -707,8 +763,9 @@ function renderArticleLayout(article) {
   const footerMetaEl = document.getElementById("article-footer-meta");
 
   applyArticleTheme(article);
+  applyArticleLayout(article);
 
-  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${article.title}" fetchpriority="high" decoding="async">`;
+  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${article.title}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";
@@ -735,6 +792,7 @@ function renderArticleLayout(article) {
       break;
   }
 
+  if (article.layout === "tavola") renderTavolaSpoilerNotice(bodyEl);
   renderArticleToc(bodyEl);
   renderArticleFooterMeta(footerMetaEl, article);
   renderSupportBox(article);

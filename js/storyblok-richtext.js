@@ -103,7 +103,9 @@ function storyblokBlokToHtml(blokNode) {
         .map((img) => {
           const src = (img && img.filename) || "";
           const alt = (img && img.alt) || "";
-          return `<figure class="article-inline-image"><img src="${storyblokImageUrl(src, 1400)}"${storyblokImageAttrs(src, 1400)} alt="${alt}" loading="lazy"></figure>`;
+          // Didascalia dal campo "Titolo/Didascalia" della risorsa, se compilato.
+          const caption = img && img.title ? `<figcaption>${img.title}</figcaption>` : "";
+          return `<figure class="article-inline-image"><img src="${storyblokImageUrl(src, 1400)}"${storyblokImageAttrs(src, 1400)} alt="${alt}" loading="lazy">${caption}</figure>`;
         })
         .join("");
       return `<div class="article-gallery">${items}</div>`;
@@ -355,6 +357,9 @@ function adaptStoryblokStory(story) {
       ? {
           background: c.tema[0].background || "",
           accent: c.tema[0].accent || "",
+          // secondo e terzo colore: usati dall'impaginazione "tavola"
+          accent2: c.tema[0].accento_2 || "",
+          accent3: c.tema[0].accento_3 || "",
           testoChiaro: !!c.tema[0].testo_chiaro,
         }
       : undefined;
@@ -371,6 +376,14 @@ function adaptStoryblokStory(story) {
     imageAlt: (c.image && (c.image.alt || c.image.title)) || "",
     featured: !!c.featured,
     theme: theme,
+    // Impaginazione "tavola" (pagina a fumetti): copertina-vignetta con il
+    // nome dell'opera, sezioni numerate, vignette. Vedi applyArticleLayout.
+    layout: c.impaginazione === "tavola" ? "tavola" : "standard",
+    masthead: {
+      line1: String(c.testata_titolo || "").trim(),
+      line2: String(c.testata_sottotitolo || "").trim(),
+    },
+    pattern: c.motivo || "",
     triedOn: c.tried_on || "",
     seoTitle: c.seo_title || "",
     seoDescription: c.seo_description || "",
