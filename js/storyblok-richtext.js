@@ -348,6 +348,27 @@ function storyblokRichtextToHtml(doc) {
   return doc.content.map(storyblokNodeToHtml).join("");
 }
 
+/* ---- Crediti delle immagini: campi Copyright e Fonte delle risorse
+   (copertina, gallerie, colonne del corpo), senza doppioni. Mostrati in
+   fondo all'articolo da renderArticleFooterMeta in js/main.js. ---- */
+function storyblokImageCredits(content) {
+  const owners = [];
+  const sources = [];
+  const add = (list, value) => {
+    const text = String(value || "").trim().replace(/\.$/, "");
+    if (text && !list.includes(text)) list.push(text);
+  };
+  (function walk(node) {
+    if (!node || typeof node !== "object") return;
+    if (typeof node.filename === "string" && node.filename) {
+      add(owners, node.copyright);
+      add(sources, node.source);
+    }
+    for (const value of Object.values(node)) walk(value);
+  })([content.image, content.corpo]);
+  return { owners, sources };
+}
+
 /* ---- Adatta una story Storyblok alla forma che js/main.js si aspettava
    da un articolo di data/articles.json ---- */
 function adaptStoryblokStory(story) {
@@ -374,6 +395,7 @@ function adaptStoryblokStory(story) {
     date: c.date,
     image: (c.image && c.image.filename) || "",
     imageAlt: (c.image && (c.image.alt || c.image.title)) || "",
+    imageCredits: storyblokImageCredits(c),
     featured: !!c.featured,
     theme: theme,
     // Impaginazione "tavola" (pagina a fumetti): copertina-vignetta con il

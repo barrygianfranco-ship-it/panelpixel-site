@@ -633,6 +633,23 @@ function renderRadarList(el, article) {
     .join("");
 }
 
+// «Immagini: © Ubisoft. Fonte: Kit stampa Ubisoft.» Una fonte che è un URL
+// diventa un link con il solo dominio.
+function imageCreditsHTML(credits) {
+  if (!credits) return "";
+  const source = (value) => {
+    if (!/^https?:\/\//.test(value)) return escapeHTML(value);
+    let label = value;
+    try { label = new URL(value).hostname.replace(/^www\./, ""); } catch (_) {}
+    return `<a href="${escapeHTML(value).replace(/"/g, "&quot;")}" target="_blank" rel="noopener">${escapeHTML(label)}</a>`;
+  };
+  const owners = credits.owners.map(escapeHTML).join("; ");
+  const sources = credits.sources.map(source).join("; ");
+  if (owners) return `<p class="article-credits">Immagini: ${owners}.${sources ? ` Fonte: ${sources}.` : ""}</p>`;
+  if (sources) return `<p class="article-credits">Fonte delle immagini: ${sources}.</p>`;
+  return "";
+}
+
 function renderArticleFooterMeta(el, article) {
   const parts = [
     `Pubblicato il <time datetime="${article.date}">${formatDateIT(article.date)}</time>`,
@@ -641,7 +658,7 @@ function renderArticleFooterMeta(el, article) {
   if (article.triedOn) parts.push(`Provato su ${article.triedOn}`);
   const keywords = getSeoKeywords(article);
   const paths = keywords.length ? `<div class="article-paths"><span>In questo percorso</span>${keywords.slice(0, 5).map((keyword) => `<a href="archivio.html?q=${encodeURIComponent(keyword)}">${escapeHTML(keyword)}</a>`).join("")}</div>` : "";
-  el.innerHTML = `<p>${parts.join(" · ")}</p>${paths}`;
+  el.innerHTML = `<p>${parts.join(" · ")}</p>${imageCreditsHTML(article.imageCredits)}${paths}`;
 }
 
 function renderSupportBox(article) {
