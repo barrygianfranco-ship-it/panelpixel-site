@@ -735,6 +735,12 @@ function tavolaPatternUrl(name, theme) {
   if (name === "persiano") {
     // stella a otto punte: due quadrati ruotati, con un tondo al centro
     svg = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><rect width='24' height='24' fill='${c1}'/><g transform='translate(12 12)'><rect x='-6' y='-6' width='12' height='12' fill='${c2}'/><rect x='-6' y='-6' width='12' height='12' fill='${c2}' transform='rotate(45)'/><circle r='2.6' fill='${c3}'/></g></svg>`;
+  } else if (name === "onde") {
+    // seigaiha (青海波): file di onde concentriche, ogni fila copre metà della precedente
+    const bg = hex(t.background, "#faf8f5");
+    const wave = t.accent3 ? c3 : c1;
+    const scale = (x, y) => [14, 10.5, 7, 3.5].map((r) => `<circle cx='${x}' cy='${y}' r='${r}' fill='${bg}' stroke='${wave}' stroke-width='1.2'/>`).join("");
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'><rect width='28' height='14' fill='${bg}'/>${scale(0, -7)}${scale(28, -7)}${scale(14, 0)}${scale(0, 7)}${scale(28, 7)}${scale(14, 14)}</svg>`;
   } else if (name !== "nessuno") {
     // "pixel" (predefinito): i quadrati del logo di Panel Pixel
     svg = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><rect width='24' height='24' fill='${c3}'/><rect x='2' y='2' width='9' height='9' fill='${c1}'/><rect x='13' y='13' width='9' height='9' fill='${c1}'/><rect x='15' y='4' width='5' height='5' fill='${c2}'/></svg>`;
@@ -749,9 +755,39 @@ function applyArticleLayout(article) {
   const tavola = article.layout === "tavola";
   wrapEl.classList.toggle("layout-tavola", tavola);
   wrapEl.style.removeProperty("--tavola-pattern");
+  wrapEl.style.removeProperty("--tavola-pattern-size");
   if (!tavola) return;
   const pattern = tavolaPatternUrl(article.pattern, article.theme);
   if (pattern) wrapEl.style.setProperty("--tavola-pattern", pattern);
+  // le onde hanno un modulo largo il doppio dell'altezza
+  if (article.pattern === "onde") wrapEl.style.setProperty("--tavola-pattern-size", "28px 14px");
+}
+
+// Racchiude ideogrammi e kana in <span lang="ja">: il browser sceglie così
+// le forme giapponesi dei caratteri (non quelle cinesi) e un font mincho.
+function markJapaneseText(root) {
+  const japanese = /[　-ヿ㐀-鿿豈-﫿ｦ-ﾟ]+/g;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => (node.parentElement.closest(".jp, script, style") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+  });
+  const nodes = [];
+  while (walker.nextNode()) if (/[　-ヿ㐀-鿿豈-﫿ｦ-ﾟ]/.test(walker.currentNode.nodeValue)) nodes.push(walker.currentNode);
+  for (const node of nodes) {
+    const fragment = document.createDocumentFragment();
+    let last = 0;
+    node.nodeValue.replace(japanese, (match, offset) => {
+      if (offset > last) fragment.append(node.nodeValue.slice(last, offset));
+      const span = document.createElement("span");
+      span.className = "jp";
+      span.lang = "ja";
+      span.textContent = match;
+      fragment.append(span);
+      last = offset + match.length;
+      return match;
+    });
+    if (last < node.nodeValue.length) fragment.append(node.nodeValue.slice(last));
+    node.replaceWith(fragment);
+  }
 }
 
 function tavolaCoverBoxHTML(article) {
@@ -810,6 +846,7 @@ function renderArticleLayout(article) {
   }
 
   if (article.layout === "tavola") renderTavolaSpoilerNotice(bodyEl);
+  markJapaneseText(bodyEl);
   renderArticleToc(bodyEl);
   renderArticleFooterMeta(footerMetaEl, article);
   renderSupportBox(article);

@@ -1558,7 +1558,7 @@ h1, h2, h3 {
   margin: 3.4rem 0 1.2rem;
   padding-top: 2.1rem;
   border-top: 2px solid currentColor;
-  background: var(--tavola-pattern, none) 0 0 / 14px 14px repeat-x;
+  background: var(--tavola-pattern, none) 0 0 / var(--tavola-pattern-size, 14px 14px) repeat-x;
   font-size: clamp(1.45rem, 2.6vw, 1.9rem);
   line-height: 1.15;
 }
@@ -2078,6 +2078,8 @@ main {
 @media (max-width: 900px) { .archive-controls { grid-template-columns: repeat(2, 1fr); } .archive-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .archive-controls, .archive-grid { grid-template-columns: 1fr; } }
 
+/* termini giapponesi nel corpo (vedi markJapaneseText in js/main.js) */
+.jp { font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP", serif; font-style: normal; font-size: 0.94em; letter-spacing: 0.04em; white-space: nowrap; }
 .article-credits { margin: .35rem 0 0; font-size: .78rem; }
 .article-credits a { color: inherit; }
 .article-paths { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: 1rem; }
