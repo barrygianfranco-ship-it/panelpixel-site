@@ -117,7 +117,7 @@
 
           <div class="collabora-form-row">
             <label>Nome e cognome<input type="text" name="nome" autocomplete="name" required></label>
-            <label>Email<input type="email" name="email" autocomplete="email" required></label>
+            <label>Email<input type="email" name="email" autocomplete="email" maxlength="120" pattern="[A-Za-z0-9._%+\-]+@([A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]\.)+[A-Za-z]{2,}" title="Inserisci un indirizzo email completo, per esempio nome@email.it" required></label>
           </div>
           <label>Ruolo
             <select name="ruolo" required>

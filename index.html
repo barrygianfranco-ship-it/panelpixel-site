@@ -101,7 +101,7 @@
         <p class="visually-hidden"><label>Non compilare: <input name="bot-field"></label></p>
         <label for="newsletter-email">Indirizzo email</label>
         <div class="newsletter-fields">
-          <input id="newsletter-email" name="email" type="email" autocomplete="email" placeholder="nome@email.it" required>
+          <input id="newsletter-email" name="email" type="email" autocomplete="email" placeholder="nome@email.it" maxlength="120" pattern="[A-Za-z0-9._%+\-]+@([A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]\.)+[A-Za-z]{2,}" title="Inserisci un indirizzo email completo, per esempio nome@email.it" required>
           <button type="submit">Iscriviti</button>
         </div>
         <label class="newsletter-consent"><input type="checkbox" name="privacy" required> Ho letto la <a href="privacy.html">Privacy Policy</a> e acconsento a ricevere la newsletter.</label>
