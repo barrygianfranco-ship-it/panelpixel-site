@@ -29,6 +29,13 @@ const AUTHORS = [
     photo: "assets/images/pietro-ciuffreda.jpg",
     bio: "Sono Pietro Ciuffreda, studente di Informatica e appassionato di design, videogiochi, anime, fumetti, cinema e musica. In Panel Pixel mi occupo della parte grafica e della comunicazione visiva del progetto, cercando di costruire un linguaggio riconoscibile e coerente con l'identità della rivista. Ogni tanto contribuisco anche con articoli e riflessioni sulla cultura pop.",
   },
+  {
+    slug: "graziano-ferilli",
+    name: "Graziano Ferilli",
+    role: "Videogiochi",
+    photo: "assets/images/graziano-ferilli.jpg",
+    bio: "Classe 1995, videogiocatore da tempo immemore. Il mio primo gioco è stato Pokémon Blu, come per tanti della mia generazione, ma quello che pareva essere un semplice passatempo è presto diventato passione di una vita. Laureato in traduzione, lavoro per diventare localizzatore di videogiochi.",
+  },
 ];
 
 function getAuthorBySlug(slug) {
