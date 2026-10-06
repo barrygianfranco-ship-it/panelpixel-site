@@ -13,6 +13,9 @@
    - photo: percorso relativo in assets/images/ — stessa convenzione
      già in uso (assets/images/nome-cognome.jpg)
    - bio: testo libero, una o più frasi
+   - links: facoltativo, elenco di { label, url } mostrato sotto la bio
+     (profili social, canale, sito personale). Solo indirizzi che la
+     persona ha scelto di rendere pubblici.
 ---- */
 const AUTHORS = [
   {
@@ -35,6 +38,7 @@ const AUTHORS = [
     role: "Videogiochi",
     photo: "assets/images/graziano-ferilli.jpg",
     bio: "Classe 1995, videogiocatore da tempo immemore. Il mio primo gioco è stato Pokémon Blu, come per tanti della mia generazione, ma quello che pareva essere un semplice passatempo è presto diventato passione di una vita. Laureato in traduzione, lavoro per diventare localizzatore di videogiochi.",
+    links: [{ label: "YouTube", url: "https://www.youtube.com/@Akio_TheCouch" }],
   },
 ];
 

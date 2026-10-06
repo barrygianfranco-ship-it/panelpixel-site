@@ -1239,6 +1239,18 @@ function renderAboutCollaborators() {
   ).join("");
 }
 
+// Link pubblici dell'autore (campo facoltativo "links" in js/authors.js).
+function authorLinksHTML(author) {
+  if (!author.links || !author.links.length) return "";
+  const items = author.links
+    .map(
+      (l) =>
+        `<a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label}</a>`
+    )
+    .join("");
+  return `<p class="author-links">${items}</p>`;
+}
+
 /* ---- Pagina autore.html: foto, ruolo, bio, e lista degli articoli
    scritti da quella persona. Si attiva solo se la pagina ha il
    contenitore #author-page. Lo slug arriva da ?nome= nell'URL e
@@ -1275,6 +1287,7 @@ function renderAuthorPage() {
         <h1>${author.name}</h1>
         <p class="author-role">${author.role}</p>
         <p class="author-bio">${author.bio}</p>
+        ${authorLinksHTML(author)}
       </div>
     </div>`;
 
