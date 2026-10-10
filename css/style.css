@@ -1106,11 +1106,13 @@ h1, h2, h3 {
   .article-inline-image--feature {
     width: 60%;
   }
+  /* margine sotto ≈ una riga di testo (1.2rem × 1.85): l'ultima riga di un
+     paragrafo non resta sola, a tutta larghezza, sotto l'immagine. */
   .article-inline-image--feature.article-inline-image--right {
-    margin: 0.35rem 0 0.4rem 2rem;
+    margin: 0.35rem 0 2.3rem 2rem;
   }
   .article-inline-image--feature.article-inline-image--left {
-    margin: 0.35rem 2rem 0.4rem 0;
+    margin: 0.35rem 2rem 2.3rem 0;
   }
   /* didascalia più compatta: meno altezza oltre l'immagine, meno testo rientrato sotto */
   .article-inline-image--feature figcaption {
