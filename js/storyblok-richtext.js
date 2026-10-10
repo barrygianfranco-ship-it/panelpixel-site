@@ -275,14 +275,19 @@ function storyblokImageUrl(url, width, height, format) {
    editor Storyblok, un'immagine viene inserita in coda a un testo
    esistente invece che come blocco a sé — senza questa gestione,
    quell'immagine sparirebbe silenziosamente dal rendering. ---- */
-function storyblokImageNodeToHtml(node) {
+function storyblokImageNodeToHtml(node, align) {
   const src = (node.attrs && node.attrs.src) || "";
   const alt = (node.attrs && node.attrs.alt) || "";
   const title = node.attrs && node.attrs.title;
   const caption = title ? `<figcaption>${title}</figcaption>` : "";
-  // Sempre centrata: il nodo image nativo non ha un campo per
-  // destra/sinistra, vedi limite noto in cima al file.
-  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--center"><img src="${storyblokImageUrl(src, 1400)}"${storyblokImageAttrs(src, 1400)} alt="${alt}" loading="lazy">${caption}</figure>`;
+  // Il nodo image nativo non ha un campo per destra/sinistra: la posizione
+  // si sceglie con i pulsanti di allineamento dell'editor sul paragrafo che
+  // contiene l'immagine (textAlign "right" o "left"). Senza allineamento,
+  // o con "center", resta centrata a tutta colonna come prima.
+  const pos = align === "right" ? "right" : align === "left" ? "left" : "center";
+  // Destra/sinistra: immagine grande (--feature), il testo della sezione le scorre accanto.
+  const feature = pos === "center" ? "" : " article-inline-image--feature";
+  return `<figure class="article-inline-image article-inline-image--standalone article-inline-image--${pos}${feature}"><img src="${storyblokImageUrl(src, 1400)}"${storyblokImageAttrs(src, 1400)} alt="${alt}" loading="lazy">${caption}</figure>`;
 }
 
 /* ---- Nodo singolo del documento richtext → HTML ---- */
@@ -300,7 +305,9 @@ function storyblokNodeToHtml(node) {
       for (const child of node.content || []) {
         if (child.type === "image" || child.type === "blok") {
           flush();
-          html += storyblokNodeToHtml(child);
+          html += child.type === "image"
+            ? storyblokImageNodeToHtml(child, node.attrs && node.attrs.textAlign)
+            : storyblokNodeToHtml(child);
         } else inline.push(child);
       }
       flush();

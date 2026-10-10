@@ -1101,6 +1101,41 @@ h1, h2, h3 {
     width: 45%;
     margin: 0.35rem 2rem 1.5rem 0;
   }
+  /* Immagine grande di Storyblok (allineata a destra/sinistra dall'editor):
+     più larga del 45% delle immagini in markdown, il testo scorre accanto. */
+  .article-inline-image--feature {
+    width: 60%;
+  }
+  .article-inline-image--feature.article-inline-image--right {
+    margin: 0.35rem 0 0.4rem 2rem;
+  }
+  .article-inline-image--feature.article-inline-image--left {
+    margin: 0.35rem 2rem 0.4rem 0;
+  }
+  /* didascalia più compatta: meno altezza oltre l'immagine, meno testo rientrato sotto */
+  .article-inline-image--feature figcaption {
+    margin-top: 0.3rem;
+    line-height: 1.3;
+  }
+}
+
+/* Articoli con un'immagine grande a lato: la colonna di lettura si allarga
+   (solo su schermo largo e solo in questi articoli), così il testo accanto
+   all'immagine resta di una larghezza comoda. Gli altri articoli non cambiano. */
+@media (min-width: 1180px) {
+  .layout-tavola .article-body:has(.article-inline-image--feature) {
+    max-width: 1120px;
+  }
+  .layout-tavola .article-body:has(.article-inline-image--feature) .article-inline-image--feature {
+    width: 40%;
+  }
+}
+
+/* I titoletti di sezione chiudono sempre un'immagine flottante: la nuova
+   sezione riparte a tutta larghezza sotto l'immagine, non strizzata accanto. */
+.article-body > h2,
+.article-body > h3 {
+  clear: both;
 }
 
 /* ---- Galleria a griglia (componente editoriale extra, vedi
