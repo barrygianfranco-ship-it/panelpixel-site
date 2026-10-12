@@ -40,6 +40,14 @@ const AUTHORS = [
     bio: "Classe 1995, videogiocatore da tempo immemore. Il mio primo gioco è stato Pokémon Blu, come per tanti della mia generazione, ma quello che pareva essere un semplice passatempo è presto diventato passione di una vita. Laureato in traduzione, lavoro per diventare localizzatore di videogiochi.",
     links: [{ label: "YouTube", url: "https://www.youtube.com/@Akio_TheCouch" }],
   },
+  {
+    slug: "antonio-fragomeni",
+    name: "Antonio Fragomeni",
+    role: "Videogiochi, arte e gamification",
+    photo: "assets/images/antonio-fragomeni.jpg",
+    bio: "Laureato in beni culturali, sono cresciuto con Zelda e Final Fantasy e vedo i videogiochi come un grande medium per la trasmissione della cultura. Scrivo di videogiochi, arte, storia e gamification. Se non mi trovate in redazione, probabilmente sono perso nel Faerûn.",
+    links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/antonio-fragomeni" }],
+  },
 ];
 
 function getAuthorBySlug(slug) {
