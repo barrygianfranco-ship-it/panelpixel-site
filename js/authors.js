@@ -41,6 +41,13 @@ const AUTHORS = [
     links: [{ label: "YouTube", url: "https://www.youtube.com/@Akio_TheCouch" }],
   },
   {
+    slug: "noma",
+    name: "NoMa",
+    role: "Manga e fumetti",
+    photo: "assets/images/noma.jpg",
+    bio: "Mi hanno chiesto di presentarmi, quindi quella che segue è una presentazione perfettamente chiara e coerente. Sono la persona che strapazza le idee. Le prendo e le faccio uscire dal loro guscio; poi le ribalto, aggiungo altre idee di cui non c’era assolutamente bisogno e infine creo qualcosa di vagamente sensato. La mia concezione di personal branding è fare spuntini abbinati alla lettura del momento: Panel Pixel non è stato maltrattato durante il procedimento. Qui è NoMa, lettrice di manga e fumetti che ama le vecchie edizioni e sovrainterpretare qualsiasi cosa.",
+  },
+  {
     slug: "antonio-fragomeni",
     name: "Antonio Fragomeni",
     role: "Videogiochi, arte e gamification",
