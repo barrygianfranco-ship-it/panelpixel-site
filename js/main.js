@@ -3,12 +3,39 @@
    ========================================================================== */
 
 let ARTICLES = [];
+let CMS_SOURCE = "storyblok";
 
-// Legge da Storyblok (fetchStoryblokArticles, in js/storyblok-richtext.js).
-// Le rubriche "radar" non esistono ancora su Storyblok, quindi qui
-// ARTICLES contiene solo articoli "normali".
+function getCmsSource() {
+  const requested = new URLSearchParams(window.location.search).get("cms");
+  if (requested === "sanity" || requested === "storyblok") {
+    try { sessionStorage.setItem("panelpixel-cms", requested); } catch (_) {}
+    return requested;
+  }
+  try { return sessionStorage.getItem("panelpixel-cms") === "sanity" ? "sanity" : "storyblok"; } catch (_) { return "storyblok"; }
+}
+
+function loadSanityAdapterScript() {
+  return new Promise((resolve, reject) => {
+    if (window.fetchSanityArticles) { resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "js/sanity-adapter.js?v=20261017-2";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Impossibile caricare l’adattatore Sanity."));
+    document.head.appendChild(script);
+  });
+}
+
+// Storyblok resta la sorgente predefinita. Con ?cms=sanity, localhost usa
+// staging via endpoint autenticato; il sito pubblico usa la CDN di production.
 async function loadArticles() {
-  ARTICLES = await fetchStoryblokArticles();
+  CMS_SOURCE = getCmsSource();
+  document.documentElement.dataset.cmsSource = CMS_SOURCE;
+  if (CMS_SOURCE === "sanity") {
+    await loadSanityAdapterScript();
+    ARTICLES = await window.fetchSanityArticles();
+  } else {
+    ARTICLES = await fetchStoryblokArticles();
+  }
 }
 
 function showDataLoadError() {
@@ -1105,6 +1132,14 @@ function isStoryblokPreview() {
   return new URLSearchParams(window.location.search).has("_storyblok");
 }
 
+function isSanityPreview() {
+  return CMS_SOURCE === "sanity" && new URLSearchParams(window.location.search).get("sanity-preview") === "1";
+}
+
+function isCmsPreview() {
+  return isStoryblokPreview() || isSanityPreview();
+}
+
 function loadStoryblokBridgeScript() {
   return new Promise((resolve, reject) => {
     if (window.StoryblokBridge) {
@@ -1161,7 +1196,7 @@ function getEditorialChecks(article) {
 }
 
 function renderEditorialCheck(article) {
-  if (!isStoryblokPreview()) return;
+  if (!isCmsPreview()) return;
   const { errors, warnings } = getEditorialChecks(article);
   let panel = document.getElementById("editorial-check");
   if (!panel) {
@@ -1237,6 +1272,36 @@ async function initStoryblokPreview() {
   bridge.on(["published", "change"], () => {
     refreshStoryblokPreviewArticle(slug);
   });
+}
+
+let sanityPreviewTimer = 0;
+
+async function refreshSanityPreviewArticle(slug) {
+  try {
+    const article = await window.fetchSanityArticleBySlug(slug, true);
+    renderEditorialCheck(article);
+    ARTICLES = ARTICLES.filter((item) => item.slug !== slug);
+    ARTICLES.push({...article, slug});
+    renderArticlePage();
+  } catch (error) {
+    console.error("Impossibile aggiornare l’anteprima Sanity:", error);
+  }
+}
+
+async function initSanityPreview() {
+  if (!isSanityPreview()) return;
+  const slug = getRequestedArticleSlug();
+  if (!slug) return;
+  await refreshSanityPreviewArticle(slug);
+  window.clearInterval(sanityPreviewTimer);
+  sanityPreviewTimer = window.setInterval(() => {
+    if (document.visibilityState === "visible") refreshSanityPreviewArticle(slug);
+  }, 3000);
+}
+
+async function initCmsPreview() {
+  if (CMS_SOURCE === "sanity") return initSanityPreview();
+  return initStoryblokPreview();
 }
 
 /* ---- Lista collaboratori su chi-sono.html. Si attiva solo se la
@@ -1381,7 +1446,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Impossibile caricare gli articoli:", err);
     showDataLoadError();
     document.querySelector("main.is-loading")?.classList.remove("is-loading");
-    await initStoryblokPreview();
+    await initCmsPreview();
     return;
   }
 
@@ -1395,5 +1460,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderArchivePage();
   // home: gli articoli sono al loro posto, si può mostrare il resto (vedi home.css)
   document.querySelector("main.is-loading")?.classList.remove("is-loading");
-  initStoryblokPreview();
+  initCmsPreview();
 });
