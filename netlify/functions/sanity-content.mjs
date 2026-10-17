@@ -1,5 +1,6 @@
+import {COOKIE_NAME, verifyPreviewSession} from '../lib/preview-session.mjs'
+
 const PROJECT_ID = 'np9ttr0b'
-const DATASET = 'staging'
 const API_VERSION = '2026-10-17'
 
 const imageProjection = `asset->{_id,url,metadata{dimensions}}`
@@ -33,8 +34,8 @@ function json(body, status = 200, preview = false) {
   })
 }
 
-async function querySanity(query, params, token, raw = false) {
-  const url = new URL(`https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data/query/${DATASET}`)
+async function querySanity(query, params, token, dataset, raw = false) {
+  const url = new URL(`https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data/query/${dataset}`)
   url.searchParams.set('query', query)
   if (raw) url.searchParams.set('perspective', 'raw')
   for (const [name, value] of Object.entries(params || {})) url.searchParams.set(`$${name}`, JSON.stringify(value))
@@ -50,10 +51,11 @@ export default async (request) => {
   if (!token) return json({error: 'SANITY_READ_TOKEN non configurato sul server'}, 503)
 
   const url = new URL(request.url)
+  const dataset = ['localhost', '127.0.0.1'].includes(url.hostname) ? 'staging' : 'production'
   const slug = String(url.searchParams.get('slug') || '').trim()
   const previewRequested = url.searchParams.get('preview') === '1'
   const previewSecret = Netlify.env.get('SANITY_PREVIEW_SECRET') || ''
-  const previewAllowed = previewRequested && previewSecret && cookieValue(request, 'pp_sanity_preview') === previewSecret
+  const previewAllowed = previewRequested && await verifyPreviewSession(cookieValue(request, COOKIE_NAME), previewSecret)
   if (previewRequested && !previewAllowed) return json({error: 'Anteprima Sanity non autorizzata'}, 401, true)
 
   try {
@@ -63,15 +65,15 @@ export default async (request) => {
         *[_type == "articolo" && _id in path("drafts.**") && slug.current == $slug][0]${projection},
         *[_type == "articolo" && !(_id in path("drafts.**")) && slug.current == $slug][0]${projection}
       )`
-      return json({document: await querySanity(query, {slug}, token, true), preview: true}, 200, true)
+      return json({document: await querySanity(query, {slug}, token, dataset, true), preview: true}, 200, true)
     }
 
     const filter = `_type == "articolo" && !(_id in path("drafts.**")) && stato == "approvato"`
     if (slug) {
-      const document = await querySanity(`*[${filter} && slug.current == $slug][0]${projection}`, {slug}, token)
+      const document = await querySanity(`*[${filter} && slug.current == $slug][0]${projection}`, {slug}, token, dataset)
       return json({document, preview: false})
     }
-    const documents = await querySanity(`*[${filter}] | order(date desc) ${projection}`, {}, token)
+    const documents = await querySanity(`*[${filter}] | order(date desc) ${projection}`, {}, token, dataset)
     return json({documents: documents || [], preview: false})
   } catch (error) {
     console.error('sanity-content:', error)

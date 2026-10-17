@@ -5,7 +5,8 @@ import {fileURLToPath} from 'node:url'
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(scriptDir, '..', '..')
-const publishDir = path.join(root, '.netlify', 'preview-publish')
+const fromHead = process.argv.includes('--from-head')
+const publishDir = path.join(root, '.netlify', fromHead ? 'production-publish' : 'preview-publish')
 if (!publishDir.startsWith(path.join(root, '.netlify') + path.sep)) throw new Error('Percorso di anteprima non sicuro')
 
 await fs.rm(publishDir, {recursive: true, force: true})
@@ -17,12 +18,18 @@ const rootFile = /^(?:[^/]+\.html|_headers|apple-touch-icon\.png|favicon\.ico|ro
 const publicDirectory = /^(?:admin|assets|css|data|images|js)\//
 const files = tracked.filter((file) => rootFile.test(file) || publicDirectory.test(file))
 files.push('js/sanity-adapter.js')
+files.push('js/sanity-visual-editing.js', 'js/sanity-visual-editing.css')
 
 for (const relative of [...new Set(files)]) {
   const source = path.join(root, relative)
   const target = path.join(publishDir, relative)
   await fs.mkdir(path.dirname(target), {recursive: true})
-  await fs.copyFile(source, target)
+  if (fromHead) {
+    const content = execFileSync('git', ['show', `HEAD:${relative}`], {cwd: root, encoding: null})
+    await fs.writeFile(target, content)
+  } else {
+    await fs.copyFile(source, target)
+  }
 }
 
 for (const forbidden of ['local-editorial', 'sanity-studio', 'tests', 'tools', '.env', 'localhost-key.pem']) {
@@ -35,4 +42,4 @@ for (const forbidden of ['local-editorial', 'sanity-studio', 'tests', 'tools', '
 }
 
 console.log(publishDir)
-console.log(`${files.length} file pubblici preparati; backup, Studio, test, strumenti e credenziali esclusi`)
+console.log(`${files.length} file pubblici preparati da ${fromHead ? 'HEAD' : 'workspace'}; backup, Studio, test, strumenti e credenziali esclusi`)

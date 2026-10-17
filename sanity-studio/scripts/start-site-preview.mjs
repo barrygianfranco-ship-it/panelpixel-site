@@ -12,10 +12,9 @@ if (!token) throw new Error('Credenziale CLI non disponibile: usare sanity exec 
 const previewSecret = crypto.randomBytes(24).toString('hex')
 const port = process.env.PANEL_PIXEL_PREVIEW_PORT || '8888'
 const publishedUrl = `http://localhost:${port}/articolo.html?slug=alpha-nomos-recensione&cms=sanity`
-const previewUrl = `http://localhost:${port}/api/sanity-preview?slug=test-survival-preview&secret=${previewSecret}`
 
 console.log(`Confronto pubblicato: ${publishedUrl}`)
-console.log(`Anteprima bozza Survival (URL locale temporaneo): ${previewUrl}`)
+console.log('Anteprima bozze: aprire “Anteprima sito” nello Studio locale; l’autorizzazione passa da Sanity.')
 console.log('Storyblok resta disponibile con ?cms=storyblok')
 
 const command = process.platform === 'win32' ? (process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe') : 'npx'

@@ -905,6 +905,14 @@ function renderComments(article) {
   const container = document.getElementById("giscus-container");
   if (!container) return;
 
+  const section = document.getElementById("comments-section");
+  if (isSanityPreview()) {
+    if (section) section.hidden = true;
+    container.innerHTML = "";
+    return;
+  }
+  if (section) section.hidden = false;
+
   if (!COMMENTS_CONFIG.enabled) {
     container.innerHTML = `
       <p class="comments-placeholder">
@@ -1276,6 +1284,34 @@ async function initStoryblokPreview() {
 
 let sanityPreviewTimer = 0;
 
+function loadSanityVisualEditing() {
+  return new Promise((resolve, reject) => {
+    if (window.__disableSanityVisualEditing) {
+      resolve();
+      return;
+    }
+    const existing = document.querySelector('script[data-sanity-visual-editing]');
+    if (existing) {
+      existing.addEventListener("load", resolve, { once: true });
+      existing.addEventListener("error", reject, { once: true });
+      return;
+    }
+    if (!document.querySelector('link[data-sanity-visual-editing]')) {
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = "js/sanity-visual-editing.css?v=20261017-1";
+      styles.dataset.sanityVisualEditing = "true";
+      document.head.appendChild(styles);
+    }
+    const script = document.createElement("script");
+    script.src = "js/sanity-visual-editing.js?v=20261017-1";
+    script.dataset.sanityVisualEditing = "true";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Impossibile collegare il Presentation Tool di Sanity."));
+    document.head.appendChild(script);
+  });
+}
+
 async function refreshSanityPreviewArticle(slug) {
   try {
     const article = await window.fetchSanityArticleBySlug(slug, true);
@@ -1292,6 +1328,7 @@ async function initSanityPreview() {
   if (!isSanityPreview()) return;
   const slug = getRequestedArticleSlug();
   if (!slug) return;
+  loadSanityVisualEditing().catch((error) => console.error(error));
   await refreshSanityPreviewArticle(slug);
   window.clearInterval(sanityPreviewTimer);
   sanityPreviewTimer = window.setInterval(() => {

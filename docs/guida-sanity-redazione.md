@@ -29,6 +29,16 @@ Il ruolo Contributor può creare e modificare bozze, ma non pubblicarle. Non chi
 
 Sanity salva automaticamente. Prima di chiudere la pagina controllare che non siano visibili errori di validazione.
 
+## Vedere la bozza come apparirà sul sito
+
+1. Aprire **Anteprima sito** nella barra superiore dello Studio.
+2. Selezionare l’articolo dall’elenco oppure, mentre lo si modifica, usare il collegamento con il titolo dell’articolo mostrato nella sezione di anteprima.
+3. Attendere il caricamento del sito nel riquadro centrale. L’anteprima legge la bozza salvata, anche se non è ancora pubblicata.
+4. Dopo una modifica attendere qualche secondo: il riquadro si aggiorna automaticamente.
+5. Usare i controlli del Presentation Tool per verificare almeno una larghezza desktop e una mobile. Per le impaginazioni **Tavola** e **Survival** controllare anche immagini laterali, panorami, confronti e indice.
+
+L’anteprima è personale e protetta dall’accesso allo Studio. Non copiare o condividere l’indirizzo interno del riquadro. Durante il collaudo prima del passaggio definitivo, Netlify può chiedere un secondo accesso: in quel caso contattare Gianfranco.
+
 ## Campi editoriali
 
 I campi obbligatori sono:

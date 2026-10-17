@@ -31,7 +31,7 @@ Dalla cartella `sanity-studio` eseguire:
 npx sanity exec scripts/start-site-preview.mjs --with-user-token
 ```
 
-Il comando avvia Netlify Dev usando la credenziale della CLI soltanto nella memoria del processo e stampa due URL locali: uno per confrontare gli articoli pubblicati di `staging` e uno temporaneo per autorizzare l'anteprima della bozza Survival. Sanity è la sorgente predefinita; `?cms=storyblok` seleziona Storyblok come paracadute nella sessione corrente e `?cms=sanity` torna a Sanity.
+Il comando avvia Netlify Dev usando la credenziale della CLI soltanto nella memoria del processo. Per vedere una bozza, aprire **Anteprima sito** nello Studio locale: il Presentation Tool crea un’autorizzazione temporanea sul dataset `staging`, che Netlify convalida lato server. Nessun token o segreto viene inserito nell’URL o nel codice pubblico. Sanity è la sorgente predefinita; `?cms=storyblok` seleziona Storyblok come paracadute nella sessione corrente e `?cms=sanity` torna a Sanity.
 
 In locale (o con `sanity-dataset=staging`) il sito legge il dataset privato `staging` tramite la funzione autenticata. Sul dominio pubblico i contenuti approvati vengono letti direttamente dalla CDN pubblica del dataset `production`, con prospettiva `published` e senza token. L'anteprima delle bozze continua sempre a passare dalla funzione server.
 
