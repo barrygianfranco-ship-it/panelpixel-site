@@ -74,6 +74,36 @@ function storyblokInlineToHtml(content) {
     .join("");
 }
 
+/* I componenti editoriali speciali usano campi testo semplici. Li
+   proteggiamo prima di inserirli nell'HTML, così virgolette e simboli non
+   possono spezzare il markup generato dal renderer. */
+function storyblokEscapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function storyblokTextToParagraphs(value, className) {
+  return String(value || "")
+    .trim()
+    .split(/\n\n+/)
+    .filter(Boolean)
+    .map((paragraph) => `<p${className ? ` class="${className}"` : ""}>${storyblokEscapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
+function storyblokAsset(comp, field) {
+  const asset = comp[field] || {};
+  return {
+    src: asset.filename || "",
+    alt: asset.alt || asset.title || "",
+    caption: asset.title || "",
+  };
+}
+
 /* ---- Componenti annidati (nodo "blok"): stesso HTML/classi prodotte da
    js/markdown-components.js per <!--box:...-->, <!--gallery:...-->,
    <!--columns3:...-->, <!--embed:...-->, <!--footnotes:...--> ---- */
@@ -205,6 +235,94 @@ function storyblokBlokToHtml(blokNode) {
         `</aside>`
       );
     }
+
+    /* Blocchi dell'impaginazione "Survival": pensati per grandi dossier
+       cronologici. Restano validi anche in un articolo standard, ma il
+       layout dedicato ne attiva la resa cinematografica completa. */
+    case "survival_chapter": {
+      const number = storyblokEscapeHtml(comp.number || comp.numero || "FILE");
+      const eyebrow = storyblokEscapeHtml(comp.eyebrow || comp.occhiello || "Archivio");
+      const title = storyblokEscapeHtml(comp.title || comp.titolo || "");
+      const years = storyblokEscapeHtml(comp.years || comp.anni || "");
+      const summary = storyblokTextToParagraphs(comp.summary || comp.sommario, "survival-chapter-summary");
+      if (!title) return "";
+      const yearsHtml = years ? `<p class="survival-chapter-years">${years}</p>` : "";
+      return (
+        `<section class="survival-chapter">` +
+        `<div class="survival-chapter-index" aria-hidden="true">${number}</div>` +
+        `<div class="survival-chapter-copy"><p class="survival-chapter-eyebrow">${eyebrow}</p>` +
+        `<h2 class="article-heading">${title}</h2>${yearsHtml}${summary}</div>` +
+        `</section>`
+      );
+    }
+
+    case "survival_timeline": {
+      const title = storyblokEscapeHtml(comp.title || comp.titolo || "Cronologia");
+      const entries = comp.items || comp.entries || comp.eventi || [];
+      const items = entries
+        .map((entry) => {
+          const year = storyblokEscapeHtml(entry.year || entry.anno || "");
+          const itemTitle = storyblokEscapeHtml(entry.title || entry.titolo || "");
+          const text = storyblokEscapeHtml(entry.text || entry.testo || "");
+          if (!year && !itemTitle && !text) return "";
+          return (
+            `<li class="survival-timeline-item">` +
+            `<p class="survival-timeline-year">${year}</p>` +
+            `<div><h3>${itemTitle}</h3>${text ? `<p>${text}</p>` : ""}</div>` +
+            `</li>`
+          );
+        })
+        .join("");
+      if (!items) return "";
+      return `<section class="survival-timeline" aria-label="${title}"><p class="survival-block-label">Sequenza eventi</p><h2>${title}</h2><ol>${items}</ol></section>`;
+    }
+
+    case "survival_compare": {
+      const title = storyblokEscapeHtml(comp.title || comp.titolo || "Allora / Adesso");
+      const left = storyblokAsset(comp, comp.left_image ? "left_image" : "immagine_sinistra");
+      const right = storyblokAsset(comp, comp.right_image ? "right_image" : "immagine_destra");
+      const side = (position, asset, sideTitle, sideText) => {
+        const image = asset.src
+          ? `<img src="${storyblokImageUrl(asset.src, 1100)}"${storyblokImageAttrs(asset.src, 1100)} alt="${storyblokEscapeHtml(asset.alt)}" loading="lazy">`
+          : "";
+        return (
+          `<article class="survival-compare-side survival-compare-side--${position}">${image}` +
+          `<div><h3>${storyblokEscapeHtml(sideTitle)}</h3>${storyblokTextToParagraphs(sideText)}</div></article>`
+        );
+      };
+      return (
+        `<section class="survival-compare"><header><p class="survival-block-label">Doppia esposizione</p><h2>${title}</h2></header>` +
+        `<div class="survival-compare-grid">` +
+        side("left", left, comp.left_title || comp.titolo_sinistra, comp.left_text || comp.testo_sinistra) +
+        side("right", right, comp.right_title || comp.titolo_destra, comp.right_text || comp.testo_destra) +
+        `</div></section>`
+      );
+    }
+
+    case "survival_panorama": {
+      const image = storyblokAsset(comp, "image");
+      if (!image.src) return "";
+      const caption = storyblokEscapeHtml(comp.caption || comp.didascalia || image.caption);
+      return (
+        `<figure class="survival-panorama"><img src="${storyblokImageUrl(image.src, 2000)}"${storyblokImageAttrs(image.src, 2000)} alt="${storyblokEscapeHtml(image.alt)}" loading="lazy">` +
+        (caption ? `<figcaption>${caption}</figcaption>` : "") +
+        `</figure>`
+      );
+    }
+
+    case "survival_dossier": {
+      const label = storyblokEscapeHtml(comp.label || comp.etichetta || "Documento riservato");
+      const code = storyblokEscapeHtml(comp.code || comp.codice || "");
+      const title = storyblokEscapeHtml(comp.title || comp.titolo || "");
+      const text = storyblokTextToParagraphs(comp.text || comp.testo);
+      if (!title && !text) return "";
+      return (
+        `<aside class="survival-dossier"><header><p class="survival-dossier-label">${label}</p>` +
+        (code ? `<p class="survival-dossier-code">${code}</p>` : "") +
+        `</header>${title ? `<h2>${title}</h2>` : ""}<div class="survival-dossier-copy">${text}</div></aside>`
+      );
+    }
+
     case "footnotes": {
       const notes = comp.note || [];
       if (!notes.length) return "";
@@ -405,9 +523,9 @@ function adaptStoryblokStory(story) {
     imageCredits: storyblokImageCredits(c),
     featured: !!c.featured,
     theme: theme,
-    // Impaginazione "tavola" (pagina a fumetti): copertina-vignetta con il
-    // nome dell'opera, sezioni numerate, vignette. Vedi applyArticleLayout.
-    layout: c.impaginazione === "tavola" ? "tavola" : "standard",
+    // Impaginazioni speciali: "tavola" per fumetti, "survival" per dossier
+    // cronologici e retrospettive dall'atmosfera cinematografica.
+    layout: ["tavola", "survival"].includes(c.impaginazione) ? c.impaginazione : "standard",
     masthead: {
       line1: String(c.testata_titolo || "").trim(),
       line2: String(c.testata_sottotitolo || "").trim(),

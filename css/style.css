@@ -1762,6 +1762,335 @@ h1, h2, h3 {
     padding-left: 1rem;
   }
 }
+
+/* ---- Impaginazione "Survival": dossier cinematografico per retrospettive
+   e saghe horror. Si attiva scegliendo "survival" nel campo
+   impaginazione di Storyblok. L'articolo diventa un archivio consultabile:
+   copertina a pieno schermo, indice cronologico e moduli dedicati per
+   capitoli, timeline, confronti, panoramiche e dossier. ---- */
+.layout-survival {
+  --survival-black: #080a09;
+  --survival-panel: #111513;
+  --survival-paper: #e9e4d8;
+  --survival-red: var(--article-accent, #9f251f);
+  --survival-line: rgba(233, 228, 216, 0.2);
+  width: 100%;
+  max-width: none;
+  padding: 0 0 1rem;
+  overflow: clip;
+  background:
+    radial-gradient(circle at 80% 22%, color-mix(in srgb, var(--survival-red) 14%, transparent), transparent 30rem),
+    linear-gradient(180deg, #070908 0%, var(--survival-black) 28rem, #0d100e 100%);
+  color: var(--survival-paper);
+}
+
+.layout-survival .article-media {
+  position: relative;
+  height: min(78vh, 780px);
+  min-height: 520px;
+  margin: 0 0 4.5rem;
+  overflow: hidden;
+  background: #050605;
+  border-bottom: 1px solid var(--survival-line);
+}
+
+.layout-survival .article-media::before,
+.layout-survival .article-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.layout-survival .article-media::before {
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(3, 4, 3, 0.92) 0%, rgba(3, 4, 3, 0.5) 42%, rgba(3, 4, 3, 0.08) 76%),
+    linear-gradient(0deg, var(--survival-black) 0%, transparent 38%);
+}
+
+.layout-survival .article-media::after {
+  z-index: 2;
+  opacity: 0.24;
+  background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 255, 255, 0.055) 4px);
+  mix-blend-mode: overlay;
+}
+
+.layout-survival .article-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 0;
+  filter: saturate(0.76) contrast(1.08) brightness(0.78);
+  transform: scale(1.015);
+}
+
+.survival-cover-box {
+  position: absolute;
+  z-index: 3;
+  left: max(1.25rem, calc((100vw - 1120px) / 2));
+  bottom: clamp(3rem, 9vh, 7rem);
+  width: min(680px, calc(100vw - 2.5rem));
+  padding-left: 1.5rem;
+  border-left: 4px solid var(--survival-red);
+}
+
+.survival-cover-kicker,
+.survival-cover-line1,
+.survival-cover-line2 {
+  margin: 0;
+}
+
+.survival-cover-kicker {
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  font: 700 0.72rem/1 var(--font-sans);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.survival-cover-kicker span { color: var(--survival-red); }
+
+.survival-cover-line1 {
+  color: #fff;
+  font: 800 clamp(3rem, 9vw, 7.6rem)/0.82 var(--font-serif);
+  letter-spacing: -0.065em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.survival-cover-line2 {
+  max-width: 560px;
+  margin-top: 1.25rem;
+  color: rgba(255, 255, 255, 0.86);
+  font: 500 clamp(0.85rem, 1.7vw, 1.15rem)/1.45 var(--font-sans);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.survival-cover-index {
+  position: absolute;
+  right: 0;
+  bottom: 0.15rem;
+  display: grid;
+  min-width: 4.3rem;
+  padding: 0.55rem 0.65rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  color: #fff;
+  text-align: center;
+}
+
+.survival-cover-index span { font: 700 0.55rem/1 var(--font-sans); letter-spacing: 0.2em; }
+.survival-cover-index strong { font: 800 1.75rem/1 var(--font-serif); }
+
+.layout-survival .article-header,
+.layout-survival .article-toc,
+.layout-survival .article-body,
+.layout-survival .article-footer-meta,
+.layout-survival .article-footer-standard {
+  width: min(780px, calc(100vw - 2.5rem));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.layout-survival .article-header { position: relative; }
+.layout-survival .article-header::before {
+  content: "CASE FILE / LONG READ";
+  display: block;
+  margin-bottom: 1.25rem;
+  color: var(--survival-red);
+  font: 700 0.66rem/1 var(--font-sans);
+  letter-spacing: 0.22em;
+}
+
+.layout-survival .article-title {
+  max-width: 900px;
+  color: var(--survival-paper);
+  font-size: clamp(2.5rem, 6vw, 5.3rem);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  text-transform: none;
+  text-wrap: balance;
+}
+
+.layout-survival .article-subtitle {
+  max-width: 700px;
+  color: rgba(233, 228, 216, 0.78);
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-style: normal;
+}
+
+.layout-survival .article-header-divider,
+.layout-survival .article-toc,
+.layout-survival .article-footer-meta { border-color: var(--survival-line); }
+
+.layout-survival .article-toc { margin-top: 1rem; margin-bottom: 5rem; }
+.layout-survival .article-toc-title { color: var(--survival-paper); }
+.layout-survival .article-toc-list { counter-reset: survival-toc; list-style: none; padding-left: 0; }
+.layout-survival .article-toc-item { counter-increment: survival-toc; }
+.layout-survival .article-toc-item a { display: flex; gap: 0.8rem; text-decoration: none; }
+.layout-survival .article-toc-item a::before {
+  content: counter(survival-toc, decimal-leading-zero);
+  color: var(--survival-red);
+  font: 700 0.68rem/1.7 var(--font-sans);
+  letter-spacing: 0.08em;
+}
+
+.layout-survival .article-body > p,
+.layout-survival .article-body > ul,
+.layout-survival .article-body > ol,
+.layout-survival .article-body > blockquote { color: rgba(233, 228, 216, 0.88); }
+
+.layout-survival .article-body > p:first-child { color: var(--survival-paper); }
+.layout-survival .article-body > h2.article-heading,
+.layout-survival .article-body > h3.article-subheading { color: var(--survival-paper); }
+
+/* Separatore di capitolo: è deliberatamente più largo della colonna di
+   lettura, così ogni epoca interrompe il flusso come l'apertura di un file. */
+.survival-chapter {
+  counter-increment: survival-chapter;
+  display: grid;
+  grid-template-columns: minmax(105px, 0.28fr) minmax(0, 1fr);
+  width: min(1120px, calc(100vw - 2.5rem));
+  margin: 7rem 0 3rem 50%;
+  transform: translateX(-50%);
+  border-top: 1px solid var(--survival-line);
+  border-bottom: 1px solid var(--survival-line);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--survival-red) 12%, transparent), transparent 48%);
+}
+
+.survival-chapter-index {
+  display: grid;
+  place-items: center;
+  min-height: 230px;
+  border-right: 1px solid var(--survival-line);
+  color: color-mix(in srgb, var(--survival-red) 75%, var(--survival-paper));
+  font: 800 clamp(2rem, 6vw, 5rem)/1 var(--font-serif);
+  letter-spacing: -0.06em;
+}
+
+.survival-chapter-copy { align-self: center; padding: 2.25rem clamp(1.5rem, 5vw, 4rem); }
+.survival-chapter-eyebrow,
+.survival-block-label {
+  margin: 0 0 0.75rem;
+  color: var(--survival-red);
+  font: 700 0.68rem/1 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.survival-chapter .article-heading {
+  margin: 0;
+  color: var(--survival-paper);
+  font-size: clamp(2.1rem, 5vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.survival-chapter-years { margin: 0.9rem 0 0; color: var(--survival-red); font: 700 0.78rem/1 var(--font-sans); letter-spacing: 0.16em; }
+.article-body .survival-chapter-summary { max-width: 640px; margin: 1.15rem 0 0; color: rgba(233, 228, 216, 0.7); font-size: 1rem; line-height: 1.65; text-align: left; hyphens: none; }
+
+.survival-panorama,
+.survival-timeline,
+.survival-compare {
+  width: min(1180px, calc(100vw - 2.5rem));
+  margin: 4.5rem 0 4.5rem 50%;
+  transform: translateX(-50%);
+  clear: both;
+}
+
+.survival-panorama { position: relative; }
+.survival-panorama img { display: block; width: 100%; max-height: 760px; object-fit: cover; filter: saturate(0.78) contrast(1.06); }
+.survival-panorama figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  max-width: min(460px, 86%);
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(5, 7, 6, 0.88);
+  border-left: 3px solid var(--survival-red);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: left;
+  backdrop-filter: blur(8px);
+}
+
+.survival-timeline { padding: clamp(1.5rem, 4vw, 3rem); background: var(--survival-paper); color: #151816; }
+.survival-timeline > h2,
+.survival-compare > header h2 { margin: 0 0 2rem; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1; }
+.survival-timeline ol { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; margin: 0; padding: 1.5rem 0 0; list-style: none; border-top: 1px solid rgba(21, 24, 22, 0.28); }
+.survival-timeline-item { position: relative; padding: 1.5rem 1.25rem 0 0; }
+.survival-timeline-item::before { content: ""; position: absolute; top: -0.38rem; left: 0; width: 0.72rem; height: 0.72rem; border-radius: 50%; background: var(--survival-red); box-shadow: 0 0 0 5px var(--survival-paper); }
+.survival-timeline-year { margin: 0 0 1rem; color: var(--survival-red); font: 800 1.35rem/1 var(--font-serif); }
+.survival-timeline-item h3 { margin: 0 0 0.45rem; font-size: 1rem; }
+.article-body .survival-timeline-item p:last-child { margin: 0; color: #454a46; font-size: 0.88rem; line-height: 1.55; text-align: left; hyphens: none; }
+
+.survival-compare { padding-top: 2rem; border-top: 1px solid var(--survival-line); }
+.survival-compare-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.survival-compare-side { min-width: 0; background: #111412; }
+.survival-compare-side--left { border-right: 1px solid var(--survival-line); }
+.survival-compare-side img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; filter: saturate(0.72); }
+.survival-compare-side > div { padding: 1.5rem clamp(1.2rem, 3vw, 2.25rem) 2rem; }
+.survival-compare-side h3 { margin: 0 0 0.75rem; color: var(--survival-red); font-size: 1.35rem; }
+.article-body .survival-compare-side p { margin: 0; color: rgba(233, 228, 216, 0.75); font-size: 0.98rem; line-height: 1.65; text-align: left; hyphens: none; }
+
+.survival-dossier {
+  position: relative;
+  margin: 4rem 0;
+  padding: 2rem 2.25rem 2.25rem;
+  overflow: hidden;
+  border: 1px solid var(--survival-line);
+  border-left: 5px solid var(--survival-red);
+  background: #141816;
+}
+.survival-dossier::after { content: "CONFIDENTIAL"; position: absolute; right: -1rem; bottom: 0.2rem; color: rgba(233, 228, 216, 0.035); font: 800 clamp(3rem, 9vw, 7rem)/1 var(--font-sans); letter-spacing: -0.06em; pointer-events: none; }
+.survival-dossier header { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; padding-bottom: 0.75rem; border-bottom: 1px dashed rgba(233, 228, 216, 0.28); }
+.survival-dossier-label,
+.survival-dossier-code { margin: 0; font: 700 0.65rem/1 var(--font-sans); letter-spacing: 0.17em; text-transform: uppercase; }
+.survival-dossier-label { color: var(--survival-red); }
+.survival-dossier-code { color: rgba(233, 228, 216, 0.52); }
+.survival-dossier h2 { position: relative; margin: 0 0 1rem; color: var(--survival-paper); font-size: clamp(1.7rem, 3.5vw, 2.6rem); }
+.article-body .survival-dossier-copy p { position: relative; margin: 0 0 1rem; color: rgba(233, 228, 216, 0.78); font-size: 1rem; line-height: 1.7; text-align: left; hyphens: none; }
+
+.layout-survival .article-pullquote { border-color: var(--survival-red); }
+.layout-survival .article-pullquote blockquote { color: var(--survival-paper); }
+.layout-survival .article-footer-meta { color: rgba(233, 228, 216, 0.62); }
+.layout-survival .article-footer-standard { margin-bottom: 0; padding: 0 0 1rem; background: transparent; color: var(--survival-paper); }
+.layout-survival .support-box,
+.layout-survival .comments-placeholder { background: #151816; }
+.layout-survival .support-text,
+.layout-survival .comments-title { color: var(--survival-paper); }
+
+@media (max-width: 720px) {
+  .layout-survival .article-media { min-height: 560px; height: 72vh; }
+  .layout-survival .article-media::before { background: linear-gradient(0deg, var(--survival-black) 0%, rgba(3, 4, 3, 0.35) 70%, rgba(3, 4, 3, 0.18) 100%); }
+  .layout-survival .article-media img { object-position: 62% center; }
+  .survival-cover-box { bottom: 2.5rem; padding-left: 1rem; }
+  .survival-cover-index { display: none; }
+  .survival-cover-line1 { font-size: clamp(3rem, 17vw, 5rem); }
+  .layout-survival .article-media { margin-bottom: 3rem; }
+  .layout-survival .article-toc { margin-bottom: 3.5rem; }
+  .survival-chapter { grid-template-columns: 72px minmax(0, 1fr); margin-top: 5rem; }
+  .survival-chapter-index { min-height: 210px; font-size: 2rem; }
+  .survival-chapter-copy { padding: 1.5rem 1.15rem; }
+  .survival-compare-grid { grid-template-columns: 1fr; }
+  .survival-compare-side--left { border-right: 0; border-bottom: 1px solid var(--survival-line); }
+  .survival-timeline ol { grid-template-columns: 1fr; border-top: 0; border-left: 1px solid rgba(21, 24, 22, 0.28); padding: 0 0 0 1.5rem; }
+  .survival-timeline-item { padding: 0 0 1.75rem; }
+  .survival-timeline-item::before { top: 0.15rem; left: -1.88rem; }
+  .survival-panorama figcaption { position: static; max-width: none; }
+  .survival-dossier { padding: 1.5rem 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layout-survival .article-media img { transform: none; }
+}
 /* ---- Note a piè di pagina ([^N] nel testo + blocco
    <!--footnotes:[...]--> altrove nell'articolo, vedi estensioni
    ppFootnoteRef/ppFootnotes in js/markdown-components.js). Il rimando

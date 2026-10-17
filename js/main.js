@@ -3,12 +3,39 @@
    ========================================================================== */
 
 let ARTICLES = [];
+let CMS_SOURCE = "sanity";
 
-// Legge da Storyblok (fetchStoryblokArticles, in js/storyblok-richtext.js).
-// Le rubriche "radar" non esistono ancora su Storyblok, quindi qui
-// ARTICLES contiene solo articoli "normali".
+function getCmsSource() {
+  const requested = new URLSearchParams(window.location.search).get("cms");
+  if (requested === "sanity" || requested === "storyblok") {
+    try { sessionStorage.setItem("panelpixel-cms", requested); } catch (_) {}
+    return requested;
+  }
+  try { return sessionStorage.getItem("panelpixel-cms") === "storyblok" ? "storyblok" : "sanity"; } catch (_) { return "sanity"; }
+}
+
+function loadSanityAdapterScript() {
+  return new Promise((resolve, reject) => {
+    if (window.fetchSanityArticles) { resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "js/sanity-adapter.js?v=20261017-2";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Impossibile caricare l’adattatore Sanity."));
+    document.head.appendChild(script);
+  });
+}
+
+// Sanity è la sorgente predefinita; ?cms=storyblok mantiene Storyblok come
+// paracadute. In locale Sanity usa staging, sul sito pubblico la CDN production.
 async function loadArticles() {
-  ARTICLES = await fetchStoryblokArticles();
+  CMS_SOURCE = getCmsSource();
+  document.documentElement.dataset.cmsSource = CMS_SOURCE;
+  if (CMS_SOURCE === "sanity") {
+    await loadSanityAdapterScript();
+    ARTICLES = await window.fetchSanityArticles();
+  } else {
+    ARTICLES = await fetchStoryblokArticles();
+  }
 }
 
 function showDataLoadError() {
@@ -566,7 +593,12 @@ function renderArticleToc(bodyEl) {
   const previousToc = contentInner.querySelector(".article-toc");
   if (previousToc) previousToc.remove();
 
-  const headings = Array.from(bodyEl.querySelectorAll("h2, h3"));
+  const isSurvival = !!bodyEl.closest(".layout-survival");
+  // Nel dossier Survival l'indice è una sequenza di capitoli, non la lista
+  // indiscriminata di ogni titoletto presente dentro timeline e schede.
+  const headings = Array.from(bodyEl.querySelectorAll(
+    isSurvival ? ".survival-chapter h2, :scope > h2.article-heading" : "h2, h3"
+  ));
   if (headings.length < 3) return;
 
   const usedIds = new Set();
@@ -753,7 +785,9 @@ function applyArticleLayout(article) {
   const wrapEl = document.getElementById("article-content");
   if (!wrapEl) return;
   const tavola = article.layout === "tavola";
+  const survival = article.layout === "survival";
   wrapEl.classList.toggle("layout-tavola", tavola);
+  wrapEl.classList.toggle("layout-survival", survival);
   wrapEl.style.removeProperty("--tavola-pattern");
   wrapEl.style.removeProperty("--tavola-pattern-size");
   if (!tavola) return;
@@ -797,6 +831,21 @@ function tavolaCoverBoxHTML(article) {
   return `<div class="tavola-cover-box"><p class="tavola-cover-line1">${escapeHTML(m.line1)}</p>${line2}</div>`;
 }
 
+function survivalCoverBoxHTML(article) {
+  const m = article.masthead || {};
+  if (article.layout !== "survival") return "";
+  const line1 = m.line1 || "Archivio Survival Horror";
+  const line2 = m.line2 || "Un dossier Panel Pixel";
+  return (
+    `<div class="survival-cover-box">` +
+    `<p class="survival-cover-kicker">Dossier / <span>Panel Pixel</span></p>` +
+    `<p class="survival-cover-line1">${escapeHTML(line1)}</p>` +
+    `<p class="survival-cover-line2">${escapeHTML(line2)}</p>` +
+    `<div class="survival-cover-index" aria-hidden="true"><span>FILE</span><strong>RE</strong></div>` +
+    `</div>`
+  );
+}
+
 // Prima del titoletto che contiene "spoiler" mette un avviso ben visibile.
 function renderTavolaSpoilerNotice(bodyEl) {
   const heading = Array.from(bodyEl.querySelectorAll(":scope > h2")).find((h) => /spoiler/i.test(h.textContent));
@@ -818,7 +867,7 @@ function renderArticleLayout(article) {
   applyArticleTheme(article);
   applyArticleLayout(article);
 
-  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${article.title}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}`;
+  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${escapeHTML(article.imageAlt || article.title)}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}${survivalCoverBoxHTML(article)}`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";
@@ -855,6 +904,14 @@ function renderArticleLayout(article) {
 function renderComments(article) {
   const container = document.getElementById("giscus-container");
   if (!container) return;
+
+  const section = document.getElementById("comments-section");
+  if (isSanityPreview()) {
+    if (section) section.hidden = true;
+    container.innerHTML = "";
+    return;
+  }
+  if (section) section.hidden = false;
 
   if (!COMMENTS_CONFIG.enabled) {
     container.innerHTML = `
@@ -1083,6 +1140,14 @@ function isStoryblokPreview() {
   return new URLSearchParams(window.location.search).has("_storyblok");
 }
 
+function isSanityPreview() {
+  return CMS_SOURCE === "sanity" && new URLSearchParams(window.location.search).get("sanity-preview") === "1";
+}
+
+function isCmsPreview() {
+  return isStoryblokPreview() || isSanityPreview();
+}
+
 function loadStoryblokBridgeScript() {
   return new Promise((resolve, reject) => {
     if (window.StoryblokBridge) {
@@ -1139,7 +1204,7 @@ function getEditorialChecks(article) {
 }
 
 function renderEditorialCheck(article) {
-  if (!isStoryblokPreview()) return;
+  if (!isCmsPreview()) return;
   const { errors, warnings } = getEditorialChecks(article);
   let panel = document.getElementById("editorial-check");
   if (!panel) {
@@ -1215,6 +1280,65 @@ async function initStoryblokPreview() {
   bridge.on(["published", "change"], () => {
     refreshStoryblokPreviewArticle(slug);
   });
+}
+
+let sanityPreviewTimer = 0;
+
+function loadSanityVisualEditing() {
+  return new Promise((resolve, reject) => {
+    if (window.__disableSanityVisualEditing) {
+      resolve();
+      return;
+    }
+    const existing = document.querySelector('script[data-sanity-visual-editing]');
+    if (existing) {
+      existing.addEventListener("load", resolve, { once: true });
+      existing.addEventListener("error", reject, { once: true });
+      return;
+    }
+    if (!document.querySelector('link[data-sanity-visual-editing]')) {
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = "js/sanity-visual-editing.css?v=20261017-1";
+      styles.dataset.sanityVisualEditing = "true";
+      document.head.appendChild(styles);
+    }
+    const script = document.createElement("script");
+    script.src = "js/sanity-visual-editing.js?v=20261017-1";
+    script.dataset.sanityVisualEditing = "true";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Impossibile collegare il Presentation Tool di Sanity."));
+    document.head.appendChild(script);
+  });
+}
+
+async function refreshSanityPreviewArticle(slug) {
+  try {
+    const article = await window.fetchSanityArticleBySlug(slug, true);
+    renderEditorialCheck(article);
+    ARTICLES = ARTICLES.filter((item) => item.slug !== slug);
+    ARTICLES.push({...article, slug});
+    renderArticlePage();
+  } catch (error) {
+    console.error("Impossibile aggiornare l’anteprima Sanity:", error);
+  }
+}
+
+async function initSanityPreview() {
+  if (!isSanityPreview()) return;
+  const slug = getRequestedArticleSlug();
+  if (!slug) return;
+  loadSanityVisualEditing().catch((error) => console.error(error));
+  await refreshSanityPreviewArticle(slug);
+  window.clearInterval(sanityPreviewTimer);
+  sanityPreviewTimer = window.setInterval(() => {
+    if (document.visibilityState === "visible") refreshSanityPreviewArticle(slug);
+  }, 3000);
+}
+
+async function initCmsPreview() {
+  if (CMS_SOURCE === "sanity") return initSanityPreview();
+  return initStoryblokPreview();
 }
 
 /* ---- Lista collaboratori su chi-sono.html. Si attiva solo se la
@@ -1359,7 +1483,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Impossibile caricare gli articoli:", err);
     showDataLoadError();
     document.querySelector("main.is-loading")?.classList.remove("is-loading");
-    await initStoryblokPreview();
+    await initCmsPreview();
     return;
   }
 
@@ -1373,5 +1497,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderArchivePage();
   // home: gli articoli sono al loro posto, si può mostrare il resto (vedi home.css)
   document.querySelector("main.is-loading")?.classList.remove("is-loading");
-  initStoryblokPreview();
+  initCmsPreview();
 });

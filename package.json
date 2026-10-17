@@ -1,0 +1,8 @@
+{
+  "name": "panel-pixel-site",
+  "private": true,
+  "dependencies": {
+    "@sanity/client": "8.9.0",
+    "@sanity/preview-url-secret": "4.1.5"
+  }
+}

@@ -8,6 +8,9 @@ js/editor.js
 .env.local
 .env.*.local
 
+# Backup editoriali locali: contengono esportazioni complete dal CMS e asset.
+local-editorial/backup-storyblok/
+
 # Certificati HTTPS locali (mkcert) per test con Storyblok Visual Editor:
 # localhost-key.pem è una chiave privata, non va mai committata.
 *.pem
@@ -27,3 +30,6 @@ Thumbs.db
 node_modules/
 dist/
 .cache/
+
+# Local Netlify folder
+.netlify
