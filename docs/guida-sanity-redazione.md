@@ -2,7 +2,7 @@
 
 Questa guida spiega il flusso normale per scrivere e consegnare un articolo. Per problemi o dubbi sui campi, contattare Gianfranco prima di pubblicare o modificare contenuti già approvati.
 
-> **Ambiente:** lo Studio locale presente nel repository usa ancora il dataset di prova `staging`. Per gli articoli destinati al sito usare soltanto il link dello Studio redazionale `production` comunicato da Gianfranco.
+> **Ambiente:** per gli articoli destinati al sito usare lo Studio **Panel Pixel — Redazione** all'indirizzo <https://panelpixel.sanity.studio/>. Lo Studio locale **Panel Pixel — Prove (staging)** usa invece il dataset di prova e non pubblica contenuti sul sito.
 
 ## Ruoli e stati
 

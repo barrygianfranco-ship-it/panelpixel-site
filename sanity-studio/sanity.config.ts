@@ -4,12 +4,14 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 import {structure} from './structure'
 
+const dataset = process.env.SANITY_STUDIO_DATASET || 'staging'
+
 export default defineConfig({
   name: 'default',
-  title: 'Panel Pixel',
+  title: dataset === 'production' ? 'Panel Pixel — Redazione' : 'Panel Pixel — Prove (staging)',
 
   projectId: 'np9ttr0b',
-  dataset: 'staging',
+  dataset,
 
   plugins: [structureTool({structure}), visionTool()],
 

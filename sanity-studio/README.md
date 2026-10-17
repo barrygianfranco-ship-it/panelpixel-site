@@ -11,7 +11,13 @@ Studio editoriale separato dal sito statico HTML/JavaScript. Non usa Next.js.
 
 Il campo `stato` segue `bozza` → `in_revisione` → `approvato`. Non sostituisce i permessi Sanity: nel pannello del progetto Gianfranco deve restare Administrator e i collaboratori che scrivono devono ricevere il ruolo Contributor, privo del permesso di pubblicazione. Viewer resta adatto a chi deve soltanto leggere.
 
-Lo Studio punta intenzionalmente a `staging`. Il passaggio a `production` e qualsiasi deploy richiedono l'approvazione esplicita del caporedattore.
+Lo Studio locale punta intenzionalmente a `staging` e mostra il titolo **Panel Pixel — Prove (staging)**. Lo Studio redazionale pubblicato su <https://panelpixel.sanity.studio/> usa invece `production` e mostra **Panel Pixel — Redazione**.
+
+La separazione è controllata da `.env.development` (`staging`) e `.env.production` (`production`), che contengono soltanto nomi pubblici dei dataset. Il deploy redazionale ripetibile si esegue esclusivamente dopo l'approvazione del caporedattore:
+
+```powershell
+npm run deploy:production
+```
 
 ## Immagini importate
 
