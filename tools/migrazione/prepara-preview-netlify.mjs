@@ -25,7 +25,11 @@ for (const relative of [...new Set(files)]) {
   const target = path.join(publishDir, relative)
   await fs.mkdir(path.dirname(target), {recursive: true})
   if (fromHead) {
-    const content = execFileSync('git', ['show', `HEAD:${relative}`], {cwd: root, encoding: null})
+    const content = execFileSync('git', ['show', `HEAD:${relative}`], {
+      cwd: root,
+      encoding: null,
+      maxBuffer: 64 * 1024 * 1024,
+    })
     await fs.writeFile(target, content)
   } else {
     await fs.copyFile(source, target)
