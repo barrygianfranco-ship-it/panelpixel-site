@@ -566,7 +566,12 @@ function renderArticleToc(bodyEl) {
   const previousToc = contentInner.querySelector(".article-toc");
   if (previousToc) previousToc.remove();
 
-  const headings = Array.from(bodyEl.querySelectorAll("h2, h3"));
+  const isSurvival = !!bodyEl.closest(".layout-survival");
+  // Nel dossier Survival l'indice è una sequenza di capitoli, non la lista
+  // indiscriminata di ogni titoletto presente dentro timeline e schede.
+  const headings = Array.from(bodyEl.querySelectorAll(
+    isSurvival ? ".survival-chapter h2, :scope > h2.article-heading" : "h2, h3"
+  ));
   if (headings.length < 3) return;
 
   const usedIds = new Set();
@@ -753,7 +758,9 @@ function applyArticleLayout(article) {
   const wrapEl = document.getElementById("article-content");
   if (!wrapEl) return;
   const tavola = article.layout === "tavola";
+  const survival = article.layout === "survival";
   wrapEl.classList.toggle("layout-tavola", tavola);
+  wrapEl.classList.toggle("layout-survival", survival);
   wrapEl.style.removeProperty("--tavola-pattern");
   wrapEl.style.removeProperty("--tavola-pattern-size");
   if (!tavola) return;
@@ -797,6 +804,21 @@ function tavolaCoverBoxHTML(article) {
   return `<div class="tavola-cover-box"><p class="tavola-cover-line1">${escapeHTML(m.line1)}</p>${line2}</div>`;
 }
 
+function survivalCoverBoxHTML(article) {
+  const m = article.masthead || {};
+  if (article.layout !== "survival") return "";
+  const line1 = m.line1 || "Archivio Survival Horror";
+  const line2 = m.line2 || "Un dossier Panel Pixel";
+  return (
+    `<div class="survival-cover-box">` +
+    `<p class="survival-cover-kicker">Dossier / <span>Panel Pixel</span></p>` +
+    `<p class="survival-cover-line1">${escapeHTML(line1)}</p>` +
+    `<p class="survival-cover-line2">${escapeHTML(line2)}</p>` +
+    `<div class="survival-cover-index" aria-hidden="true"><span>FILE</span><strong>RE</strong></div>` +
+    `</div>`
+  );
+}
+
 // Prima del titoletto che contiene "spoiler" mette un avviso ben visibile.
 function renderTavolaSpoilerNotice(bodyEl) {
   const heading = Array.from(bodyEl.querySelectorAll(":scope > h2")).find((h) => /spoiler/i.test(h.textContent));
@@ -818,7 +840,7 @@ function renderArticleLayout(article) {
   applyArticleTheme(article);
   applyArticleLayout(article);
 
-  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${article.title}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}`;
+  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${escapeHTML(article.imageAlt || article.title)}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}${survivalCoverBoxHTML(article)}`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";
