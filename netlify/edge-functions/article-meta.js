@@ -75,7 +75,7 @@ export default async (request, context) => {
   if (!slug || !response.headers.get("content-type")?.includes("text/html")) return response;
   try {
     // Anche in modalità anteprima i meta pubblici leggono esclusivamente la versione pubblicata.
-    const metadata = requestUrl.searchParams.get("cms") === "sanity" ? await sanityMetadata(requestUrl, slug) : await storyblokMetadata(slug);
+    const metadata = requestUrl.searchParams.get("cms") === "storyblok" ? await storyblokMetadata(slug) : await sanityMetadata(requestUrl, slug);
     if (!metadata) return response;
     const title = metadata.title; const description = metadata.description;
     const image = metadata.image || SITE_URL + "/assets/images/og-default.png";

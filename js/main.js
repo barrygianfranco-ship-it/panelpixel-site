@@ -3,7 +3,7 @@
    ========================================================================== */
 
 let ARTICLES = [];
-let CMS_SOURCE = "storyblok";
+let CMS_SOURCE = "sanity";
 
 function getCmsSource() {
   const requested = new URLSearchParams(window.location.search).get("cms");
@@ -11,7 +11,7 @@ function getCmsSource() {
     try { sessionStorage.setItem("panelpixel-cms", requested); } catch (_) {}
     return requested;
   }
-  try { return sessionStorage.getItem("panelpixel-cms") === "sanity" ? "sanity" : "storyblok"; } catch (_) { return "storyblok"; }
+  try { return sessionStorage.getItem("panelpixel-cms") === "storyblok" ? "storyblok" : "sanity"; } catch (_) { return "sanity"; }
 }
 
 function loadSanityAdapterScript() {
@@ -25,8 +25,8 @@ function loadSanityAdapterScript() {
   });
 }
 
-// Storyblok resta la sorgente predefinita. Con ?cms=sanity, localhost usa
-// staging via endpoint autenticato; il sito pubblico usa la CDN di production.
+// Sanity è la sorgente predefinita; ?cms=storyblok mantiene Storyblok come
+// paracadute. In locale Sanity usa staging, sul sito pubblico la CDN production.
 async function loadArticles() {
   CMS_SOURCE = getCmsSource();
   document.documentElement.dataset.cmsSource = CMS_SOURCE;
