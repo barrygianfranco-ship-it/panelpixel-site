@@ -19,7 +19,8 @@ const articleLocations = defineLocations({
       locations: [
         {
           title: document.title || 'Articolo',
-          href: `/articolo.html?slug=${encodeURIComponent(document.slug)}`,
+          // I parametri tengono attiva l'anteprima: senza, il sito mostra solo i pubblicati.
+          href: `/articolo.html?slug=${encodeURIComponent(document.slug)}&cms=sanity&sanity-preview=1`,
         },
       ],
     }
@@ -38,7 +39,7 @@ export default defineConfig({
     presentationTool({
       title: 'Anteprima sito',
       previewUrl: {
-        initial: `${previewOrigin}/articolo.html?slug=castlevania-belmonts-curse-recensione`,
+        initial: `${previewOrigin}/index.html`,
         previewMode: {
           enable: '/api/sanity-preview/enable',
           shareAccess: false,
