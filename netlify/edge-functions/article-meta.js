@@ -17,6 +17,17 @@ function replaceMeta(html, id, value) {
   const pattern = new RegExp('(<meta[^>]+id="' + id + '"[^>]+content=")[^"]*(")', "i");
   return html.replace(pattern, "$1" + escapeAttribute(value) + "$2");
 }
+const CATEGORY_NAMES = {recensioni: "Recensioni", monografie: "Monografie", attualita: "Attualità", anteprime: "Anteprime", approfondimenti: "Approfondimenti"};
+
+// "2026-10-16" o "2026-10-16 00:00" → "2026-10-16T00:00:00+02:00" (ora italiana), come chiede schema.org.
+function isoDate(value) {
+  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?$/);
+  if (!match) return value || undefined;
+  const local = match[1] + "T" + (match[2] || "00:00") + ":00";
+  const offset = new Intl.DateTimeFormat("en-US", {timeZone: "Europe/Rome", timeZoneName: "longOffset"})
+    .formatToParts(new Date(local + "Z")).find((part) => part.type === "timeZoneName")?.value.replace("GMT", "") || "+00:00";
+  return local + offset;
+}
 function sanitySocialImage(url) {
   if (!url) return "";
   const image = new URL(url);
@@ -32,13 +43,13 @@ async function storyblokMetadata(slug) {
   const response = await fetch(url, {headers: {accept: "application/json"}});
   if (!response.ok) return null;
   const story = (await response.json()).stories?.[0];
-  if (!story) return null;
+  if (!story) return {notFound: true};
   const content = story.content || {}; const cover = content.image?.filename;
   return {
     title: content.seo_title || (content.title ? content.title + " | Panel Pixel" : "Panel Pixel"),
     headline: content.title, description: content.seo_description || truncate(content.excerpt),
     image: cover ? (/\.(svg|gif)$/i.test(cover) ? cover : cover + "/m/1200x630/filters:format(jpeg):quality(80)") : "",
-    datePublished: content.date, dateModified: story.updated_at || content.date, author: content.author,
+    datePublished: content.date, dateModified: story.updated_at || content.date, author: content.author, category: content.category,
   };
 }
 function usesPrivateStaging(requestUrl) {
@@ -60,12 +71,12 @@ async function sanityMetadata(requestUrl, slug) {
   if (!response.ok) return null;
   const payload = await response.json();
   const content = usesPrivateStaging(requestUrl) ? payload.document : payload.result;
-  if (!content) return null;
+  if (!content) return {notFound: true};
   return {
     title: content.seo_title || (content.title ? content.title + " | Panel Pixel" : "Panel Pixel"),
     headline: content.title, description: content.seo_description || truncate(content.excerpt),
     image: sanitySocialImage(content.image?.asset?.url), datePublished: content.date,
-    dateModified: content._updatedAt || content.date, author: content.author,
+    dateModified: content._updatedAt || content.date, author: content.author, category: content.category,
   };
 }
 
@@ -77,6 +88,12 @@ export default async (request, context) => {
     // Anche in modalità anteprima i meta pubblici leggono esclusivamente la versione pubblicata.
     const metadata = requestUrl.searchParams.get("cms") === "storyblok" ? await storyblokMetadata(slug) : await sanityMetadata(requestUrl, slug);
     if (!metadata) return response;
+    if (metadata.notFound) {
+      // Slug inesistente: stessa pagina (il JS mostra «articolo non trovato»), ma con 404 e noindex.
+      const html = (await response.text()).replace("</head>", '  <meta name="robots" content="noindex">' + "\n</head>");
+      const headers = new Headers(response.headers); headers.delete("content-length");
+      return new Response(html, {status: 404, headers});
+    }
     const title = metadata.title; const description = metadata.description;
     const image = metadata.image || SITE_URL + "/assets/images/og-default.png";
     const canonical = SITE_URL + "/articolo.html?slug=" + encodeURIComponent(slug);
@@ -86,11 +103,16 @@ export default async (request, context) => {
     html = html.replace(/<link id="canonical-link" rel="canonical" href="[^"]*">/i, '<link id="canonical-link" rel="canonical" href="' + escapeAttribute(canonical) + '">');
     const articleSchema = {
       "@context": "https://schema.org", "@type": "Article", headline: metadata.headline,
-      description, image: [image], datePublished: metadata.datePublished, dateModified: metadata.dateModified,
+      description, image: [image], datePublished: isoDate(metadata.datePublished), dateModified: isoDate(metadata.dateModified),
       author: {"@type": "Person", name: metadata.author},
       publisher: {"@type": "Organization", name: "Panel Pixel", logo: {"@type": "ImageObject", url: SITE_URL + "/assets/images/logo-icon.png"}},
       mainEntityOfPage: {"@type": "WebPage", "@id": canonical},
     };
+    const breadcrumbItems = [{"@type": "ListItem", position: 1, name: "Home", item: SITE_URL + "/index.html"}];
+    if (CATEGORY_NAMES[metadata.category]) breadcrumbItems.push({"@type": "ListItem", position: 2, name: CATEGORY_NAMES[metadata.category], item: SITE_URL + "/" + metadata.category + ".html"});
+    breadcrumbItems.push({"@type": "ListItem", position: breadcrumbItems.length + 1, name: metadata.headline, item: canonical});
+    const breadcrumbSchema = {"@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: breadcrumbItems};
+    html = html.replace('<script type="application/ld+json" id="breadcrumb-jsonld"></script>', '<script type="application/ld+json" id="breadcrumb-jsonld">' + JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") + "</script>");
     html = html.replace('<script type="application/ld+json" id="article-jsonld"></script>', '<script type="application/ld+json" id="article-jsonld">' + JSON.stringify(articleSchema).replace(/</g, "\\u003c") + "</script>");
     const headers = new Headers(response.headers); headers.delete("content-length"); headers.set("cache-control", "public, max-age=0, must-revalidate");
     return new Response(html, {status: response.status, headers});

@@ -466,6 +466,20 @@ function truncateForSEO(text, maxLength) {
   return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim() + "…";
 }
 
+// "2026-10-16" o "2026-10-16 00:00" → "2026-10-16T00:00:00+02:00" (ora italiana), come chiede schema.org.
+function isoArticleDate(value) {
+  const match = String(value || "").match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?$/);
+  if (!match) return value || undefined;
+  const local = `${match[1]}T${match[2] || "00:00"}:00`;
+  try {
+    const offset = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Rome", timeZoneName: "longOffset" })
+      .formatToParts(new Date(`${local}Z`)).find((part) => part.type === "timeZoneName").value.replace("GMT", "");
+    return local + (offset || "+00:00");
+  } catch (error) {
+    return local;
+  }
+}
+
 function updateArticleSEO(article) {
   const seo = article.seo || {};
   const seoTitle = seo.seoTitle || article.seoTitle || `${article.title} | ${SITE.name}`;
@@ -499,7 +513,7 @@ function updateArticleSEO(article) {
     headline: article.title,
     description: seoDescription,
     image: [imageUrl],
-    datePublished: article.date,
+    datePublished: isoArticleDate(article.date),
     author: {
       "@type": "Person",
       name: article.author,
