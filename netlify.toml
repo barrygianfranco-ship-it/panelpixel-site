@@ -16,3 +16,7 @@
   from = "/articoli/:slug"
   to = "/articolo.html?slug=:slug"
   status = 200
+
+[[edge_functions]]
+  function = "feed"
+  path = "/feed.xml"

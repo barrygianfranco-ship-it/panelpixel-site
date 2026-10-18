@@ -72,10 +72,14 @@ function bodyHtml(blocks) {
   }
   closeList(); return html;
 }
-function sanitySocialImage(url) {
+// Stessa regola degli slug in js/authors.js: "Gianfranco Barry" → "gianfranco-barry".
+function authorSlug(name) {
+  return String(name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+function sanitySocialImage(url, width = 1200, height = 630) {
   if (!url) return "";
   const image = new URL(url);
-  image.searchParams.set("w", "1200"); image.searchParams.set("h", "630");
+  image.searchParams.set("w", String(width)); image.searchParams.set("h", String(height));
   image.searchParams.set("fit", "crop"); image.searchParams.set("fm", "jpg"); image.searchParams.set("q", "80");
   return image.toString();
 }
@@ -120,6 +124,8 @@ async function sanityMetadata(requestUrl, slug) {
     title: content.seo_title || (content.title ? content.title + " | Panel Pixel" : "Panel Pixel"),
     headline: content.title, description: content.seo_description || truncate(content.excerpt),
     image: sanitySocialImage(content.image?.asset?.url), datePublished: content.date,
+    // Google Discover vuole immagini larghe almeno 1200 px in 16:9, 4:3 e 1:1.
+    schemaImages: [[1200, 675], [1200, 900], [1200, 1200]].map(([width, height]) => sanitySocialImage(content.image?.asset?.url, width, height)).filter(Boolean),
     dateModified: content._updatedAt || content.date, author: content.author, category: content.category,
     excerpt: content.excerpt, body: bodyHtml(content.corpo),
   };
@@ -159,8 +165,8 @@ export default async (request, context) => {
     }
     const articleSchema = {
       "@context": "https://schema.org", "@type": "Article", headline: metadata.headline,
-      description, image: [image], datePublished: isoDate(metadata.datePublished), dateModified: isoDate(metadata.dateModified),
-      author: {"@type": "Person", name: metadata.author},
+      description, image: metadata.schemaImages?.length ? metadata.schemaImages : [image], datePublished: isoDate(metadata.datePublished), dateModified: isoDate(metadata.dateModified),
+      author: {"@type": "Person", name: metadata.author, url: SITE_URL + "/autore.html?nome=" + authorSlug(metadata.author)},
       publisher: {"@type": "Organization", name: "Panel Pixel", logo: {"@type": "ImageObject", url: SITE_URL + "/assets/images/logo-icon.png"}},
       mainEntityOfPage: {"@type": "WebPage", "@id": canonical},
     };

@@ -538,8 +538,9 @@ function updateArticleSEO(article) {
       "@id": pageUrl,
     },
   };
+  // Se l'edge function ha già scritto i dati strutturati (immagini in più formati, link autore), restano quelli.
   const jsonLdEl = document.getElementById("article-jsonld");
-  if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(jsonLd);
+  if (jsonLdEl && !jsonLdEl.textContent.trim()) jsonLdEl.textContent = JSON.stringify(jsonLd);
 }
 
 function getArticleHeaderLabel(article) {
