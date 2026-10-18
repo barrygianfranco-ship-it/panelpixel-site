@@ -55,6 +55,13 @@ const AUTHORS = [
     bio: "Laureato in beni culturali, sono cresciuto con Zelda e Final Fantasy e vedo i videogiochi come un grande medium per la trasmissione della cultura. Scrivo di videogiochi, arte, storia e gamification. Se non mi trovate in redazione, probabilmente sono perso nel Faerûn.",
     links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/antonio-fragomeni" }],
   },
+  {
+    slug: "jintan",
+    name: "Jintan",
+    role: "Anime e manga",
+    photo: "assets/images/jintan.jpg",
+    bio: "Sono un ragazzo siciliano, grande appassionato di anime e manga. Mi piace scrivere articoli di approfondimento sulla cultura pop giapponese.",
+  },
 ];
 
 function getAuthorBySlug(slug) {
