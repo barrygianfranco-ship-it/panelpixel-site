@@ -2,3 +2,17 @@
   function = "article-meta"
   path = "/articolo.html"
 
+[[edge_functions]]
+  function = "article-meta"
+  path = "/articoli/*"
+
+[[edge_functions]]
+  function = "sitemap"
+  path = "/sitemap.xml"
+
+# Indirizzi puliti degli articoli: /articoli/<slug> mostra articolo.html.
+# Il 301 dai vecchi articolo.html?slug=… lo fa l'edge function article-meta.
+[[redirects]]
+  from = "/articoli/:slug"
+  to = "/articolo.html?slug=:slug"
+  status = 200

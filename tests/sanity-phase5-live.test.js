@@ -128,7 +128,7 @@ async function main() {
   assert.equal(sitemapResponse.status, 200)
   const sitemap = await sitemapResponse.text()
   for (const page of ['index.html', 'archivio.html', 'autore.html?nome=gianfranco-barry']) assert.ok(sitemap.includes(`https://panelpixel.it/${page}`))
-  for (const article of articles) assert.ok(sitemap.includes(`articolo.html?slug=${article.slug.current}`), `Slug assente dalla sitemap: ${article.slug.current}`)
+  for (const article of articles) assert.ok(sitemap.includes(`/articoli/${article.slug.current}`), `Slug assente dalla sitemap: ${article.slug.current}`)
 
   const notFoundResponse = await fetch(`${baseUrl}/fase5-pagina-inesistente`)
   assert.equal(notFoundResponse.status, 404)

@@ -28,6 +28,50 @@ function isoDate(value) {
     .formatToParts(new Date(local + "Z")).find((part) => part.type === "timeZoneName")?.value.replace("GMT", "") || "+00:00";
   return local + offset;
 }
+// Testo dell'articolo già nell'HTML, così i motori di ricerca lo leggono senza eseguire JavaScript.
+// È una versione essenziale (testo, titoli, liste, link): main.js la sostituisce con l'impaginazione completa.
+function escapeHtml(value) {
+  return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function plainParagraphs(value) {
+  return String(value || "").trim().split(/\n\n+/).filter(Boolean).map((part) => "<p>" + escapeHtml(part).replace(/\n/g, "<br>") + "</p>").join("");
+}
+function inlineHtml(block) {
+  const defs = new Map((block.markDefs || []).map((item) => [item._key, item]));
+  return (block.children || []).map((span) => {
+    let html = escapeHtml(span.text).replace(/\n/g, "<br>");
+    for (const mark of span.marks || []) {
+      if (mark === "strong") html = "<strong>" + html + "</strong>";
+      else if (mark === "em") html = "<em>" + html + "</em>";
+      else if (defs.has(mark) && /^(https?:|mailto:|\/)/i.test(defs.get(mark).href || "")) html = '<a href="' + escapeHtml(defs.get(mark).href) + '">' + html + "</a>";
+    }
+    return html;
+  }).join("");
+}
+function bodyHtml(blocks) {
+  let html = ""; let list = "";
+  const closeList = () => { if (list) { html += "</" + list + ">"; list = ""; } };
+  for (const block of blocks || []) {
+    if (block._type === "block") {
+      if (block.listItem) {
+        const tag = block.listItem === "number" ? "ol" : "ul";
+        if (list !== tag) { closeList(); html += "<" + tag + ">"; list = tag; }
+        html += "<li>" + inlineHtml(block) + "</li>"; continue;
+      }
+      closeList(); const content = inlineHtml(block);
+      if (block.style === "h2") html += '<h2 class="article-heading">' + content + "</h2>";
+      else if (block.style === "h3") html += '<h3 class="article-subheading">' + content + "</h3>";
+      else if (block.style === "blockquote") html += "<blockquote><p>" + content + "</p></blockquote>";
+      else if (content) html += "<p>" + content + "</p>";
+      continue;
+    }
+    closeList();
+    if (["survival_chapter", "survival_timeline", "survival_compare", "takeaway", "work_card", "survival_dossier"].includes(block._type) && block.title) html += "<h2>" + escapeHtml(block.title) + "</h2>";
+    for (const key of ["content", "text", "summary", "left_text", "right_text", "note"]) if (typeof block[key] === "string") html += plainParagraphs(block[key]);
+    for (const item of block.items || []) html += "<h3>" + escapeHtml(item.title) + "</h3>" + plainParagraphs(item.text);
+  }
+  closeList(); return html;
+}
 function sanitySocialImage(url) {
   if (!url) return "";
   const image = new URL(url);
@@ -77,12 +121,20 @@ async function sanityMetadata(requestUrl, slug) {
     headline: content.title, description: content.seo_description || truncate(content.excerpt),
     image: sanitySocialImage(content.image?.asset?.url), datePublished: content.date,
     dateModified: content._updatedAt || content.date, author: content.author, category: content.category,
+    excerpt: content.excerpt, body: bodyHtml(content.corpo),
   };
 }
 
 export default async (request, context) => {
+  const requestUrl = new URL(request.url);
+  const pathMatch = requestUrl.pathname.match(/^\/articoli\/([^/]+)\/?$/);
+  const slug = pathMatch ? decodeURIComponent(pathMatch[1]) : requestUrl.searchParams.get("slug");
+  // Vecchi indirizzi articolo.html?slug=… → /articoli/<slug>. Anteprime e CMS alternativi restano sulla query.
+  const keepsQuery = ["cms", "sanity-preview", "sanity-dataset", "_storyblok"].some((key) => requestUrl.searchParams.has(key));
+  if (!pathMatch && slug && !keepsQuery) {
+    return new Response(null, {status: 301, headers: {location: requestUrl.origin + "/articoli/" + encodeURIComponent(slug)}});
+  }
   const response = await context.next();
-  const requestUrl = new URL(request.url); const slug = requestUrl.searchParams.get("slug");
   if (!slug || !response.headers.get("content-type")?.includes("text/html")) return response;
   try {
     // Anche in modalità anteprima i meta pubblici leggono esclusivamente la versione pubblicata.
@@ -96,11 +148,15 @@ export default async (request, context) => {
     }
     const title = metadata.title; const description = metadata.description;
     const image = metadata.image || SITE_URL + "/assets/images/og-default.png";
-    const canonical = SITE_URL + "/articolo.html?slug=" + encodeURIComponent(slug);
+    const canonical = SITE_URL + "/articoli/" + encodeURIComponent(slug);
     let html = await response.text();
     html = html.replace(/<title>.*?<\/title>/i, "<title>" + escapeAttribute(title) + "</title>");
     for (const [id, value] of [["meta-description", description], ["og-title", title], ["og-description", description], ["og-image", image], ["og-url", canonical], ["twitter-title", title], ["twitter-description", description], ["twitter-image", image]]) html = replaceMeta(html, id, value);
     html = html.replace(/<link id="canonical-link" rel="canonical" href="[^"]*">/i, '<link id="canonical-link" rel="canonical" href="' + escapeAttribute(canonical) + '">');
+    if (metadata.body) {
+      html = html.replace('<header class="article-header" id="article-header"></header>', '<header class="article-header" id="article-header"><h1>' + escapeHtml(metadata.headline) + "</h1>" + (metadata.excerpt ? "<p>" + escapeHtml(metadata.excerpt) + "</p>" : "") + "</header>");
+      html = html.replace('<div class="article-body" id="article-body"></div>', '<div class="article-body" id="article-body">' + metadata.body + "</div>");
+    }
     const articleSchema = {
       "@context": "https://schema.org", "@type": "Article", headline: metadata.headline,
       description, image: [image], datePublished: isoDate(metadata.datePublished), dateModified: isoDate(metadata.dateModified),

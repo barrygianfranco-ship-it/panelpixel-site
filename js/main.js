@@ -68,8 +68,15 @@ function getArticleBySlug(slug) {
   return ARTICLES.find((a) => a.slug === slug);
 }
 
+// Indirizzo pubblico di un articolo, relativo alla radice del sito.
+function articleUrl(slug) {
+  return `articoli/${encodeURIComponent(slug)}`;
+}
+
+// Lo slug arriva da /articoli/<slug> oppure, per anteprime e vecchi link, da ?slug=.
 function getRequestedArticleSlug() {
-  const rawSlug = new URLSearchParams(window.location.search).get("slug") || "";
+  const pathMatch = window.location.pathname.match(/^\/articoli\/([^/]+)\/?$/);
+  const rawSlug = pathMatch ? decodeURIComponent(pathMatch[1]) : new URLSearchParams(window.location.search).get("slug") || "";
   return rawSlug.split(/[/?#]/, 1)[0].trim();
 }
 
@@ -107,7 +114,7 @@ function authorCreditHTML(name, className) {
 }
 
 function cardHTML(article) {
-  const href = `articolo.html?slug=${encodeURIComponent(article.slug)}`;
+  const href = articleUrl(article.slug);
   return `
     <article class="card">
       <a class="card-media" href="${href}" aria-label="${article.title}">
@@ -123,7 +130,7 @@ function cardHTML(article) {
 }
 function heroMiniHTML(article) {
   return `
-    <a class="hero-mini" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+    <a class="hero-mini" href="${articleUrl(article.slug)}">
       <div class="hero-mini-media">
         <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
       </div>
@@ -137,7 +144,7 @@ function heroMiniHTML(article) {
 
 function heroMainHTML(article) {
   return `
-    <a class="hero-main" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+    <a class="hero-main" href="${articleUrl(article.slug)}">
       <div class="hero-main-media">
         <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
         <span class="hero-main-tag">${getHeroTag(article)}</span>
@@ -160,7 +167,7 @@ function heroMainHTML(article) {
 
 function heroSideHTML(article) {
   return `
-    <a class="hero-side" href="articolo.html?slug=${encodeURIComponent(article.slug)}">
+    <a class="hero-side" href="${articleUrl(article.slug)}">
       <div class="hero-side-media">
         <img src="${storyblokImageUrl(article.image, 900)}" alt="${article.title}" loading="lazy">
         <span class="hero-side-tag">${getHeroTag(article)}</span>
@@ -177,7 +184,7 @@ function getHomepageLead() {
 }
 
 function editorialStoryHTML(article, lead = false) {
-  const href = "articolo.html?slug=" + encodeURIComponent(article.slug);
+  const href = articleUrl(article.slug);
   const safe = (value) => escapeHTML(String(value || "")).replace(/"/g, "&quot;");
   return `<article class="editorial-story${lead ? " editorial-story--lead" : ""}">
     <a class="editorial-image" href="${href}" aria-label="${safe(article.title)}">
@@ -287,7 +294,7 @@ function searchArticles(query) {
 }
 
 function searchResultHTML(article, query) {
-  const href = `articolo.html?slug=${encodeURIComponent(article.slug)}`;
+  const href = articleUrl(article.slug);
   const title = highlightSearchMatch(article.title, query);
   const excerpt = highlightSearchMatch(article.excerpt || "", query);
   const category = highlightSearchMatch(getCategoryName(article.category), query);
@@ -487,7 +494,7 @@ function updateArticleSEO(article) {
   const imageUrl = /^https?:\/\//.test(article.image)
     ? storyblokImageUrl(article.image, 1200, 630, "jpeg")
     : `${SITE.url}/${article.image.replace(/^\//, "")}`;
-  const pageUrl = `${SITE.url}/articolo.html?slug=${encodeURIComponent(article.slug)}`;
+  const pageUrl = `${SITE.url}/${articleUrl(article.slug)}`;
 
   document.title = seoTitle;
   setMetaContent("meta-description", seoDescription);
@@ -720,7 +727,7 @@ function renderSupportBox(article) {
     <p class="share-feedback" role="status" aria-live="polite"></p>
     <a class="support-cta" href="chi-sono.html">Scopri chi c'è dietro Panel Pixel &rarr;</a>
   `;
-  const url = SITE.url + "/articolo.html?slug=" + encodeURIComponent(article.slug);
+  const url = SITE.url + "/" + articleUrl(article.slug);
   const feedback = el.querySelector(".share-feedback");
   const copyLink = async () => {
     try {
@@ -1005,7 +1012,7 @@ function renderReadNext(article) {
 function renderBreadcrumbs(article) {
   const categoryName = getCategoryName(article.category);
   const categoryUrl = `${SITE.url}/${article.category}.html`;
-  const pageUrl = `${SITE.url}/articolo.html?slug=${encodeURIComponent(article.slug)}`;
+  const pageUrl = `${SITE.url}/${articleUrl(article.slug)}`;
 
   const listEl = document.getElementById("breadcrumb-list");
   if (listEl) {
@@ -1483,8 +1490,25 @@ function renderArchivePage() {
   });
   update();
 }
+// Con <base href="/"> (articolo.html) un link "#nota" punterebbe alla home:
+// i link interni alla pagina scorrono sul posto e aggiornano solo l'ancora.
+function initSamePageAnchors() {
+  if (!document.querySelector("base[href]")) return;
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest && event.target.closest('a[href^="#"]');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const id = decodeURIComponent(link.getAttribute("href").slice(1));
+    const target = id ? document.getElementById(id) : null;
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView();
+    history.pushState(null, "", window.location.pathname + window.location.search + "#" + encodeURIComponent(id));
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   initHeader();
+  initSamePageAnchors();
   initHeaderScrollHide();
   initAccountNavLink();
 
