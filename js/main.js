@@ -1347,10 +1347,13 @@ async function refreshSanityPreviewArticle(slug) {
 }
 
 async function initSanityPreview() {
-  if (!isSanityPreview()) return;
-  const slug = getRequestedArticleSlug();
-  if (!slug) return;
+  // Dentro l'Anteprima dello Studio (pagina in un iframe) il collegamento serve su ogni
+  // pagina, home compresa: senza, lo Studio mostra «Unable to connect».
+  const insideStudio = window.self !== window.top;
+  if (!isSanityPreview() && !insideStudio) return;
   loadSanityVisualEditing().catch((error) => console.error(error));
+  const slug = getRequestedArticleSlug();
+  if (!slug || !isSanityPreview()) return;
   await refreshSanityPreviewArticle(slug);
   window.clearInterval(sanityPreviewTimer);
   sanityPreviewTimer = window.setInterval(() => {
