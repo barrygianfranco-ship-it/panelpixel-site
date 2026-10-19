@@ -62,6 +62,13 @@ const AUTHORS = [
     photo: "assets/images/jintan.jpg",
     bio: "Sono un ragazzo siciliano, grande appassionato di anime e manga. Mi piace scrivere articoli di approfondimento sulla cultura pop giapponese.",
   },
+  {
+    slug: "andrea-morra",
+    name: "Andrea Morra",
+    role: "Fumetti",
+    photo: "assets/images/andrea-morra.jpg",
+    bio: "Laureato in Lingue, da un anno collaboro con il magazine online UBC Fumetti, dove scrivo principalmente recensioni. Cresciuto a pane e Marvel, anche se grazie alla complicità di mio nonno non sono mancate incursioni nel mondo di Tex Willer, sono da sempre affascinato dalle storie e dai personaggi che popolano le pagine dei comics. Accanto alle grandi saghe supereroistiche degli anni Ottanta e Novanta, ad attirare la mia attenzione sono i graphic novel, italiani e non, con qualche spolverata di manga. Insomma, sono un lettore onnivoro. Su Panel Pixel conto di rappresentare una voce fresca, capace di andare al di là dell'analisi tecnica della tavola e dell'opinione di pancia, restituendo al lettore un approfondimento transdisciplinare capace di esplorare i significati, le sfumature e ciò che rende queste storie capaci di lasciare il segno.",
+  },
 ];
 
 function getAuthorBySlug(slug) {
