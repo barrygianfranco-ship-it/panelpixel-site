@@ -69,6 +69,14 @@ const AUTHORS = [
     photo: "assets/images/andrea-morra.jpg",
     bio: "Laureato in Lingue, da un anno collaboro con il magazine online UBC Fumetti, dove scrivo principalmente recensioni. Cresciuto a pane e Marvel, anche se grazie alla complicità di mio nonno non sono mancate incursioni nel mondo di Tex Willer, sono da sempre affascinato dalle storie e dai personaggi che popolano le pagine dei comics. Accanto alle grandi saghe supereroistiche degli anni Ottanta e Novanta, ad attirare la mia attenzione sono i graphic novel, italiani e non, con qualche spolverata di manga. Insomma, sono un lettore onnivoro. Su Panel Pixel conto di rappresentare una voce fresca, capace di andare al di là dell'analisi tecnica della tavola e dell'opinione di pancia, restituendo al lettore un approfondimento transdisciplinare capace di esplorare i significati, le sfumature e ciò che rende queste storie capaci di lasciare il segno.",
   },
+  {
+    slug: "grace",
+    name: "Grace",
+    role: "Collaboratrice esterna",
+    photo: "assets/images/grace-thegraceverse.jpg",
+    bio: "Sono thegraceverse e unisco l’interesse per la filosofia e le scienze umane alle mie riflessioni su anime e serie animate, con uno sguardo curioso verso il mondo del cosplay. Il mio obiettivo è esplorare l’evoluzione dei personaggi e le tematiche più profonde nascoste dietro l’animazione! :D",
+    links: [{ label: "Instagram", url: "https://www.instagram.com/thegraceverse/" }],
+  },
 ];
 
 function getAuthorBySlug(slug) {
