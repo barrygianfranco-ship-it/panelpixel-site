@@ -7,13 +7,16 @@ const imageProjection = `asset->{_id,url,metadata{dimensions}}`
 const projection = `{
   ...,
   image{...,${imageProjection}},
+  figura_sinistra{...,${imageProjection}},
+  figura_destra{...,${imageProjection}},
   corpo[]{
     ...,
     _type == "immagineEditoriale" => {...,${imageProjection}},
     _type == "gallery" => {...,images[]{...,${imageProjection}}},
     _type == "columns3" => {...,image{...,${imageProjection}}},
     _type == "survival_compare" => {...,left_image{...,${imageProjection}},right_image{...,${imageProjection}}},
-    _type == "survival_panorama" => {...,image{...,${imageProjection}}}
+    _type == "survival_panorama" => {...,image{...,${imageProjection}}},
+    _type == "testo_immagini" => {...,immagini[]{...,${imageProjection}}}
   }
 }`
 
