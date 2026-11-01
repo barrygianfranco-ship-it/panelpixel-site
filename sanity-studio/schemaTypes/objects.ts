@@ -1,6 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-type ImportedImage = {importata_da_storyblok?: boolean; da_completare?: boolean}
+type ImportedImage = {asset?: unknown; importata_da_storyblok?: boolean; da_completare?: boolean}
 const field = (name: string, title: string, type = 'string') => defineField({name, title, type})
 const required = (name: string, title: string, type = 'string') =>
   defineField({name, title, type, validation: (rule) => rule.required()})
@@ -9,6 +9,8 @@ const imageMetadata = (name: 'alt' | 'copyright' | 'fonte', title: string) => de
   validation: (rule) => rule.custom((value, context) => {
     if (typeof value === 'string' && value.trim()) return true
     const image = context.parent as ImportedImage | undefined
+    // Un campo immagine facoltativo lasciato vuoto (es. le figure della Stellare) non deve bloccare la pubblicazione
+    if (!image?.asset) return true
     return image?.importata_da_storyblok && image.da_completare ? true : `${title} è obbligatorio per i nuovi contenuti`
   }),
 })
