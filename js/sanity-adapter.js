@@ -8,13 +8,16 @@
   const imageProjection = 'asset->{_id,url,metadata{dimensions}}';
   const projection = `{...,
     image{...,${imageProjection}},
+    figura_sinistra{...,${imageProjection}},
+    figura_destra{...,${imageProjection}},
     corpo[]{
       ...,
       _type == "immagineEditoriale" => {...,${imageProjection}},
       _type == "gallery" => {...,images[]{...,${imageProjection}}},
       _type == "columns3" => {...,image{...,${imageProjection}}},
       _type == "survival_compare" => {...,left_image{...,${imageProjection}},right_image{...,${imageProjection}}},
-      _type == "survival_panorama" => {...,image{...,${imageProjection}}}
+      _type == "survival_panorama" => {...,image{...,${imageProjection}}},
+      _type == "testo_immagini" => {...,immagini[]{...,${imageProjection}}}
     }
   }`;
   const originalImageUrl = window.storyblokImageUrl;
@@ -83,6 +86,10 @@
       }
       case 'box': return `<div class="article-box${block.color ? ' article-box--custom' : ''}"${block.color ? ` style="--box-color: ${esc(block.color)}"` : ''}>${paragraphs(block.content)}</div>`;
       case 'gallery': return `<div class="article-gallery">${(block.images || []).map((item) => imageHtml(item, 1400)).join('')}</div>`;
+      case 'testo_immagini': {
+        const side = block.lato === 'left' ? 'left' : 'right';
+        return `<section class="article-affiancato article-affiancato--${side}"><div class="article-affiancato-testo">${portableTextToHtml(block.testo)}</div><div class="article-affiancato-immagini">${(block.immagini || []).map((item) => imageHtml(item, 900)).join('')}</div></section>`;
+      }
       case 'columns3': return `<div class="article-columns3"><div class="article-columns3-col${block.left_border ? ' article-box' : ''}">${paragraphs(block.left_text)}</div><div class="article-columns3-col${block.image_border ? ' article-box' : ''}">${imageSource(block.image) ? `<img src="${sanityImageUrl(block.image, 800)}"${sanityImageAttrs(block.image, 800)} alt="${esc(block.image.alt)}" loading="lazy">` : ''}</div><div class="article-columns3-col${block.right_border ? ' article-box' : ''}">${paragraphs(block.right_text)}</div></div>`;
       case 'embed': {
         if (block.type === 'youtube') { const id = String(block.url || '').match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/)?.[1]; return id ? `<div class="article-embed article-embed--video"><iframe src="https://www.youtube.com/embed/${esc(id)}" title="Video YouTube" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>` : '<p class="article-embed-error">Video YouTube non riconosciuto.</p>'; }
@@ -127,12 +134,16 @@
   }
   function imageCredits(document) {
     const owners = []; const sources = []; const add = (list, value) => { const text = String(value || '').trim().replace(/\.$/, ''); if (text && !list.includes(text)) list.push(text); };
-    (function walk(value) { if (!value || typeof value !== 'object') return; if (value._type === 'immagineEditoriale') { add(owners, value.copyright); add(sources, value.fonte); } Object.values(value).forEach(walk); })([document.image, document.corpo]);
+    (function walk(value) { if (!value || typeof value !== 'object') return; if (value._type === 'immagineEditoriale') { add(owners, value.copyright); add(sources, value.fonte); } Object.values(value).forEach(walk); })([document.image, document.corpo, document.figura_sinistra, document.figura_destra]);
     return {owners, sources};
+  }
+  function figureOf(image) {
+    const src = imageSource(image);
+    return src ? {src, alt: image.alt || ''} : null;
   }
   function adaptSanityArticle(document) {
     const image = imageSource(document.image); const theme = document.tema ? {background: document.tema.background || '', accent: document.tema.accent || '', accent2: document.tema.accento_2 || '', accent3: document.tema.accento_3 || '', testoChiaro: !!document.tema.testo_chiaro} : undefined;
-    return {title: document.title, slug: document.slug && document.slug.current || '', category: document.category, type: document.type, excerpt: document.excerpt, author: document.author, date: document.date, image, imageAlt: document.image && document.image.alt || '', imageCredits: imageCredits(document), featured: !!document.featured, theme, layout: ['tavola','survival'].includes(document.impaginazione) ? document.impaginazione : 'standard', masthead: {line1: String(document.testata_titolo || '').trim(), line2: String(document.testata_sottotitolo || '').trim()}, pattern: document.motivo || '', triedOn: document.tried_on || '', seoTitle: document.seo_title || '', seoDescription: document.seo_description || '', seoKeywords: document.seo_keywords || [], hasContent: !!(document.corpo && document.corpo.length), content: portableTextToHtml(document.corpo)};
+    return {title: document.title, slug: document.slug && document.slug.current || '', category: document.category, type: document.type, excerpt: document.excerpt, author: document.author, date: document.date, image, imageAlt: document.image && document.image.alt || '', imageCredits: imageCredits(document), featured: !!document.featured, theme, layout: ['tavola','survival','stellare','monografia'].includes(document.impaginazione) ? document.impaginazione : 'standard', figures: {left: figureOf(document.figura_sinistra), right: figureOf(document.figura_destra)}, masthead: {line1: String(document.testata_titolo || '').trim(), line2: String(document.testata_sottotitolo || '').trim()}, pattern: document.motivo || '', triedOn: document.tried_on || '', seoTitle: document.seo_title || '', seoDescription: document.seo_description || '', seoKeywords: document.seo_keywords || [], hasContent: !!(document.corpo && document.corpo.length), content: portableTextToHtml(document.corpo)};
   }
   function usePrivateStaging(params) {
     if (params.get('preview') === '1') return true;

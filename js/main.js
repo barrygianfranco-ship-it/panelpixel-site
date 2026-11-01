@@ -18,7 +18,7 @@ function loadSanityAdapterScript() {
   return new Promise((resolve, reject) => {
     if (window.fetchSanityArticles) { resolve(); return; }
     const script = document.createElement("script");
-    script.src = "js/sanity-adapter.js?v=20261017-2";
+    script.src = "js/sanity-adapter.js?v=20261101-1";
     script.onload = resolve;
     script.onerror = () => reject(new Error("Impossibile caricare l’adattatore Sanity."));
     document.head.appendChild(script);
@@ -615,11 +615,16 @@ function renderArticleToc(bodyEl) {
   const previousToc = contentInner.querySelector(".article-toc");
   if (previousToc) previousToc.remove();
 
+  // Nelle interviste "stellare" le domande sono già le schede da scorrere.
+  if (bodyEl.closest(".layout-stellare")) return;
+
   const isSurvival = !!bodyEl.closest(".layout-survival");
   // Nel dossier Survival l'indice è una sequenza di capitoli, non la lista
   // indiscriminata di ogni titoletto presente dentro timeline e schede.
+  // Nella Monografia solo i capitoli: niente date della cronologia, schede o sottotitoli.
+  const isMonografia = !!bodyEl.closest(".layout-monografia");
   const headings = Array.from(bodyEl.querySelectorAll(
-    isSurvival ? ".survival-chapter h2, :scope > h2.article-heading" : "h2, h3"
+    isSurvival ? ".survival-chapter h2, :scope > h2.article-heading" : isMonografia ? ":scope > h2" : "h2, h3"
   ));
   if (headings.length < 3) return;
 
@@ -810,6 +815,10 @@ function applyArticleLayout(article) {
   const survival = article.layout === "survival";
   wrapEl.classList.toggle("layout-tavola", tavola);
   wrapEl.classList.toggle("layout-survival", survival);
+  wrapEl.classList.toggle("layout-stellare", article.layout === "stellare");
+  const monografia = article.layout === "monografia";
+  wrapEl.classList.toggle("layout-monografia", monografia);
+  wrapEl.classList.toggle("layout-monografia--fascia", monografia && !!(article.masthead && article.masthead.line1));
   wrapEl.style.removeProperty("--tavola-pattern");
   wrapEl.style.removeProperty("--tavola-pattern-size");
   if (!tavola) return;
@@ -868,6 +877,91 @@ function survivalCoverBoxHTML(article) {
   );
 }
 
+/* ---- Impaginazione "stellare": cielo notturno, rosa e oro, tono da anime
+   anni '90 (vedi la sezione omonima in css/style.css). Pensata per le
+   interviste a domande e risposte: il riquadro sulla copertina, e ogni
+   domanda (un paragrafo tutto in grassetto) che apre la sua scheda con le
+   risposte che seguono. ---- */
+function stellareCoverBoxHTML(article) {
+  if (article.layout !== "stellare") return "";
+  const m = article.masthead || {};
+  const line1 = m.line1 || getArticleHeaderLabel(article);
+  const line2 = m.line2 || "";
+  return (
+    `<div class="stellare-cover-box">` +
+    `<p class="stellare-cover-kicker"><span aria-hidden="true">✦</span> Panel Pixel</p>` +
+    `<p class="stellare-cover-line1">${escapeHTML(line1)}</p>` +
+    (line2 ? `<p class="stellare-cover-line2">${escapeHTML(line2)}</p>` : "") +
+    `</div>`
+  );
+}
+
+/* ---- Impaginazione "monografia": saggi lunghi (vedi la sezione omonima in
+   css/style.css). La copertina è divisa: titolo da una parte e immagine
+   dall'altra. Con il "Titolo testata speciale" compilato compare anche una
+   fascia verticale a sinistra, pensata per una scritta giapponese. ---- */
+function monografiaFasciaHTML(article) {
+  const m = article.masthead || {};
+  if (article.layout !== "monografia" || !m.line1) return "";
+  const lang = /[　-ヿ㐀-鿿豈-﫿ｦ-ﾟ]/.test(m.line1) ? ' lang="ja"' : "";
+  return (
+    `<div class="monografia-fascia">` +
+    `<p class="monografia-fascia-testo"${lang}>${escapeHTML(m.line1)}</p>` +
+    (m.line2 ? `<p class="monografia-fascia-nota">${escapeHTML(m.line2)}</p>` : "") +
+    `</div>`
+  );
+}
+
+function renderStellareInterview(bodyEl) {
+  // Una domanda è un paragrafo scritto tutto in grassetto, anche se dentro
+  // il grassetto ci sono dei corsivi (il grassetto arriva a pezzi).
+  const isQuestion = (node) => {
+    if (node.nodeType !== 1 || node.tagName !== "P" || !node.textContent.trim()) return false;
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      if (walker.currentNode.nodeValue.trim() && !walker.currentNode.parentElement.closest("strong")) return false;
+    }
+    return true;
+  };
+  const nodes = Array.from(bodyEl.children);
+  let card = null;
+  for (const node of nodes) {
+    if (isQuestion(node)) {
+      card = document.createElement("section");
+      card.className = "stellare-qa";
+      const question = document.createElement("h2");
+      question.className = "stellare-question";
+      question.innerHTML = `<span>${node.innerHTML.replace(/<\/?strong>/g, "")}</span>`;
+      const answers = document.createElement("div");
+      answers.className = "stellare-answer";
+      card.append(question, answers);
+      node.replaceWith(card);
+    } else if (card && node.matches("p, ul, ol, blockquote")) {
+      card.querySelector(".stellare-answer").append(node);
+    } else {
+      card = null;
+    }
+  }
+  const first = bodyEl.querySelector(":scope > p");
+  if (first && !bodyEl.querySelector(".stellare-qa:first-child")) first.classList.add("stellare-intro");
+}
+
+// Figure PNG ai lati della colonna di lettura (solo schermi larghi, vedi CSS):
+// restano ferme mentre si scorre le risposte. Sono decorative, quindi nascoste
+// agli screen reader; il credito arriva con le altre immagini dell'articolo.
+function renderStellareFigures(bodyEl, article) {
+  const figures = article.figures || {};
+  for (const side of ["left", "right"]) {
+    const figure = figures[side];
+    if (!figure || !figure.src) continue;
+    const column = document.createElement("div");
+    column.className = `stellare-side stellare-side--${side}`;
+    column.setAttribute("aria-hidden", "true");
+    column.innerHTML = `<img src="${storyblokImageUrl(figure.src, 700)}" alt="" loading="lazy" decoding="async">`;
+    bodyEl.append(column);
+  }
+}
+
 // Prima del titoletto che contiene "spoiler" mette un avviso ben visibile.
 function renderTavolaSpoilerNotice(bodyEl) {
   const heading = Array.from(bodyEl.querySelectorAll(":scope > h2")).find((h) => /spoiler/i.test(h.textContent));
@@ -889,7 +983,7 @@ function renderArticleLayout(article) {
   applyArticleTheme(article);
   applyArticleLayout(article);
 
-  mediaEl.innerHTML = `<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${escapeHTML(article.imageAlt || article.title)}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}${survivalCoverBoxHTML(article)}`;
+  mediaEl.innerHTML = `${monografiaFasciaHTML(article)}<img src="${storyblokImageUrl(article.image, 1800)}"${storyblokImageAttrs(article.image, 1800)} alt="${escapeHTML(article.imageAlt || article.title)}" fetchpriority="high" decoding="async">${tavolaCoverBoxHTML(article)}${survivalCoverBoxHTML(article)}${stellareCoverBoxHTML(article)}`;
 
   bodyEl.innerHTML = "";
   radarListEl.innerHTML = "";
@@ -917,6 +1011,10 @@ function renderArticleLayout(article) {
   }
 
   if (article.layout === "tavola") renderTavolaSpoilerNotice(bodyEl);
+  if (article.layout === "stellare") {
+    renderStellareInterview(bodyEl);
+    renderStellareFigures(bodyEl, article);
+  }
   markJapaneseText(bodyEl);
   renderArticleToc(bodyEl);
   renderArticleFooterMeta(footerMetaEl, article);

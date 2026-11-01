@@ -68,6 +68,7 @@ function bodyHtml(blocks) {
     closeList();
     if (["survival_chapter", "survival_timeline", "survival_compare", "takeaway", "work_card", "survival_dossier"].includes(block._type) && block.title) html += "<h2>" + escapeHtml(block.title) + "</h2>";
     for (const key of ["content", "text", "summary", "left_text", "right_text", "note"]) if (typeof block[key] === "string") html += plainParagraphs(block[key]);
+    if (Array.isArray(block.testo)) html += bodyHtml(block.testo);
     for (const item of block.items || []) html += "<h3>" + escapeHtml(item.title) + "</h3>" + plainParagraphs(item.text);
   }
   closeList(); return html;
@@ -111,7 +112,7 @@ async function sanityMetadata(requestUrl, slug) {
   if (usesPrivateStaging(requestUrl)) {
     url.searchParams.set("slug", slug);
   } else {
-    url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && slug.current == $slug][0]{...,image{...,asset->{url}}}');
+    url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && slug.current == $slug][0]{...,image{...,asset->{url}},figura_sinistra{...,asset->{url}},figura_destra{...,asset->{url}}}');
     url.searchParams.set("$slug", JSON.stringify(slug));
     url.searchParams.set("perspective", "published");
   }

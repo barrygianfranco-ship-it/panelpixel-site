@@ -72,7 +72,7 @@ export const survivalChapter = defineType({
   fields: [required('number', 'Numero'), field('eyebrow', 'Occhiello'), required('title', 'Titolo'), field('years', 'Anni'), field('summary', 'Sommario', 'text')],
 })
 export const survivalTimelineItem = defineType({name: 'survival_timeline_item', title: 'Evento cronologico', type: 'object', fields: [required('year', 'Anno'), required('title', 'Titolo'), field('text', 'Testo', 'text')]})
-export const survivalTimeline = defineType({name: 'survival_timeline', title: 'Survival — cronologia', type: 'object', fields: [field('title', 'Titolo'), defineField({name: 'items', title: 'Eventi', type: 'array', of: [{type: 'survival_timeline_item'}], validation: (r) => r.required().min(1)})]})
+export const survivalTimeline = defineType({name: 'survival_timeline', title: 'Cronologia (Survival e Monografia)', type: 'object', fields: [field('title', 'Titolo'), defineField({name: 'items', title: 'Eventi', type: 'array', of: [{type: 'survival_timeline_item'}], validation: (r) => r.required().min(1)})]})
 export const survivalCompare = defineType({
   name: 'survival_compare', title: 'Survival — confronto', type: 'object', fields: [
     field('title', 'Titolo'), field('left_image', 'Immagine sinistra', 'immagineEditoriale'), field('left_title', 'Titolo sinistro'), field('left_text', 'Testo sinistro', 'text'),
@@ -82,7 +82,36 @@ export const survivalCompare = defineType({
 export const survivalPanorama = defineType({name: 'survival_panorama', title: 'Survival — panorama', type: 'object', fields: [required('image', 'Immagine', 'immagineEditoriale'), field('caption', 'Didascalia')]})
 export const survivalDossier = defineType({name: 'survival_dossier', title: 'Survival — nota d’archivio', type: 'object', fields: [field('label', 'Etichetta'), field('code', 'Codice'), field('title', 'Titolo'), field('text', 'Testo', 'text')]})
 
-const bodyObjects = ['immagineEditoriale', 'box', 'gallery', 'columns3', 'embed', 'footnotes', 'pullquote', 'takeaway', 'work_card', 'survival_chapter', 'survival_compare', 'survival_dossier', 'survival_panorama', 'survival_timeline']
+// Testo con accanto una colonna di immagini impilate (pensato per l'impaginazione Monografia, funziona in tutte).
+export const testoImmagini = defineType({
+  name: 'testo_immagini', title: 'Testo e immagini affiancati', type: 'object',
+  fields: [
+    defineField({
+      name: 'testo', title: 'Testo', type: 'array', validation: (r) => r.required().min(1),
+      of: [defineArrayMember({
+        type: 'block', styles: [{title: 'Normale', value: 'normal'}], lists: [],
+        marks: {
+          decorators: [{title: 'Grassetto', value: 'strong'}, {title: 'Corsivo', value: 'em'}],
+          annotations: [{name: 'link', type: 'object', title: 'Link', fields: [
+            defineField({name: 'href', title: 'URL', type: 'url', validation: (r) => r.required().uri({allowRelative: true, scheme: ['http', 'https', 'mailto']})}),
+            defineField({name: 'blank', title: 'Apri in una nuova scheda', type: 'boolean', initialValue: false}),
+          ]}],
+        },
+      })],
+    }),
+    defineField({name: 'immagini', title: 'Immagini (da 1 a 5, una sotto l’altra)', type: 'array', of: [{type: 'immagineEditoriale'}], validation: (r) => r.required().min(1).max(5)}),
+    defineField({
+      name: 'lato', title: 'Immagini a', type: 'string', initialValue: 'right',
+      options: {list: [{title: 'Destra', value: 'right'}, {title: 'Sinistra', value: 'left'}], layout: 'radio'},
+    }),
+  ],
+  preview: {
+    select: {media: 'immagini.0.asset', testo: 'testo'},
+    prepare: ({media, testo}) => ({media, title: 'Testo e immagini affiancati', subtitle: ((testo || [])[0]?.children || []).map((s: {text?: string}) => s.text || '').join('').slice(0, 80)}),
+  },
+})
+
+const bodyObjects = ['immagineEditoriale', 'box', 'gallery', 'columns3', 'testo_immagini', 'embed', 'footnotes', 'pullquote', 'takeaway', 'work_card', 'survival_chapter', 'survival_compare', 'survival_dossier', 'survival_panorama', 'survival_timeline']
 export const corpoArticolo = defineType({
   name: 'corpoArticolo', title: 'Corpo articolo', type: 'array', of: [
     defineArrayMember({
