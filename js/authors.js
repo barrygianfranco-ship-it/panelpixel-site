@@ -77,6 +77,13 @@ const AUTHORS = [
     bio: "Sono thegraceverse e unisco l’interesse per la filosofia e le scienze umane alle mie riflessioni su anime e serie animate, con uno sguardo curioso verso il mondo del cosplay. Il mio obiettivo è esplorare l’evoluzione dei personaggi e le tematiche più profonde nascoste dietro l’animazione! :D",
     links: [{ label: "Instagram", url: "https://www.instagram.com/thegraceverse/" }],
   },
+  {
+    slug: "sara-verde",
+    name: "Sara Verde",
+    role: "Videogiochi, manga e anime",
+    photo: "assets/images/sara-verde.jpg",
+    bio: "Ciao, sono Sara Verde, classe 1995. Mi divido tra il mondo dell'educazione come educatrice e lo sviluppo di una startup digitale. Cacciatrice di storie tra pixel, manga e anime, quando non sono in quest online mi rifugio in letteratura, poesia e musica. Già editor videoludico, arrivo su Panel Pixel con il desiderio di far crescere ed esplorare nuove sfumature della mia voce.",
+  },
 ];
 
 function getAuthorBySlug(slug) {
