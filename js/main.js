@@ -18,7 +18,7 @@ function loadSanityAdapterScript() {
   return new Promise((resolve, reject) => {
     if (window.fetchSanityArticles) { resolve(); return; }
     const script = document.createElement("script");
-    script.src = "js/sanity-adapter.js?v=20261101-1";
+    script.src = "js/sanity-adapter.js?v=20261104-1";
     script.onload = resolve;
     script.onerror = () => reject(new Error("Impossibile caricare l’adattatore Sanity."));
     document.head.appendChild(script);
