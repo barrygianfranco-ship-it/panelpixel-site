@@ -10,7 +10,13 @@ export const articolo = defineType({
     defineField({name: 'slug', title: 'Slug', type: 'slug', group: 'editoriale', options: {source: 'title', maxLength: 96}, validation: (r) => r.required()}),
     required('category', 'Categoria'), required('type', 'Tipo'), required('excerpt', 'Sommario', 'text'),
     defineField({name: 'author', title: 'Autore', description: 'Gli autori restano definiti in js/authors.js.', type: 'string', group: 'editoriale', validation: (r) => r.required()}),
-    required('date', 'Data', 'date'), required('image', 'Immagine di copertina', 'immagineEditoriale'),
+    required('date', 'Data', 'date'),
+    defineField({
+      name: 'esce_il', title: 'Esce il', type: 'datetime', group: 'editoriale',
+      description: 'Facoltativo. Se compilato, il sito mostra l’articolo pubblicato solo da questo giorno e ora. Vuoto = esce appena pubblicato. Non usarlo per gli embarghi: i dati restano leggibili dall’API pubblica.',
+      options: {timeStep: 15},
+    }),
+    required('image', 'Immagine di copertina', 'immagineEditoriale'),
     defineField({name: 'featured', title: 'In evidenza', type: 'boolean', initialValue: false, group: 'editoriale'}),
     defineField({
       name: 'stato', title: 'Stato editoriale', type: 'string', group: 'editoriale', initialValue: 'bozza',

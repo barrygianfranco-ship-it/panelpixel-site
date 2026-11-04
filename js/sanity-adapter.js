@@ -153,7 +153,9 @@
   }
   async function publicProductionRequest(params) {
     const slug = params.get('slug');
-    const filter = `_type == "articolo" && stato == "approvato"`;
+    // esce_il: nasconde gli articoli pubblicati prima dell'ora di uscita. Il minuto
+    // corrente va come parametro e non come now(), così l'API CDN non riusa risposte vecchie.
+    const filter = `_type == "articolo" && stato == "approvato" && (!defined(esce_il) || dateTime(esce_il) <= dateTime($adesso))`;
     const query = slug
       ? `*[${filter} && slug.current == $slug][0]${projection}`
       : `*[${filter}] | order(date desc) ${projection}`;
@@ -161,6 +163,7 @@
     url.searchParams.set('query', query);
     url.searchParams.set('perspective', 'published');
     if (slug) url.searchParams.set('$slug', JSON.stringify(slug));
+    url.searchParams.set('$adesso', JSON.stringify(new Date(Math.floor(Date.now() / 60000) * 60000).toISOString()));
     const response = await fetch(url, {cache: 'default'});
     if (!response.ok) throw new Error(`Sanity CDN: HTTP ${response.status}`);
     const result = (await response.json()).result;

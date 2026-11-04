@@ -71,7 +71,8 @@ export default async (request) => {
       return json({document: await querySanity(query, {slug}, token, dataset, true), preview: true}, 200, true)
     }
 
-    const filter = `_type == "articolo" && !(_id in path("drafts.**")) && stato == "approvato"`
+    // esce_il: l'articolo pubblicato resta nascosto fino all'ora di uscita (API senza CDN, now() è aggiornato).
+    const filter = `_type == "articolo" && !(_id in path("drafts.**")) && stato == "approvato" && (!defined(esce_il) || dateTime(esce_il) <= dateTime(now()))`
     if (slug) {
       const document = await querySanity(`*[${filter} && slug.current == $slug][0]${projection}`, {slug}, token, dataset)
       return json({document, preview: false})

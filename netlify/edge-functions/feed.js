@@ -23,7 +23,9 @@ function coverUrl(url) {
 
 export default async () => {
   const url = new URL(`https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_PRODUCTION_DATASET}`);
-  url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && defined(slug.current)] | order(date desc)[0...30]{title, "slug": slug.current, excerpt, seo_description, author, category, date, "image": image.asset->url, "imageAlt": image.alt}');
+  url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && defined(slug.current) && (!defined(esce_il) || dateTime(esce_il) <= dateTime($adesso))] | order(date desc)[0...30]{title, "slug": slug.current, excerpt, seo_description, author, category, date, "image": image.asset->url, "imageAlt": image.alt}');
+  // Minuto corrente come parametro: niente now(), così l'API CDN non riusa una risposta vecchia.
+  url.searchParams.set("$adesso", JSON.stringify(new Date(Math.floor(Date.now() / 60000) * 60000).toISOString()));
   url.searchParams.set("perspective", "published");
   const sanity = await fetch(url, {headers: {accept: "application/json"}});
   if (!sanity.ok) return new Response("Feed non disponibile", {status: 503, headers: {"content-type": "text/plain; charset=utf-8", "retry-after": "300"}});

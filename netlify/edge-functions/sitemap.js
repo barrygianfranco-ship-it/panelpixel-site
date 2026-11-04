@@ -14,7 +14,9 @@ export default async (request, context) => {
   if (!response.ok) return response;
   try {
     const url = new URL(`https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_PRODUCTION_DATASET}`);
-    url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && defined(slug.current)] | order(date desc){"slug": slug.current, date, _updatedAt}');
+    url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && defined(slug.current) && (!defined(esce_il) || dateTime(esce_il) <= dateTime($adesso))] | order(date desc){"slug": slug.current, date, _updatedAt}');
+    // Minuto corrente come parametro: niente now(), così l'API CDN non riusa una risposta vecchia.
+    url.searchParams.set("$adesso", JSON.stringify(new Date(Math.floor(Date.now() / 60000) * 60000).toISOString()));
     url.searchParams.set("perspective", "published");
     const sanity = await fetch(url, {headers: {accept: "application/json"}});
     if (!sanity.ok) return response;

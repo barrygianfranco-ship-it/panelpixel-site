@@ -112,8 +112,10 @@ async function sanityMetadata(requestUrl, slug) {
   if (usesPrivateStaging(requestUrl)) {
     url.searchParams.set("slug", slug);
   } else {
-    url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && slug.current == $slug][0]{...,image{...,asset->{url}},figura_sinistra{...,asset->{url}},figura_destra{...,asset->{url}}}');
+    url.searchParams.set("query", '*[_type == "articolo" && stato == "approvato" && slug.current == $slug && (!defined(esce_il) || dateTime(esce_il) <= dateTime($adesso))][0]{...,image{...,asset->{url}},figura_sinistra{...,asset->{url}},figura_destra{...,asset->{url}}}');
     url.searchParams.set("$slug", JSON.stringify(slug));
+    // Minuto corrente come parametro: niente now(), così l'API CDN non riusa una risposta vecchia.
+    url.searchParams.set("$adesso", JSON.stringify(new Date(Math.floor(Date.now() / 60000) * 60000).toISOString()));
     url.searchParams.set("perspective", "published");
   }
   const response = await fetch(url, {headers: {accept: "application/json"}});
