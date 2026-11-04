@@ -84,6 +84,13 @@ const AUTHORS = [
     photo: "assets/images/sara-verde.jpg",
     bio: "Ciao, sono Sara Verde, classe 1995. Mi divido tra il mondo dell'educazione come educatrice e lo sviluppo di una startup digitale. Cacciatrice di storie tra pixel, manga e anime, quando non sono in quest online mi rifugio in letteratura, poesia e musica. Già editor videoludico, arrivo su Panel Pixel con il desiderio di far crescere ed esplorare nuove sfumature della mia voce.",
   },
+  {
+    slug: "sebastiano-gualdoni",
+    name: "Sebastiano Gualdoni",
+    role: "Manga, anime e videogiochi",
+    photo: "assets/images/sebastiano-gualdoni.jpg",
+    bio: "Traduttore di formazione, specializzato in lingua giapponese e dall'animo un po' nerd. Manga, anime, videogiochi, serie TV e YouTube sono la mia scuola, la cultura pop il mio terreno di gioco, e il Giappone, che mi ha adottato per sei mesi, la mia seconda casa. Main quest a lungo termine: diventare traduttore e localizzatore nel settore audiovisivo e videoludico.",
+  },
 ];
 
 function getAuthorBySlug(slug) {
