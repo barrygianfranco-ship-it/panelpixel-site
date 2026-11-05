@@ -29,70 +29,40 @@
   <link rel="preload" href="assets/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css?v=20260929-1">
   <link rel="stylesheet" href="css/home.css?v=20260929-1">
+  <link rel="stylesheet" href="css/mosaico.css?v=20261105-1">
 </head>
 <body class="editorial-home">
 
-  <header class="site-header">
-    <div class="container site-header-brand">
-      <a class="site-logo" href="index.html">
-        <img src="assets/images/logo-icon.png" alt="" class="site-logo-icon">
-        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
-      </a>
-    </div>
-    <div class="site-header-nav">
-      <div class="container site-header-nav-inner">
-        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
-        <nav class="primary-nav" id="primary-nav">
-          <a class="nav-link" href="index.html">Home</a>
-          <a class="nav-link" href="recensioni.html">Recensioni</a>
-          <a class="nav-link" href="monografie.html">Monografie</a>
-          <a class="nav-link" href="attualita.html">Attualità</a>
-          <a class="nav-link" href="anteprime.html">Anteprime</a>
-          <a class="nav-link" href="approfondimenti.html">Approfondimenti</a>
-          <a class="nav-link" href="chi-sono.html">Chi siamo</a>
-          <a class="nav-link" href="collabora.html">Collabora</a>
-          <a class="nav-link nav-link-account" href="account.html">Account</a>
-        </nav>
-        <div class="search-box">
-          <input
-            type="search"
-            id="search-input"
-            class="search-input"
-            placeholder="Cerca articoli…"
-            aria-label="Cerca articoli"
-            autocomplete="off"
-          >
-          <button type="button" class="search-clear" id="search-clear" aria-label="Cancella ricerca" hidden>&times;</button>
-        </div>
-      </div>
+  <header class="mo-testa">
+    <div class="mo-wrap">
+      <nav aria-label="Panel Pixel"><a href="chi-sono.html">Chi siamo</a><a href="collabora.html">Collabora</a><a href="#cerca" data-mo-cerca>Cerca</a><a class="nav-link nav-link-account" href="account.html">Account</a></nav>
+      <a class="mo-logo" href="index.html"><img class="i" src="assets/images/logo-icon.png" alt=""><img class="s" src="assets/images/logo-wordmark.png" alt="Panel Pixel"></a>
+      <nav class="dx" aria-label="Newsletter"><a class="mo-cta" href="index.html#newsletter">Newsletter</a></nav>
     </div>
   </header>
+  <nav class="mo-sezioni" aria-label="Sezioni">
+    <div class="mo-wrap"><a href="index.html" class="on">In primo piano</a><a href="recensioni.html">Recensioni</a><a href="anteprime.html">Anteprime</a><a href="approfondimenti.html">Approfondimenti</a><a href="monografie.html">Monografie</a><a href="attualita.html">Attualità</a>
+      <div class="search-box">
+        <input type="search" id="search-input" class="search-input" placeholder="Cerca articoli…" aria-label="Cerca articoli" autocomplete="off">
+        <button type="button" class="search-clear" id="search-clear" aria-label="Cancella ricerca" hidden>&times;</button>
+      </div>
+    </div>
+  </nav>
 
-  <main class="container is-loading">
+  <main class="mo-home is-loading">
 
     <h1 class="visually-hidden">Panel Pixel — Fumetti, videogiochi e cultura pop, un frame alla volta.</h1>
 
-    <section class="editorial-lead" id="magazine-hero" aria-label="In evidenza">
-      <p class="editorial-kicker">In evidenza</p>
-      <div id="hero-center"></div>
-    </section>
-
     <div id="search-results" class="search-results" hidden></div>
 
-    <section class="homepage-grid" id="homepage-grid">
-      <h2 class="section-title">Altre storie</h2>
-      <div class="card-grid" id="homepage-articles"></div>
-    </section>
+    <div id="homepage-grid">
+      <section class="mo-mosaico" id="mo-mosaico" aria-label="In evidenza"></section>
+      <section class="mo-blocco" hidden><div class="mo-blocco-testa"><h2>Recensioni</h2><a href="recensioni.html">Vedi tutte</a></div><div class="mo-scorri" id="mo-recensioni"></div></section>
+      <section class="mo-blocco" hidden aria-label="Approfondimenti e monografie"><div class="mo-due" id="mo-lunghi"></div></section>
+      <section class="mo-blocco" hidden><div class="mo-blocco-testa"><h2>Anteprime</h2><a href="anteprime.html">Vedi tutte</a></div><div class="mo-scorri" id="mo-anteprime"></div></section>
+    </div>
 
-    <section class="category-section" id="approfondimenti-section" hidden>
-      <div class="section-header">
-        <h2 class="section-title">Approfondimenti</h2>
-        <a class="section-link" href="approfondimenti.html">Vedi tutti &rarr;</a>
-      </div>
-      <div class="card-grid" id="approfondimenti-articles"></div>
-    </section>
-
-    <section class="newsletter-panel" aria-labelledby="newsletter-title">
+    <section class="newsletter-panel" id="newsletter" aria-labelledby="newsletter-title">
       <div>
         <p class="editorial-kicker">Lettere dalla redazione</p>
         <h2 id="newsletter-title">Le storie che meritano tempo, nella tua casella.</h2>
@@ -122,7 +92,8 @@
   <script src="js/data.js?v=20260929-1"></script>
   <script src="js/authors.js?v=20261023-1"></script>
   <script src="js/storyblok-richtext.js?v=20260929-1"></script>
-  <script src="js/main.js?v=20261104-1"></script>
+  <script src="js/main.js?v=20261105-1"></script>
+  <script src="js/mosaico.js?v=20261105-1"></script>
   <!-- Statistiche Cloudflare, senza cookie -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "2010e097e45544f18800a1af1e4c671b"}'></script>
 </body>

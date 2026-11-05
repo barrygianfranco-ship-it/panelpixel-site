@@ -333,6 +333,7 @@ function renderSearchResults(query) {
     resultsEl.innerHTML = "";
     renderMagazineHero();
     renderHomepageGrid();
+    if (typeof renderMosaico === "function") renderMosaico();
     return;
   }
 
@@ -1615,7 +1616,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initAccountNavLink();
 
   renderAboutCollaborators();
-  if (!document.querySelector("#magazine-hero, #homepage-articles, #category-list, #article-content, #author-page, #archive-list")) return;
+  if (!document.querySelector("#magazine-hero, #homepage-articles, #mo-mosaico, #category-list, #article-content, #author-page, #archive-list")) return;
 
   try {
     await loadArticles();
@@ -1629,6 +1630,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   renderMagazineHero();
   renderHomepageGrid();
+  if (typeof renderMosaico === "function") renderMosaico();
   renderApprofondimentiSection();
   initSearch();
   renderCategoryPage();
