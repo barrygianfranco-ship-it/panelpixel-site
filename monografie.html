@@ -43,33 +43,21 @@
   <link rel="preload" href="assets/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css?v=20260929-1">
   <link rel="stylesheet" href="css/home.css?v=20260929-1">
+  <link rel="stylesheet" href="css/mosaico.css?v=20261105-1">
 </head>
 <body class="editorial-category-page">
 
-  <header class="site-header">
-    <div class="container site-header-brand">
-      <a class="site-logo" href="index.html">
-        <img src="assets/images/logo-icon.png" alt="" class="site-logo-icon">
-        <img src="assets/images/logo-wordmark.png" alt="Panel Pixel" class="site-logo-wordmark">
-      </a>
-    </div>
-    <div class="site-header-nav">
-      <div class="container site-header-nav-inner">
-        <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav">Menu</button>
-        <nav class="primary-nav" id="primary-nav">
-          <a class="nav-link" href="index.html">Home</a>
-          <a class="nav-link" href="recensioni.html">Recensioni</a>
-          <a class="nav-link" href="monografie.html">Monografie</a>
-          <a class="nav-link" href="attualita.html">Attualità</a>
-          <a class="nav-link" href="anteprime.html">Anteprime</a>
-          <a class="nav-link" href="approfondimenti.html">Approfondimenti</a>
-          <a class="nav-link" href="chi-sono.html">Chi siamo</a>
-          <a class="nav-link" href="collabora.html">Collabora</a>
-          <a class="nav-link nav-link-account" href="account.html">Account</a>
-        </nav>
-      </div>
+  <header class="mo-testa">
+    <div class="mo-wrap">
+      <nav aria-label="Panel Pixel"><a href="chi-sono.html">Chi siamo</a><a href="collabora.html">Collabora</a><a href="index.html#cerca">Cerca</a><a class="nav-link nav-link-account" href="account.html">Account</a></nav>
+      <a class="mo-logo" href="index.html"><img class="i" src="assets/images/logo-icon.png" alt=""><img class="s" src="assets/images/logo-wordmark.png" alt="Panel Pixel"></a>
+      <nav class="dx" aria-label="Newsletter"><a class="mo-cta" href="index.html#newsletter">Newsletter</a></nav>
     </div>
   </header>
+  <nav class="mo-sezioni" aria-label="Sezioni">
+    <div class="mo-wrap"><a href="index.html">In primo piano</a><a href="recensioni.html">Recensioni</a><a href="anteprime.html">Anteprime</a><a href="approfondimenti.html">Approfondimenti</a><a href="monografie.html" class="on">Monografie</a><a href="attualita.html">Attualità</a>
+    </div>
+  </nav>
 
   <div class="page-hero container">
     <nav class="breadcrumbs" aria-label="Breadcrumb">
@@ -102,7 +90,7 @@
   <script src="js/data.js?v=20260929-1"></script>
   <script src="js/authors.js?v=20261023-1"></script>
   <script src="js/storyblok-richtext.js?v=20260929-1"></script>
-  <script src="js/main.js?v=20261104-1"></script>
+  <script src="js/main.js?v=20261105-1"></script>
   <!-- Statistiche Cloudflare, senza cookie -->
   <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "2010e097e45544f18800a1af1e4c671b"}'></script>
 </body>
