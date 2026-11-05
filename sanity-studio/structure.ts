@@ -8,4 +8,5 @@ const byStatus = (S: StructureBuilder, title: string, value: string) =>
 export const structure: StructureResolver = (S) => S.list().title('Panel Pixel').items([
   S.listItem().title('Tutti gli articoli').child(S.documentTypeList('articolo').title('Tutti gli articoli')),
   S.divider(), byStatus(S, 'Bozze', 'bozza'), byStatus(S, 'In revisione', 'in_revisione'), byStatus(S, 'Approvati', 'approvato'),
+  S.divider(), S.listItem().title('Caroselli Instagram').child(S.documentTypeList('caroselloInstagram').title('Caroselli Instagram')),
 ])

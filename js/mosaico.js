@@ -67,3 +67,56 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("[data-mo-cerca]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); vai(); }));
   if (location.hash === "#cerca") vai();
 });
+
+// ---- Caroselli Instagram: documenti «caroselloInstagram» pubblicati in Sanity ----
+function caroselloHTML(c) {
+  const slide = (c.slide || []).filter(Boolean);
+  const imgs = slide.map((u, k) => `<img src="${mosaicoImg(u, 640)}" alt="${k ? "" : mosaicoEsc(c.titolo)}" loading="lazy"${k ? "" : ' class="on"'}>`).join("");
+  const frecce = slide.length > 1 ? '<button type="button" class="p" aria-label="Slide precedente">‹</button><button type="button" class="n" aria-label="Slide successiva">›</button>' : "";
+  const link = c.link || "https://www.instagram.com/panelpixel.it/";
+  return `<p class="ig-etichetta">Su Instagram</p><div class="ig-car">${imgs}${frecce}</div><div class="ig-punti">${"<i></i>".repeat(slide.length)}</div><p class="ig-tit">${mosaicoEsc(c.titolo)}</p><a class="ig-link" href="${mosaicoEsc(link)}" target="_blank" rel="noopener">Apri su Instagram →</a>`;
+}
+
+function attivaCarosello(box) {
+  const im = box.querySelectorAll(".ig-car img"), pu = box.querySelectorAll(".ig-punti i");
+  if (!im.length) return;
+  let i = 0; pu[0]?.classList.add("on");
+  const vai = (d) => { im[i].classList.remove("on"); pu[i]?.classList.remove("on"); i = (i + d + im.length) % im.length; im[i].classList.add("on"); pu[i]?.classList.add("on"); };
+  box.querySelector(".p")?.addEventListener("click", () => vai(-1));
+  box.querySelector(".n")?.addEventListener("click", () => vai(1));
+}
+
+function renderCaroselliInstagram(caroselli) {
+  const scelti = ["sinistra", "destra"].map((pos) => caroselli.find((c) => c.posizione === pos)).filter((c) => c && c.slide && c.slide.length);
+  if (!scelti.length) return;
+  const piede = document.querySelector(".site-footer");
+  scelti.forEach((c) => {
+    const lato = document.createElement("aside");
+    lato.className = `ig-lato ${c.posizione}`;
+    lato.setAttribute("aria-label", `Su Instagram: ${c.titolo}`);
+    lato.innerHTML = caroselloHTML(c);
+    document.body.insertBefore(lato, piede);
+    attivaCarosello(lato);
+  });
+  const fascia = document.createElement("section");
+  fascia.className = "mo-blocco ig-fascia";
+  fascia.innerHTML = `<div class="mo-blocco-testa"><h2>Dal nostro Instagram</h2><a href="https://www.instagram.com/panelpixel.it/" target="_blank" rel="noopener">Seguici</a></div><div class="ig-griglia">${scelti.map((c) => `<div>${caroselloHTML(c)}</div>`).join("")}</div>`;
+  document.getElementById("newsletter")?.before(fascia);
+  fascia.querySelectorAll(".ig-griglia > div").forEach(attivaCarosello);
+}
+
+async function caricaCaroselliInstagram() {
+  const query = '*[_type == "caroselloInstagram" && attivo != false] | order(_updatedAt desc){titolo, link, posizione, "slide": slide[].asset->url}';
+  const url = `https://np9ttr0b.apicdn.sanity.io/v2026-10-17/data/query/production?query=${encodeURIComponent(query)}&perspective=published`;
+  try {
+    const risposta = await fetch(url);
+    if (!risposta.ok) return;
+    renderCaroselliInstagram((await risposta.json()).result || []);
+  } catch (err) {
+    console.warn("Caroselli Instagram non disponibili:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("mo-mosaico")) caricaCaroselliInstagram();
+});

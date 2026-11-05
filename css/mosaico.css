@@ -87,3 +87,25 @@
   .mo-tes.grande p { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
   .mo-scorri { grid-auto-columns:78%; } .mo-blocco-testa h2 { font-size:26px; } .mo-lungo .t { padding:24px; } .mo-lungo h3 { font-size:24px; }
 }
+
+/* ---- Caroselli Instagram (da Sanity): ai lati su schermi larghi, in fascia sugli altri ---- */
+.ig-lato { display:none; }
+@media (min-width:1680px) {
+  .ig-lato { display:block; position:fixed; top:172px; width:min(270px, calc((100vw - 1260px)/2 - 56px)); z-index:5; }
+  .ig-lato.sinistra { left:28px; } .ig-lato.destra { right:28px; }
+  .ig-fascia { display:none; }
+}
+.ig-etichetta { display:flex; align-items:center; gap:8px; font:700 11px/1 "Inter",sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--mo-mute); margin:0 0 10px; }
+.ig-etichetta::before { content:""; width:14px; height:14px; border:2px solid currentColor; border-radius:4px; box-sizing:border-box; }
+.ig-car { position:relative; border-radius:10px; overflow:hidden; aspect-ratio:4/5; background:#eee; box-shadow:0 6px 24px rgba(0,0,0,.08); }
+.ig-car img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .35s; }
+.ig-car img.on { opacity:1; }
+.ig-car button { position:absolute; top:50%; transform:translateY(-50%); width:30px; height:30px; border-radius:50%; border:0; background:rgba(255,255,255,.9); color:var(--mo-ink); font:600 16px/1 "Inter",sans-serif; cursor:pointer; opacity:0; transition:opacity .2s; }
+.ig-car:hover button, .ig-car button:focus-visible { opacity:1; } .ig-car .p { left:8px; } .ig-car .n { right:8px; }
+@media (hover:none) { .ig-car button { opacity:1; } }
+.ig-punti { display:flex; justify-content:center; gap:5px; margin:10px 0 8px; }
+.ig-punti i { width:6px; height:6px; border-radius:50%; background:#d6d0c4; } .ig-punti i.on { background:var(--mo-red); }
+.ig-tit { font:700 15px/1.25 "Playfair Display",serif; margin:0 0 6px; }
+.ig-link { font:600 12px/1 "Inter",sans-serif; color:var(--mo-red); text-decoration:none; }
+.ig-fascia .ig-griglia { display:grid; grid-template-columns:repeat(2, minmax(0, 260px)); gap:22px; }
+@media (max-width:600px) { .ig-fascia .ig-griglia { grid-template-columns:1fr 1fr; gap:12px; } }
