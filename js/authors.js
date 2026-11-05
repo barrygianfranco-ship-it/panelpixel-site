@@ -48,14 +48,6 @@ const AUTHORS = [
     bio: "Mi hanno chiesto di presentarmi, quindi quella che segue è una presentazione perfettamente chiara e coerente. Sono la persona che strapazza le idee. Le prendo e le faccio uscire dal loro guscio; poi le ribalto, aggiungo altre idee di cui non c’era assolutamente bisogno e infine creo qualcosa di vagamente sensato. La mia concezione di personal branding è fare spuntini abbinati alla lettura del momento: Panel Pixel non è stato maltrattato durante il procedimento. Qui è NoMa, lettrice di manga e fumetti che ama le vecchie edizioni e sovrainterpretare qualsiasi cosa.",
   },
   {
-    slug: "antonio-fragomeni",
-    name: "Antonio Fragomeni",
-    role: "Videogiochi, arte e gamification",
-    photo: "assets/images/antonio-fragomeni.jpg",
-    bio: "Laureato in beni culturali, sono cresciuto con Zelda e Final Fantasy e vedo i videogiochi come un grande medium per la trasmissione della cultura. Scrivo di videogiochi, arte, storia e gamification. Se non mi trovate in redazione, probabilmente sono perso nel Faerûn.",
-    links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/antonio-fragomeni" }],
-  },
-  {
     slug: "jintan",
     name: "Jintan",
     role: "Anime e manga",
