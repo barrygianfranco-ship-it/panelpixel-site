@@ -83,6 +83,14 @@ const AUTHORS = [
     photo: "assets/images/sebastiano-gualdoni.jpg",
     bio: "Traduttore di formazione, specializzato in lingua giapponese e dall'animo un po' nerd. Manga, anime, videogiochi, serie TV e YouTube sono la mia scuola, la cultura pop il mio terreno di gioco, e il Giappone, che mi ha adottato per sei mesi, la mia seconda casa. Main quest a lungo termine: diventare traduttore e localizzatore nel settore audiovisivo e videoludico.",
   },
+  {
+    slug: "antonio-fragomeni",
+    name: "Antonio Fragomeni",
+    role: "Videogiochi, arte e gamification",
+    photo: "assets/images/antonio-fragomeni.jpg",
+    bio: "Laureato in beni culturali, sono cresciuto con Zelda e Final Fantasy e vedo i videogiochi come un grande medium per la trasmissione della cultura. Scrivo di videogiochi, arte, storia e gamification. Se non mi trovate in redazione, probabilmente sono perso nel Faerûn.",
+    links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/antonio-fragomeni" }],
+  },
 ];
 
 function getAuthorBySlug(slug) {
