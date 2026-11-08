@@ -84,6 +84,25 @@ const AUTHORS = [
     bio: "Traduttore di formazione, specializzato in lingua giapponese e dall'animo un po' nerd. Manga, anime, videogiochi, serie TV e YouTube sono la mia scuola, la cultura pop il mio terreno di gioco, e il Giappone, che mi ha adottato per sei mesi, la mia seconda casa. Main quest a lungo termine: diventare traduttore e localizzatore nel settore audiovisivo e videoludico.",
   },
   {
+    slug: "wasabidisoia",
+    name: "wasabidisoia",
+    role: "Videogiochi e JRPG",
+    photo: "assets/images/wasabidisoia.jpg",
+    bio: "Sono Federica, più comunemente conosciuta sul web come «wasabidisoia». La mia passione per i videogiochi è nata da piccina, quando per la prima volta sono stata catapultata in questo mondo grazie alla mia primissima console: il classico Game Boy. Da allora non ho mai smesso di perdermi tra mondi fantastici, storie indimenticabili e personaggi capaci di lasciare il segno. Dai JRPG alle piccole perle indie, amo tutto ciò che riesce a trasformare un videogioco in un'esperienza da ricordare.",
+    links: [
+      { label: "Twitch", url: "https://www.twitch.tv/wasabidisoia" },
+      { label: "YouTube", url: "https://www.youtube.com/@wasabidisoia" },
+    ],
+  },
+  {
+    slug: "clara-daquino",
+    name: "Clara d'Aquino",
+    role: "Cinema",
+    photo: "assets/images/clara-daquino.jpg",
+    bio: "Sono laureata in Cinema e mi occupo di scrittura, regia e montaggio audiovisivo. Sono autrice e regista di cortometraggi, alcuni dei quali sono stati selezionati in diversi festival cinematografici, e ho maturato esperienze anche all’interno di set. Amo esplorare il cinema attraverso le sue storie e i suoi personaggi, con una particolare attenzione al lavoro degli attori e a tutto ciò che un film riesce a raccontare, anche attraverso ciò che lascia in silenzio.",
+    links: [{ label: "Instagram", url: "https://www.instagram.com/clara_d.aquino/" }],
+  },
+  {
     slug: "antonio-fragomeni",
     name: "Antonio Fragomeni",
     role: "Videogiochi, arte e gamification",
