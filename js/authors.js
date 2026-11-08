@@ -64,7 +64,7 @@ const AUTHORS = [
   {
     slug: "grace",
     name: "Grace",
-    role: "Collaboratrice esterna",
+    role: "Anime e cosplay",
     photo: "assets/images/grace-thegraceverse.jpg",
     bio: "Sono thegraceverse e unisco l’interesse per la filosofia e le scienze umane alle mie riflessioni su anime e serie animate, con uno sguardo curioso verso il mondo del cosplay. Il mio obiettivo è esplorare l’evoluzione dei personaggi e le tematiche più profonde nascoste dietro l’animazione! :D",
     links: [{ label: "Instagram", url: "https://www.instagram.com/thegraceverse/" }],
