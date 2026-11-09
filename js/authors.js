@@ -103,6 +103,13 @@ const AUTHORS = [
     links: [{ label: "Instagram", url: "https://www.instagram.com/clara_d.aquino/" }],
   },
   {
+    slug: "luca-scala",
+    name: "Luca Scala",
+    role: "Fumetti e cultura pop",
+    photo: "assets/images/luca-scala.jpg",
+    bio: "Dottorando in fisica teorica, mi dedico nel (poco) tempo libero alla scrittura di racconti e all’analisi del mondo pop. Credo fortemente che la cesura tra la cultura accademica e quella popolare non sia altro che un deleterio errore di interpretazione e di comunicazione, che mina la possibilità di un’analisi critica del mondo in cui viviamo. Nel mio piccolo, faccio il possibile per compensare proponendo collegamenti e voli pindarici tra gli argomenti più disparati. Adoro la mitologia e le meduse (quelle acquatiche che urticano 🪼).",
+  },
+  {
     slug: "antonio-fragomeni",
     name: "Antonio Fragomeni",
     role: "Videogiochi, arte e gamification",
