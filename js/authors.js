@@ -117,6 +117,14 @@ const AUTHORS = [
     bio: "Laureato in beni culturali, sono cresciuto con Zelda e Final Fantasy e vedo i videogiochi come un grande medium per la trasmissione della cultura. Scrivo di videogiochi, arte, storia e gamification. Se non mi trovate in redazione, probabilmente sono perso nel Faerûn.",
     links: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/antonio-fragomeni" }],
   },
+  {
+    slug: "federica-scuotto",
+    name: "Federica Scuotto",
+    role: "Videogiochi e cultura pop",
+    photo: "assets/images/federica-scuotto.jpg",
+    bio: "Classe 1998. Sono un'aspirante giornalista e fotoreporter cresciuta a pane e storie: libri, manga, anime, serie TV, film e videogiochi sono la mia linfa vitale e parlarne per ore è il mio più grande pregio (o difetto, dipende dai punti di vista). Se mi cercate, probabilmente sto sbustando pacchetti di Magic: The Gathering nella fumetteria di quartiere.",
+    links: [{ label: "Instagram", url: "https://www.instagram.com/ciredefa/" }],
+  },
 ];
 
 function getAuthorBySlug(slug) {
