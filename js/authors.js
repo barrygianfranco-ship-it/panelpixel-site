@@ -125,6 +125,14 @@ const AUTHORS = [
     bio: "Classe 1998. Sono un'aspirante giornalista e fotoreporter cresciuta a pane e storie: libri, manga, anime, serie TV, film e videogiochi sono la mia linfa vitale e parlarne per ore è il mio più grande pregio (o difetto, dipende dai punti di vista). Se mi cercate, probabilmente sto sbustando pacchetti di Magic: The Gathering nella fumetteria di quartiere.",
     links: [{ label: "Instagram", url: "https://www.instagram.com/ciredefa/" }],
   },
+  {
+    slug: "nerdandosimpara",
+    name: "nerdandosimpara",
+    role: "Pokémon e anime",
+    photo: "assets/images/nerdandosimpara.jpg",
+    bio: "Nato di venerdì 17, trent’anni. Si nasconde dietro maschere e parole per non farsi riconoscere. Parla tanto (e forse troppo) di anime e Pokémon.",
+    links: [{ label: "Instagram", url: "https://www.instagram.com/nerdandosimpara/" }],
+  },
 ];
 
 function getAuthorBySlug(slug) {
