@@ -133,6 +133,14 @@ const AUTHORS = [
     bio: "Nato di venerdì 17, trent’anni. Si nasconde dietro maschere e parole per non farsi riconoscere. Parla tanto (e forse troppo) di anime e Pokémon.",
     links: [{ label: "Instagram", url: "https://www.instagram.com/nerdandosimpara/" }],
   },
+  {
+    slug: "pimpimato",
+    name: "Pimpimato",
+    role: "Grafica",
+    photo: "assets/images/pimpimato.jpg",
+    bio: "Spawned in 1998. Appassionata di videogiochi, film, serie TV e grafica, sono entrata da poco nel mondo degli anime. Il mio primo approccio ai videogiochi è stato su Xbox 360, e da lì è iniziato l’amore. Nei film e nelle serie TV mi piace molto il thriller, perché mi diverte cercare di capire chi è l’assassino prima che venga svelato. Su Panel Pixel mi occupo delle grafiche di post e storie.",
+    links: [{ label: "Instagram", url: "https://www.instagram.com/pimpimato/" }],
+  },
 ];
 
 function getAuthorBySlug(slug) {
