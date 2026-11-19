@@ -134,12 +134,12 @@ const AUTHORS = [
     links: [{ label: "Instagram", url: "https://www.instagram.com/nerdandosimpara/" }],
   },
   {
-    slug: "pimpimato",
-    name: "Pimpimato",
-    role: "Grafica",
-    photo: "assets/images/pimpimato.jpg",
+    slug: "sara-filosi",
+    name: "Sara Filosi",
+    role: "Grafica e social media",
+    photo: "assets/images/sara-filosi.jpg",
     bio: "Spawned in 1998. Appassionata di videogiochi, film, serie TV e grafica, sono entrata da poco nel mondo degli anime. Il mio primo approccio ai videogiochi è stato su Xbox 360, e da lì è iniziato l’amore. Nei film e nelle serie TV mi piace molto il thriller, perché mi diverte cercare di capire chi è l’assassino prima che venga svelato. Su Panel Pixel mi occupo delle grafiche di post e storie.",
-    links: [{ label: "Instagram", url: "https://www.instagram.com/pimpimato/" }],
+    links: [{ label: "Instagram", url: "https://www.instagram.com/s.a.f.i_1.0/" }],
   },
 ];
 
